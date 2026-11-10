@@ -1,0 +1,2 @@
+# Keep committed text files as LF, so the Makefile and CI scripts work on Linux.
+* text=auto eol=lf
