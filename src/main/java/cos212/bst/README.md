@@ -7,6 +7,8 @@ knows about the trace, the assessment or the interface.
 
 - `BSTNode<T>` and `BinarySearchTree<T>`.
 - Insertion, search, in-order traversal and height, which enforce the ordering rule.
+- `rootView()` and `comparedPath()`: read-only access for the trace and interface
+  layers. They expose the shape of the tree without any way to change it.
 - No I/O, no UI types and no imports from `cos212.trace`, `cos212.assess` or `cos212.ui`.
 
 ## Tests

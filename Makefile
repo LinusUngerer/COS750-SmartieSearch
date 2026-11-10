@@ -1,10 +1,13 @@
-.PHONY: test build clean docs
+.PHONY: test build run clean docs
 
 test:
 	mvn -B test
 
 build:
 	mvn -B package
+
+run:
+	mvn -B javafx:run
 
 clean:
 	mvn -B clean

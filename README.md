@@ -58,7 +58,8 @@ Read it before adding files.
 
 ```bash
 make test     # run the JUnit tests
-make build    # package the runnable JAR into target/
+make run      # open the app window (JavaFX)
+make build    # package the build output into target/
 make clean    # remove build output
 ```
 

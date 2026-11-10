@@ -1,5 +1,6 @@
 package cos212.bst;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -87,6 +88,74 @@ public class BinarySearchTree<T extends Comparable<T>> {
      */
     public int size() {
         return size;
+    }
+
+    /**
+     * A read-only view of one node, used to draw the tree. The view has no setters,
+     * so the ordering invariant can only change through {@link #insert}.
+     */
+    public interface NodeView<T> {
+
+        /** @return the value stored in this node */
+        T value();
+
+        /** @return the left child, or {@code null} if there is none */
+        NodeView<T> left();
+
+        /** @return the right child, or {@code null} if there is none */
+        NodeView<T> right();
+    }
+
+    /**
+     * @return a read-only view of the root, or {@code null} for an empty tree
+     */
+    public NodeView<T> rootView() {
+        return view(root);
+    }
+
+    private static <T> NodeView<T> view(BSTNode<T> node) {
+        if (node == null) {
+            return null;
+        }
+        return new NodeView<>() {
+            @Override
+            public T value() {
+                return node.value;
+            }
+
+            @Override
+            public NodeView<T> left() {
+                return view(node.left);
+            }
+
+            @Override
+            public NodeView<T> right() {
+                return view(node.right);
+            }
+        };
+    }
+
+    /**
+     * Lists the values that a search for {@code value} compares, in order from the root.
+     * The list ends at the matching value, or at the last node before an empty link.
+     *
+     * @param value the value to search for; must not be null
+     * @return the compared values, or an empty list for an empty tree
+     * @throws NullPointerException if {@code value} is null
+     */
+    public List<T> comparedPath(T value) {
+        Objects.requireNonNull(value, "value");
+        List<T> path = new ArrayList<>();
+        BSTNode<T> current = root;
+        while (current != null) {
+            path.add(current.value);
+            int cmp = value.compareTo(current.value);
+            if (cmp == 0) {
+                break;
+            }
+            current = cmp < 0 ? current.left : current.right;
+        }
+        return path;
     }
 
     /**
