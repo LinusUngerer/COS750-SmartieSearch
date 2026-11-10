@@ -1,0 +1,50 @@
+\section{Data and Persistence}\label{sec:data}
+\owner{Group}
+\pages{1}
+
+The app stores as little data as it needs to do its job, and keeps all of it on the student's own computer. There are no accounts, no student numbers and no network calls. This follows from the constraint in Section~\ref{sec:requirements} that the app is used without an instructor or an account, and it reflects the principle of data minimisation in the Protection of Personal Information Act (POPIA), since the app has no reason to hold personal information.
+
+\subsection{Data Held by the App}
+Table~\ref{tab:data} lists each kind of data, where it is held and whether it persists between sessions.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Data held by the app.}
+\label{tab:data}
+\begin{tabularx}{\textwidth}{p{3.8cm} p{3.6cm} X}
+\toprule
+Data & Where it is held & Persists between sessions \\
+\midrule
+Lesson text, diagnostic items and feedback messages & Text resources inside the JAR & Yes, read-only \\
+The tree and the trace during an activity & Memory only & No \\
+Progress records (attempts, correct first answers, hints used, last updated) & A single JSON file in the student's application data folder & Yes \\
+Anything that identifies the student & Not collected & Not applicable \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The tree is deliberately not saved. A tree is a short exercise, and saving it would add a file format and a recovery path that the prototype does not need. The student can rebuild any tree from a list of values in a few seconds.
+
+\subsection{Progress Record Format}
+Progress is written as one record per objective. The record holds the counts that the \texttt{ProgressTracker} needs to apply the thresholds in Section~\ref{sec:assessment}, and nothing else. The file has the following structure.
+
+\begin{lstlisting}
+{
+  "version": 1,
+  "objectives": {
+    "define-bst": { "attempts": 6, "correctFirst": 5, "hintsUsed": 1, "lastUpdated": "2026-11-12T18:04:00Z" }
+  }
+}
+\end{lstlisting}
+
+The \texttt{version} field allows the format to change in a later version without losing a student's progress. The timestamp is kept only so that a student can see when they last practised an objective.
+
+\subsection{Reading, Writing and Failure}
+The app reads the progress file once at start-up and writes it after each answered item, so that a crash loses at most one answer. The file is written to a temporary name first and then renamed, so that an interrupted write cannot leave a partly written file. If the file is missing, the app starts with empty progress. If the file cannot be parsed, the app renames it with a \texttt{.bak} suffix, starts with empty progress and tells the student that the earlier record was kept as a backup.
+
+\subsection{Resetting Progress}
+The progress screen has a control that clears all progress records after a confirmation message. Clearing progress deletes the file, and the next start-up begins from empty progress. The same control is the only way in the app to remove the data it holds, and it is shown in the screen description in Section~\ref{sec:ui}.
+
+\subsection{Usage Logs for Evaluation}
+The evaluation plan in the ID document includes usage logs. Those logs are not part of the app's normal behaviour. They are produced only by a separate evaluation build, which the participants opt into, and they record actions without any name or student number. \todo{confirm the evaluation logging approach and consent wording with the ethics requirements}

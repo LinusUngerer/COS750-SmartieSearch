@@ -1,0 +1,59 @@
+\section{Testing and Verification}\label{sec:testing}
+\owner{Group}
+\pages{2}
+
+Testing covers three things: that the BST operations are correct, that the trace and assessment layers report what the tree actually did, and that students can use the app. The first two are automated and run on every change. The third is a usability study with peers who have not seen trees before. Table~\ref{tab:testmatrix} maps each requirement to the test that checks it.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Requirements and the tests that verify them.}
+\label{tab:testmatrix}
+\begin{tabularx}{\textwidth}{p{2.2cm} p{4.4cm} X}
+\toprule
+Requirement & Verification & Test type \\
+\midrule
+FR1, FR2, FR3, NFR2 & Insert and search results, duplicate rejection, and the ordering invariant after every insertion & Unit and property tests \\
+FR4, FR5, FR7 & Each trace step matches the comparison the tree actually made & Unit tests on the trace layer \\
+FR6 & In-order output is sorted and contains every stored value once & Unit and property tests \\
+FR8, FR9, FR10 & Routing from each misconception, feedback text, and progress counts & Unit tests on the assessment layer \\
+NFR1 & Peers complete the first lesson unaided & Usability study \\
+NFR4 & A 100-node search and insertion complete within one second & Timed test \\
+NFR5 & Every control reachable by keyboard, and the current node identifiable without colour & Keyboard walkthrough and a greyscale check \\
+NFR6 & The app starts from the packaged JAR on each target operating system & Manual start-up check \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Unit Tests}
+The unit tests use JUnit 5. Each public method of \texttt{BinarySearchTree} has tests for the normal case and the boundary cases. The ordering invariant is checked by a helper that walks the tree and confirms that every value lies strictly between the bounds inherited from its ancestors. The helper is called after every insertion in the tests, so a broken insertion is detected at the step that caused it rather than later.
+
+\subsection{Property Tests against a Reference}
+Hand-written cases cannot cover every shape a tree can take, so the tests also generate random sequences of values and compare the results with \texttt{java.util.TreeSet}, which is a well-tested sorted set. For each sequence the tests check that:
+\begin{itemize}
+    \item every insertion returns the same result as \texttt{TreeSet.add};
+    \item every search returns the same result as \texttt{TreeSet.contains};
+    \item the in-order output equals the sorted contents of \texttt{TreeSet}; and
+    \item the ordering invariant holds at the end of the sequence.
+\end{itemize}
+The random sequences use a fixed seed, so that a failing case can be reproduced exactly. The seed is printed with each failure.
+
+\subsection{Edge Cases}
+The following cases are tested explicitly, because they are where tree code most often fails.
+\begin{itemize}
+    \item An empty tree: search returns false, in-order returns an empty list, and size is zero.
+    \item A single node: insertion of a smaller and a larger value attaches each to the correct side.
+    \item A duplicate of the root and a duplicate of a deep node: both are rejected and the size is unchanged.
+    \item Sorted input, which must produce a degenerate tree of height $n$. The test confirms that the tree is still valid and the results are still correct, even though the cost is $O(n)$.
+    \item Extreme values, including \texttt{Integer.MIN\_VALUE} and \texttt{Integer.MAX\_VALUE}.
+    \item A null value, which must throw \texttt{NullPointerException} for insert and search.
+\end{itemize}
+
+\subsection{Trace and Assessment Tests}
+A trace is correct only if it describes what the tree did. For each random sequence the tests check that the final step of a search trace names the node where the search ended, and that the direction recorded at each step matches the comparison result. The assessment tests check that each wrong answer in Table~\ref{tab:routing} routes to the expected lesson, and that a misconception detected twice routes the student to its lesson regardless of the other answers.
+
+\subsection{Usability Testing}
+The usability study is the only test of NFR1, and it is run with peers who have not studied trees. Each participant completes the diagnostic gate and the first lesson without help. The group records whether each task is completed, how long it takes and where the participant stops. A participant who stops at a task is asked what they expected to happen. \todo{confirm the number of participants and the ethics approval for the study}
+
+\subsection{Coverage and Test Discipline}
+Line coverage of the domain layer is a target of at least 90\%, measured with JaCoCo. Coverage is a check on the tests, not a measure of correctness, so the group relies on the property tests and the reference comparison for correctness. A change to the behaviour of a BST operation follows the rule in Section~\ref{sec:process}: a test that fails before the change and passes after it is added first.

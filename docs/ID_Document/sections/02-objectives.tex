@@ -1,0 +1,25 @@
+\section{Educational Objectives}\label{sec:id-objectives}
+\owner{Group}
+\pages{2}
+
+The app has five objectives. Each objective has a short identifier, which is also the key under which its progress is recorded (Section~\ref{sec:id-progress}). Each objective is tagged with a Bloom level \cite{Bloom1968}, and each is mapped to the lesson that teaches it and to the CS2023 knowledge unit \cite{Kumar2024}.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Learning objectives for the BST lessons.}
+\label{tab:objectives}
+\begin{tabularx}{\textwidth}{p{2.6cm} p{2.0cm} X p{1.9cm}}
+\toprule
+Identifier & Bloom level & Objective: the student will be able to & Lesson \\
+\midrule
+\texttt{define-bst} & Remember & define a binary search tree and state its ordering invariant & L1 \\
+\texttt{ordering-rule} & Understand & explain why values to the left of a node are smaller and values to the right are larger, and check a whole subtree against the rule, not only the children & L1 \\
+\texttt{trace-search} & Apply & trace a search for a value by hand, naming each node compared and the direction taken & L2 \\
+\texttt{trace-insert} & Apply & trace an insertion by hand, and state where the new value is attached and why & L3 \\
+\texttt{shape-cost} & Analyse & predict when a tree becomes a chain, and predict the effect of that shape on the number of comparisons & L4 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The objectives are written so that each can be checked by a question the app asks. The first two are checked by the diagnostic gate and by the classification items. The next two are checked by the predicted-step questions during a trace. The last is checked by items that ask the student to compare a balanced tree with a chain. Traversal is taught as part of \texttt{ordering-rule}, because the in-order output is the visible proof that the rule holds across the whole tree.

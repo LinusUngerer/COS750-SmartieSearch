@@ -1,0 +1,24 @@
+\section{Assessment Design}\label{sec:id-assessment}
+\owner{Group}
+\pages{2}
+
+The assessment has three parts: a diagnostic gate before the tree activities, formative questions during each trace, and the progress record that combines their results. The design follows the principle that feedback should explain the rule behind an answer, not only say whether it was right. The implementation is described in the Assessment and Scaffolding section of the SE document.
+
+\subsection{Diagnostic Gate}
+The gate has five items, and a student must answer at least four correctly to unlock the tree activities. The items cover the ordering rule and the first step of search. One item asks the student to classify a tree in which the rule breaks only deep in the right subtree. This is the item that detects M2, because a student who checks only the children passes every shallow test and fails this one.
+
+The gate is a diagnostic rather than a judgement. A student who does not pass is not blocked from the content. They are routed to the lessons for the misconceptions their wrong answers reveal, and they return to the gate after those lessons. The pass mark of four out of five allows for one slip, but a student who misses two items is shown that the rule is not yet secure.
+
+\subsection{Formative Questions}
+During a trace, the student predicts the next node before it is shown. A correct prediction is followed by a one-sentence reason. A wrong prediction is not penalised in the trace itself. The app offers the first hint, and if the student is still stuck it offers the second and then the third.
+
+The three hint levels are graduated. The first restates the ordering rule for the current node. The second states the comparison result for the current node. The third names the next node and the direction. The hints are designed to give the least help that moves the student on, so that the student does the reasoning wherever they can.
+
+\subsection{Feedback Principles}
+Feedback is written to name the rule that applies and to show the comparison that follows from it. For example, a wrong answer on a search step does not say only that the choice is incorrect. It says that the target is smaller than the current node, so the search must go left, and it highlights the left subtree. Feedback is held in the lesson resources, so it can be reviewed and revised by the group.
+
+\subsection{Routing}
+Each wrong answer maps to one misconception, and each misconception maps to one lesson. A misconception detected more than once in a session routes the student to its lesson regardless of other answers. This prevents a student passing the gate with one lucky answer while still holding a misconception.
+
+\subsection{Item Bank}
+The diagnostic and the formative questions are drawn from a fixed item bank. Each item is tagged with the objective it assesses and the misconception it detects, so that the assessment can be checked against Table~\ref{tab:objectives} and Section~\ref{sec:id-content}. \todo{record the final item count per objective after the content is written}

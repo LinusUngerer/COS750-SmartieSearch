@@ -1,0 +1,64 @@
+\section{User Interface Design}\label{sec:ui}
+\owner{Group}
+\pages{2}
+
+The interface is built in JavaFX, as set out in Section~\ref{sec:architecture}. It is designed for a student who has never seen a tree, working alone before a lecture. Every screen shows one thing to do next, every term is defined where it first appears, and nothing on screen depends on colour alone.
+
+\subsection{Screens}
+The app has four screens. Table~\ref{tab:screens} lists them and the requirements each one serves.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Screens of the COS212 app.}
+\label{tab:screens}
+\begin{tabularx}{\textwidth}{p{3.2cm} X p{2.4cm}}
+\toprule
+Screen & Purpose and contents & Requirements \\
+\midrule
+Lesson list & Shows the four lessons in order, with the progress bar for each objective. Opens the diagnostic gate first, and locks the tree activities until it is passed. & FR8, FR10 \\
+Diagnostic gate & One question at a time, with the answer choices and a single submit button. Shows the routing result when the gate is failed. & FR8, FR9 \\
+Tree activity & The main working screen, described below. Used for building a tree, searching it, inserting values and traversing it. & FR1 to FR7 \\
+Progress & One bar per objective, showing practised and secure status, with the number of hints used. & FR10 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Tree Activity Layout}
+The tree activity screen is divided into three areas.
+
+\begin{itemize}
+    \item \textbf{Tree canvas (left, most of the width):} draws the tree with each node as a labelled circle and each link as a line. The node that is being compared is outlined with a thick border and the label ``current'', so that the highlight is visible without colour. Nodes already passed in the search are marked with a dashed outline.
+    \item \textbf{Trace panel (right):} lists each step of the search or insertion in order, with the comparison and the direction taken. The current step is shown in bold. Each step has a one-sentence explanation of the rule applied, which is the explanation required by FR4 and FR5.
+    \item \textbf{Control bar (bottom):} the value field, the Insert, Search and In-order buttons, and the step controls Previous, Next and Reset required by FR7. Previous and Next move through the recorded trace; they do not change the tree.
+\end{itemize}
+
+The value field accepts integers only. A value that is not an integer is rejected with a message that says which values are allowed, and the tree is not changed.
+
+\subsection{Interaction Flow}
+Table~\ref{tab:flow} shows the main interactions and the result of each.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Main interactions and their results.}
+\label{tab:flow}
+\begin{tabularx}{\textwidth}{p{4.2cm} X}
+\toprule
+Student action & Result shown \\
+\midrule
+Enters a value and selects Insert & The trace panel lists each comparison, and the new node appears at the end of the path. A duplicate shows the message that the value is already present, and the tree is unchanged. \\
+Enters a value and selects Search & The trace highlights each compared node and states whether the value was found. \\
+Selects Next during a trace & The next step is highlighted and its explanation is shown. \\
+Selects Reset & The trace is cleared and the tree is shown in its state before the trace. \\
+Selects In-order & The values are listed in sorted order, with the node visits shown in the trace panel. \\
+Answers a formative question wrongly & The feedback message appears beside the question, and the first hint is offered. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Accessibility and Keyboard Use}
+Every control can be reached with the Tab key and activated with Enter or Space, which meets the keyboard requirement in NFR5. The Next and Previous steps are also bound to the arrow keys, and the Reset step to Escape. Text and shape carry all information that colour carries, so the interface remains usable for a student with colour-vision deficiency. Text size is set in the stylesheet so that it can be increased for every label at once. The minimum window size is 1024 by 680 pixels, and the trace panel collapses below that width so that the canvas remains usable. \todo{confirm minimum window size with usability testing}
+
+\subsection{Wireframes}
+Wireframes of the four screens will be inserted here before the presentation, so that the layout in this section can be checked against the design. \todo{insert wireframes for the four screens}

@@ -1,0 +1,53 @@
+\section{Assessment and Scaffolding}\label{sec:assessment}
+\owner{Group}
+\pages{2}
+
+The assessment serves two purposes. Before a student reaches the tree activities, a short diagnostic checks whether they understand the ordering rule, and routes them to the lesson that addresses any gap (FR8). During the activities, every question gives immediate feedback and, when the student struggles, graduated hints (FR9). Progress is recorded per objective so that the student can see what they have practised and how accurately (FR10). The design is implemented by the assessment layer described in Section~\ref{sec:architecture}: \texttt{DiagnosticItem}, \texttt{Router}, \texttt{Feedback} and \texttt{ProgressTracker}.
+
+\subsection{Diagnostic Gate}
+The diagnostic is a gate. A student must pass it before the search and insertion activities are unlocked. It contains five items, chosen to cover the ordering rule and the first step of search:
+\begin{enumerate}
+    \item Classify a given tree as a valid or invalid BST, where the invalid tree breaks the rule only deep in the right subtree.
+    \item Given a tree and a target, choose the first node the search compares.
+    \item Given a tree and a target, choose the next node the search visits after a comparison.
+    \item Choose the position where a new value would be inserted.
+    \item Predict whether the tree would still be a valid BST after a given insertion.
+\end{enumerate}
+The gate is passed with at least four correct answers out of five. A student who does not pass is routed to the lesson for each misconception shown by the items they answered wrongly, and then returns to the gate. The threshold of four out of five is a proposal and will be checked in the usability testing described in Section~\ref{sec:testing}.
+
+\subsection{Misconceptions and Routing}
+The router maps each wrong answer to a misconception identifier, and the misconception identifier to a lesson. Table~\ref{tab:routing} lists the misconceptions that the items are designed to detect.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Misconceptions detected by the assessment and the lessons they route to.}
+\label{tab:routing}
+\begin{tabularx}{\textwidth}{p{2.6cm} X p{3.4cm}}
+\toprule
+Identifier & Misconception & Lesson \\
+\midrule
+M1 & Any binary tree with two children per node is a BST. & L1: The ordering rule \\
+M2 & Only the immediate children of a node need to be checked. & L1: The ordering rule \\
+M3 & Search moves in the wrong direction when the target is smaller or larger. & L2: Searching \\
+M4 & Insertion replaces an existing node instead of attaching a new leaf. & L3: Inserting \\
+M5 & A duplicate value should be stored again. & L3: Inserting \\
+M6 & The shape of the tree does not affect the cost of search. & L4: Shape and height \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+A misconception that is detected more than once in a session routes the student to its lesson regardless of the other answers. This avoids a student passing the gate with a single lucky answer while still holding the misconception.
+
+\subsection{Formative Questions and Hints}
+During each trace the student is asked to predict the next step before the app shows it. For example, the app asks which node the search will compare next, and the student selects a node. A correct answer advances the trace and states the reason in one sentence. A wrong answer is not penalised in the trace itself; it triggers feedback and, if the student is still stuck, the next hint.
+
+Hints are graduated in three levels. The first restates the ordering rule that applies to the current node. The second states the comparison result for the current node, without naming the next node. The third names the next node and the direction. Each hint used is recorded, so that the progress record can distinguish a correct answer from a correct answer after a hint.
+
+\subsection{Feedback}
+Every item returns a \texttt{Feedback} object containing a message, a flag for correctness, the misconception identifier when the answer is wrong, and the lesson identifier to route to. The message is written to explain the rule that was applied, not only to state that the answer was wrong. The feedback text is held in the lesson resources described in Section~\ref{sec:architecture}, so it can be reviewed and revised without changing code.
+
+\subsection{Progress Tracking}
+The \texttt{ProgressTracker} records, for each objective in the ID document, the number of attempts, the number of correct first answers and the number of hints used. An objective is shown as practised once the student has answered at least five items on it, and as secure when at least 80\% of the last five first answers were correct without a hint. \todo{confirm the mastery thresholds with the ID document}
+
+Progress is shown to the student as one bar per objective, as specified in the ID document. Progress records are stored locally, as described in Section~\ref{sec:data}, and are not sent anywhere.

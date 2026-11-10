@@ -1,0 +1,36 @@
+\section{Requirements}\label{sec:requirements}
+\owner{Group}
+\pages{2}
+
+The requirements were derived from the COS750 examination specification, from the curriculum topics in CS2023 \cite{Kumar2024}, from the problem domain in Section~\ref{sec:problem}, and from the goal that students use the app before the lecture without any prior knowledge of trees. Each requirement has an identifier so that it can be traced to the design, the tests and the evaluation.
+
+\subsection{Functional Requirements}
+\begin{description}
+    \item[FR1] The app shall let the student create an empty BST and insert integer values one at a time.
+    \item[FR2] The app shall reject a value that is already in the tree, and say so, without changing the tree.
+    \item[FR3] The app shall let the student search for a value and report whether it was found.
+    \item[FR4] During a search, the app shall highlight each node compared, in order, and state which subtree is searched next and why.
+    \item[FR5] During an insertion, the app shall show the comparisons that lead to the empty position and attach the new node there.
+    \item[FR6] The app shall display the stored values in sorted order using an in-order traversal.
+    \item[FR7] The app shall provide step controls (next, previous and reset) so that the student controls the pace of each trace.
+    \item[FR8] The app shall offer a diagnostic check on the ordering rule before the student reaches the tree activities, and route a student who answers incorrectly to the lesson that explains the rule.
+    \item[FR9] The app shall give immediate feedback on each assessment item, stating whether the answer is correct and why.
+    \item[FR10] The app shall show the student which objectives they have practised and how accurately.
+\end{description}
+
+\subsection{Non-Functional Requirements}
+\begin{description}
+    \item[NFR1] Usability: a student with no prior knowledge of trees shall be able to complete the first lesson without assistance, as measured in the usability testing described in Section~\ref{sec:testing}.
+    \item[NFR2] Correctness: the BST operations shall keep the ordering rule true after every insertion, and the search result shall match a reference implementation for every test case.
+    \item[NFR3] Readability: the Java source shall follow a single naming convention, and every public method shall have a Javadoc comment.
+    \item[NFR4] Responsiveness: a search or insertion on a tree of up to 100 nodes shall complete and render within one second on the target machine.
+    \item[NFR5] Accessibility: colour shall not be the only means of identifying the current node, and all controls shall be operable from the keyboard.
+    \item[NFR6] Portability: the app shall run on Java 17 or later on Windows, macOS and Linux, with no installation beyond the JDK.
+\end{description}
+
+\subsection{Constraints}
+\begin{itemize}
+    \item The prototype covers only BST search, insertion and in-order traversal. Deletion and self-balancing variants are out of scope.
+    \item Students are assumed to have no prior knowledge of trees, so every term used in the app shall be defined when it first appears.
+    \item The app is used before a lecture, so it shall work without an instructor present and without an account.
+\end{itemize}

@@ -1,0 +1,124 @@
+\section{Detailed Design}\label{sec:design}
+\owner{Group}
+\pages{4}
+
+This section records the design of the domain classes and of the search and insertion operations, which are the parts of the app whose correctness is most important. The design follows the layering in Section~\ref{sec:architecture}, so every class here belongs to the domain layer or to the trace layer.
+
+\subsection{Class Design}
+The domain layer has two classes. \texttt{BSTNode<T>} holds one value and two links. \texttt{BinarySearchTree<T>} holds the root and the number of values, and enforces the ordering invariant. The values are generic and must be comparable, so that the same classes can hold integers or strings.
+
+\begin{lstlisting}[language=Java]
+class BSTNode<T> {
+    T value;
+    BSTNode<T> left;
+    BSTNode<T> right;
+
+    BSTNode(T value) {
+        this.value = value;
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Java]
+public class BinarySearchTree<T extends Comparable<T>> {
+    private BSTNode<T> root;
+    private int size;
+
+    public boolean insert(T value) { ... }
+    public boolean contains(T value) { ... }
+    public List<T> inOrder() { ... }
+    public int size() { return size; }
+    public int height() { ... }
+}
+\end{lstlisting}
+
+The ordering invariant is not stored anywhere. It is maintained by \texttt{insert}, which is the only method that creates links, so every test of the invariant can be made against the public methods alone. The trace layer does not modify the tree; it reads the links through \texttt{contains} and returns a list of steps.
+
+\subsection{Insert Sequence}
+Insertion follows the search path from the root. At each node the new value is compared with the stored value. If the values are equal the value is already present and nothing changes. If the new value is smaller the search moves to the left child, and if it is larger it moves to the right child. When the search reaches a node whose child link is empty, a new node is attached there.
+
+Table~\ref{tab:insert4} shows the sequence for inserting 4 into an example tree. The root is 5, its left child is 3 with children 1 and 6, and its right child is 7 with right child 9.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Steps for inserting 4 into the example tree.}
+\label{tab:insert4}
+\begin{tabularx}{\textwidth}{p{1.2cm} p{3.2cm} p{3.4cm} X}
+\toprule
+Step & Node compared & Result & Next move \\
+\midrule
+1 & 5 & $4 < 5$ & go left to 3 \\
+2 & 3 & $4 > 3$ & go right to 6 \\
+3 & 6 & $4 < 6$ & left link is empty \\
+4 & --- & --- & attach 4 as the left child of 6 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{lstlisting}[language=Java]
+public boolean insert(T value) {
+    Objects.requireNonNull(value);
+    if (root == null) {
+        root = new BSTNode<>(value);
+        size++;
+        return true;
+    }
+    BSTNode<T> current = root;
+    while (true) {
+        int cmp = value.compareTo(current.value);
+        if (cmp == 0) {
+            return false;
+        }
+        if (cmp < 0) {
+            if (current.left == null) {
+                current.left = new BSTNode<>(value);
+                size++;
+                return true;
+            }
+            current = current.left;
+        } else {
+            if (current.right == null) {
+                current.right = new BSTNode<>(value);
+                size++;
+                return true;
+            }
+            current = current.right;
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Search}
+\texttt{contains} follows the same path as insertion and stops when it finds the value or reaches an empty link. Each step eliminates one subtree, so the number of comparisons is at most the height of the tree. For a balanced tree that is $O(\lg n)$ and for a degenerate tree it is $O(n)$, as described in Section~\ref{sec:problem}.
+
+The trace layer uses the same comparisons. For each step it records the node visited, the comparison result, the direction taken and the depth of the node. The depth is what allows the interface to show when a search has become a long chain.
+
+\subsection{Recursive versus Iterative Implementation}
+The lecture material presents both an iterative and a recursive search. The prototype uses the iterative form for insertion and search, for three reasons. The iterative form uses constant extra space, so a degenerate tree cannot exhaust the call stack during insertion or search. It also keeps the path easy to record for the trace. The recursive form is kept only for the in-order traversal, where it mirrors the lecture definition and reads more clearly. Its stack depth equals the tree height, and the limit of 100 nodes in NFR4 keeps that depth small. This is a known risk for very deep trees, and it is recorded in Section~\ref{sec:limitations}.
+
+\subsection{Duplicate Handling}
+A value that is already in the tree is rejected. \texttt{insert} returns \texttt{false}, the tree is not changed, and the size is not incremented. The alternative of storing a count with each node was rejected because the lesson's ordering rule does not need counts, and FR2 requires the tree to reject a duplicate and report it. The interface shows the rejected value to the student so that the rule is visible.
+
+\subsection{Null Values}
+A null value is not a BST value, because it cannot be compared. \texttt{insert} and \texttt{contains} throw a \texttt{NullPointerException} for null input. The interface never passes null, since it only forwards text the student has typed after validating it as an integer.
+
+\subsection{Complexity Summary}
+Table~\ref{tab:complexity} summarises the time cost of each public operation in terms of the height $h$ of the tree and the number of values $n$.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Time complexity of the public operations.}
+\label{tab:complexity}
+\begin{tabularx}{\textwidth}{p{4cm} p{3.2cm} X}
+\toprule
+Operation & Time & Note \\
+\midrule
+\texttt{insert}, \texttt{contains} & $O(h)$ & $O(\lg n)$ when balanced, $O(n)$ when degenerate \\
+\texttt{size} & $O(1)$ & returns the stored count \\
+\texttt{inOrder} & $O(n)$ & visits every node once \\
+\texttt{height} & $O(n)$ & recursive, visits every node once \\
+\bottomrule
+\end{tabularx}
+\end{table}

@@ -1,0 +1,38 @@
+\section{Content Design}\label{sec:id-content}
+\owner{Group}
+\pages{3}
+
+The content is organised as four lessons, each teaching one or two objectives in Table~\ref{tab:objectives}. The order is fixed, because each lesson depends on the one before it. Each lesson follows the same four-part structure, so that a student learns how the app works once and can then focus on the content.
+
+\begin{enumerate}
+    \item \textbf{Predict:} the student is shown a small tree and a question, and must answer before any explanation is given.
+    \item \textbf{Show:} a worked example demonstrates the answer step by step, using the representations in Section~\ref{sec:id-multimodal}.
+    \item \textbf{Try:} the student works a similar example with the steps predicted one at a time, and the support is faded across the lesson.
+    \item \textbf{Check:} a short set of formative questions tests the objectives of the lesson, and the result is recorded in the progress record.
+\end{enumerate}
+
+\subsection{Sequence of Lessons}
+\begin{description}
+    \item[L1: The ordering rule.] What a BST is, the rule that left is smaller and right is larger, and checking a whole subtree. This lesson covers \texttt{define-bst} and \texttt{ordering-rule}.
+    \item[L2: Searching.] How a search uses the rule to choose a subtree at each node, and how the search ends. This lesson covers \texttt{trace-search}.
+    \item[L3: Inserting.] How insertion follows the search path and attaches a new leaf, and why a duplicate is rejected. This lesson covers \texttt{trace-insert}.
+    \item[L4: Shape and height.] Why the order in which values arrive changes the shape of the tree, and why a chain costs as much as a linked list. This lesson covers \texttt{shape-cost}, and it is the last lesson because it draws on all the others.
+\end{description}
+
+\subsection{Misconceptions the Content Addresses}
+Each lesson is built around the misconceptions that students most often hold. The assessment detects them (Section~\ref{sec:id-assessment}), and the lessons are written to correct them. The six misconceptions are the same as those in the SE document.
+
+\begin{itemize}
+    \item \textbf{M1:} any binary tree is a BST. L1 shows a tree that has two children at every node and still breaks the rule.
+    \item \textbf{M2:} only the immediate children need to be checked. L1 shows a violation that appears only deeper in the right subtree.
+    \item \textbf{M3:} search moves the wrong way. L2 pairs each direction with the comparison that produces it.
+    \item \textbf{M4:} insertion replaces a node. L3 shows the new value added as a leaf, with the old node still in place.
+    \item \textbf{M5:} a duplicate is stored again. L3 explains the rejection, and why the tree is unchanged.
+    \item \textbf{M6:} the shape of the tree does not affect search cost. L4 compares the comparisons needed for a balanced tree and for a chain of the same size.
+\end{itemize}
+
+\subsection{Visualisations}
+Each trace is drawn with the same layout, so that a student who has learned one trace can read the next. The current node is outlined, the nodes already passed are marked with a dashed outline, and the trace panel lists each step with the rule applied. The visualisation in L4 also shows the depth of each node, so that the chain is visible as a single long path.
+
+\subsection{Worked Example Design}
+Worked examples are chosen so that each one teaches a single contrast. In L1 the two trees differ only in one deep value, so the student can see that the rule applies to the whole subtree. In L2 the target is chosen so that the search goes left at the root and right at the next node, so that both directions are shown in one example. In L4 the same ten values are inserted in sorted and in random order, so that the only difference is the shape.

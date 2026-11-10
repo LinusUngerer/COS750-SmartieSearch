@@ -1,0 +1,33 @@
+\section{GenAI Acknowledgement}\label{sec:id-genai}
+\owner{Group}
+\pages{1}
+
+The examination specification requires the group to acknowledge any use of generative AI, and to include the prompts and the tool used in this document. This section does both.
+
+\subsection{Tool Used}
+Claude, a large language model made by Anthropic, was used through the Claude Code command-line tool and the claude.ai interface. The tool was used to draft the text of the two documents, to suggest the structure of the lessons and assessment, to draft the Java listings in the SE document, and to generate the LaTeX source for the document layout.
+
+\subsection{What Was Generated and How It Was Checked}
+Every generated item was checked by the group before it was accepted. The check was against three sources: the BST lecture slides for the content of the lessons and the definitions, CS2023 for the curriculum mapping \cite{Kumar2024}, and the code in the repository for the Java listings. The Java listings were not compiled as part of the drafting, so they are treated as drafts until the group builds and tests them. The learning-theory references were drafted with the tool and must be checked by the group against the original sources before submission.
+
+\subsection{Prompts}
+The prompts used are listed in Table~\ref{tab:prompts}. \todo{paste the exact prompts and dates from the chat history before submission}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Prompts used to generate material for this document.}
+\label{tab:prompts}
+\begin{tabularx}{\textwidth}{p{3.2cm} X}
+\toprule
+Section & Prompt summary \\
+\midrule
+Introduction and problem domain & Requests for an introduction and problem description drawn from the BST slides and the examination specification \\
+Requirements and SE process & Requests for requirements with identifiers, and for an increment plan with change control \\
+System architecture and design & Requests for a layered architecture and for a Java BST design with an insertion listing \\
+Assessment, UI and data & Requests for a diagnostic gate, misconception routing, a screen layout and a local progress format \\
+Testing, decisions, deployment and limitations & Requests for a requirements-to-tests matrix, a decision log, a packaging approach and a limitations section \\
+ID document & Requests for learning objectives, learning-theory applications, a motivation design and an evaluation plan \\
+\bottomrule
+\end{tabularx}
+\end{table}

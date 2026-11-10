@@ -1,0 +1,44 @@
+\section{Design Decisions and Trade-offs}\label{sec:decisions}
+\owner{Group}
+\pages{2}
+
+This section records the decisions that shaped the prototype, the alternatives that were considered, and the consequences the group accepted. Each decision is identified so that later sections, and the presentation, can refer to it. Table~\ref{tab:decisions} summarises the decisions, and the three that most affect the educational value of the app are discussed afterwards.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Summary of design decisions.}
+\label{tab:decisions}
+\begin{tabularx}{\textwidth}{p{1.2cm} p{4.2cm} X}
+\toprule
+ID & Decision & Main reason \\
+\midrule
+D1 & Use a binary search tree as the data structure & Core CS2023 topic, and a single ordering invariant that can be tested \\
+D2 & Use search as the algorithm, with insertion to build the tree & Search makes the efficiency of the structure visible; insertion is needed to construct a tree \\
+D3 & Exclude deletion and self-balancing trees & Deletion and balancing add cases that would dilute the pre-lecture focus \\
+D4 & Use Java 17, Maven and JUnit 5 & Required by the module, and runs on all target platforms with the JDK \\
+D5 & Build the interface in JavaFX, not as a web app & No server or browser compatibility layer is needed \\
+D6 & Implement insert and search iteratively & Constant extra space, so degenerate trees cannot exhaust the stack \\
+D7 & Reject duplicate values & The ordering rule does not need counts, and FR2 requires a report \\
+D8 & Keep progress in a local JSON file & No accounts, no personal data, no network \\
+D9 & Store lessons as text resources in the JAR & Content can be reviewed without code changes \\
+D10 & Check results against \texttt{TreeSet} & A well-tested reference that catches errors the hand-written tests miss \\
+D11 & Pass the diagnostic at four of five correct & Enough to show understanding without a single lucky answer deciding the outcome \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{D2: Search as the Algorithm}
+The examination specification requires one algorithm applied to the chosen structure. Insertion was considered as the algorithm, but it is the operation that builds the tree and is less informative on its own: a student who inserts values sees only that the tree changes. Search shows the ordering rule being applied at every node, and its cost depends directly on the shape of the tree. The decision therefore makes the efficiency argument visible. The cost of including insertion is that the prototype has two operations to explain rather than one, which the trace layer handles with the same comparison logic.
+
+\subsection{D3: Excluding Deletion and Self-Balancing}
+Deletion has three cases, and the case with two children requires either the in-order predecessor or the successor to replace the deleted value. Self-balancing trees such as AVL trees add rotations on top of the same ordering rule. Both are covered later in the module. Including either would have meant that the first-time student met several new rules before the ordering rule was secure, which conflicts with the pre-lecture purpose. The cost is that the prototype cannot show a balanced tree being restored, so the limitation is stated in Section~\ref{sec:limitations}.
+
+\subsection{D6: Iterative Insertion and Search}
+The lecture material presents the recursive form, which is the more natural description of the structure. The iterative form was chosen because it does not add a stack frame per level of the tree, so the operations cannot fail on a degenerate tree of the sizes the app allows. It also makes the path easy to record in the trace layer. The cost is a small loss of readability, which is recovered by naming the variables after the tree concepts and by including the recursive form in the lecture resources so that students see both.
+
+\subsection{Defects Found and Corrected}
+Defects are recorded here as they are found during the increments in Section~\ref{sec:process}. Each entry gives the defect, the test that exposed it, and the change that corrected it. \todo{record defects from increments I1 to I5 with the test that exposed each one}
+
+\subsection{Open Decisions}
+Two decisions are still open at the time of writing. The first is whether the search trace should show the value of the subtree bound at each step, which would make the invariant more visible but adds to the trace panel. The second is whether the interface should allow a value to be entered in the same field as a search, or keep insertion and search separate, which affects FR3 and FR5. Both will be decided in the usability study described in Section~\ref{sec:testing}, and the outcome will be recorded here.

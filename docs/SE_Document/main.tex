@@ -1,0 +1,45 @@
+\documentclass[a4paper,12pt]{article}
+% COS750 Software Engineering Document: COS212 app (Binary Search Trees, Java).
+% Built on the COS700 research-report template layout: class, packages, colours,
+% title block, spacing, abstract/keywords and bibliography style are kept as supplied.
+% One file per section under sections/ and appendices/.
+
+\input{preamble}          % the template's preamble + a marked block of additions
+\input{scaffolding}       % draft-only owner / todo / page-target markers
+\input{frontmatter/title} % \title / \author / \date
+
+\begin{document}
+
+\maketitle
+
+\newpage
+\linespread{1.241}        % as in the template
+
+\input{frontmatter/abstract}
+
+\tableofcontents
+\newpage
+
+\input{sections/01-introduction}
+\input{sections/02-problem-domain}
+\input{sections/03-requirements}
+\input{sections/04-se-process}
+\input{sections/05-architecture}
+\input{sections/06-detailed-design}
+\input{sections/07-assessment-scaffolding}
+\input{sections/08-user-interface}
+\input{sections/09-data-persistence}
+\input{sections/10-testing}
+\input{sections/11-design-decisions}
+\input{sections/12-deployment}
+\input{sections/13-limitations}
+
+\bibliographystyle{ieeetr}
+\bibliography{myBibFile}
+
+% Appendices do not count toward the page count.
+\appendix
+\input{appendices/a-repository}
+\input{appendices/b-screenshots}
+
+\end{document}

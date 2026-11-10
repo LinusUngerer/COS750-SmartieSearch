@@ -1,0 +1,18 @@
+\section{Problem Domain}\label{sec:problem}
+\owner{Group}
+\pages{2}
+
+\subsection{Binary Search Trees}
+A binary tree is a tree in which each node has at most two children, each designated as left or right. A binary search tree (BST) is an ordered binary tree in which, for every node $n$, every value in the left subtree of $n$ is less than the value stored in $n$, and every value in the right subtree is greater than it. Every subtree of a BST is itself a BST. The ordering rule does not say what happens when a value is already present; that decision is recorded in Section~\ref{sec:design}.
+
+The shape of a BST depends on the order in which values are inserted. A tree built from values in random order tends to be bushy, with a height that grows slowly as values are added. A tree built from values in sorted order is a chain, and at that point it is no better than an ordinary linked list. The prototype must therefore show students both cases and explain why the shape matters.
+
+\subsection{Chosen Algorithm}
+The algorithm chosen for the prototype is \emph{search}. Insertion is included as the operation that builds the tree that search runs on, so that students can construct a tree from a list of values and then search it. In-order traversal is included as a check on the ordering rule: it visits the left subtree, the node and then the right subtree, so a valid BST produces its values in sorted order. Deletion is not included.
+
+Search starts at the root. At each node the target is compared with the stored value. If they are equal the search ends. If the target is smaller the search continues in the left subtree, and if it is larger it continues in the right subtree. Each comparison eliminates roughly half of the remaining candidate nodes in a balanced tree, so search takes $O(\lg n)$ time. For example, a balanced tree of 1024 nodes needs at most 10 comparisons. In a degenerate tree the same search can visit every node, which gives $O(n)$ time. Insertion follows the same path as search and attaches the new value as a leaf where the path ends, so it has the same time complexity.
+
+\subsection{Why This Pair}
+The BST is a core structure in the Foundational Data Structures and Algorithms knowledge unit of CS2023 \cite{Kumar2024}, and it is the first structure in the COS212 sequence that combines a hierarchy with efficient searching. Its ordering rule is a single invariant that students can state, check and test, which makes it suitable for a prototype that must support learning before the lecture. Search is the most direct algorithm to apply to the structure, and it is the one that makes the efficiency of the BST visible: students can compare the number of steps on a balanced tree with the number on a degenerate one.
+
+Self-balancing variants such as AVL trees and red-black trees are excluded. They build on the ordering rule presented here, and including them would add rotation logic that does not serve the pre-lecture goal of the prototype.

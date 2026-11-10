@@ -1,0 +1,20 @@
+\section{Multimodal Design and Learning Styles}\label{sec:id-multimodal}
+\owner{Group}
+\pages{2}
+
+Learners are often described as having a preferred learning style, such as visual or verbal, and the advice that follows is to teach each student in their style. The evidence for this advice is weak. Controlled studies have not shown that matching instruction to a stated style improves learning \cite{Pashler2008}. The app therefore does not sort students into styles or change the content for them. Instead it presents each idea in more than one form, because a representation that is shown alongside another tends to help more than either one alone.
+
+\subsection{The Representations Used}
+Each concept is shown in up to three forms.
+
+\begin{itemize}
+    \item \textbf{Diagram:} the tree itself, drawn with each node as a labelled circle and the current node marked, so that the position of a value is visible.
+    \item \textbf{Analogy:} a number line with the current range shaded. Each comparison halves the shaded range, which makes the $O(\lg n)$ idea concrete without introducing the notation first.
+    \item \textbf{Text and code:} the rule stated in a sentence, and the Java for the same step, shown after the student has seen the diagram. The code is shown as a fragment of one method, so the student can connect the steps they traced to the code that performs them.
+\end{itemize}
+
+\subsection{Applying Multimedia Principles}
+The representations follow four principles from multimedia learning research \cite{Mayer2009}. The \emph{coherence} principle is applied by leaving out decoration that does not help the lesson. The \emph{signalling} principle is applied by highlighting the node being compared and the rule being applied. The \emph{contiguity} principle is applied by placing the explanation beside the step it explains, rather than on another screen. The \emph{segmenting} principle is applied by showing each comparison as a separate step that the student controls.
+
+\subsection{Accessibility of the Representations}
+The representations do not depend on colour. The current node is marked by a thick outline and the word ``current'', and the value on each node is always shown as text. This means the same information reaches a student who cannot distinguish the colours, and it is consistent with NFR5 in the SE document.

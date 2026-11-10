@@ -1,0 +1,38 @@
+\documentclass[a4paper,12pt]{article}
+% COS750 Instructional Design Document: COS212 app (Binary Search Trees, Java).
+% Built on the COS700 research-report template layout: class, packages, colours,
+% title block, spacing, abstract/keywords and bibliography style are kept as supplied.
+% One file per section under sections/.
+
+\input{preamble}          % the template's preamble + a marked block of additions
+\input{scaffolding}       % draft-only owner / todo / page-target markers
+\input{frontmatter/title} % \title / \author / \date
+
+\begin{document}
+
+\maketitle
+
+\newpage
+\linespread{1.241}        % as in the template
+
+\input{frontmatter/abstract}
+
+\tableofcontents
+\newpage
+
+\input{sections/01-introduction}
+\input{sections/02-objectives}
+\input{sections/03-learning-theories}
+\input{sections/04-multimodal-design}
+\input{sections/05-content-design}
+\input{sections/06-assessment-design}
+\input{sections/07-motivation}
+\input{sections/08-progress-tracking}
+\input{sections/09-evaluation-plan}
+\input{sections/10-reflection}
+\input{sections/11-genai-acknowledgement}
+
+\bibliographystyle{ieeetr}
+\bibliography{myBibFile}
+
+\end{document}

@@ -1,0 +1,48 @@
+\section{System Architecture}\label{sec:architecture}
+\owner{Group}
+\pages{3}
+
+The COS212 app is organised into four layers. The domain layer holds the BST and knows nothing about the user interface. The trace layer runs the search and insertion operations and records every step. The assessment layer decides what to ask the student and where to route them. The user interface layer displays the tree and the trace and collects the student's input. Dependencies point only downwards: the user interface uses the trace and assessment layers, which use the domain layer, and the domain layer depends on no other layer. This keeps the correctness-critical code testable without a window, and it allows the educational features to change without touching the tree.
+
+\subsection{Layers}
+Table~\ref{tab:layers} lists each layer, the package that holds it, its responsibility and the requirements it supports.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Layers of the COS212 app.}
+\label{tab:layers}
+\begin{tabularx}{\textwidth}{l p{3.4cm} X p{2.4cm}}
+\toprule
+Layer & Package & Responsibility & Requirements \\
+\midrule
+Domain & \texttt{cos212.bst} & \texttt{BSTNode<T>} and \texttt{BinarySearchTree<T>}: insertion, search, in-order traversal and the ordering invariant. No I/O and no UI types. & FR1, FR2, FR3, FR6, NFR2 \\
+Trace & \texttt{cos212.trace} & Wraps search and insertion, recording each comparison as a \texttt{TraceStep} with the node, the target, the outcome and the reason for the next move. & FR4, FR5, FR7 \\
+Assessment & \texttt{cos212.assess} & Diagnostic items, the router that selects the lesson for a wrong answer, feedback messages and progress records. & FR8, FR9, FR10 \\
+Interface & \texttt{cos212.ui} & Tree canvas, trace panel, step controls and the lesson and quiz screens. Reads from the other layers and sends student actions to them. & FR1, FR7, NFR1, NFR5 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Technology Stack}
+The app is written in Java 17 and built with Maven, as recorded in Section~\ref{sec:process}. The user interface is built with JavaFX, which runs on Windows, macOS and Linux with the JDK alone and supports the keyboard navigation required by NFR5. A web front end was considered and rejected because it would add a server or a browser-compatibility layer that the prototype does not need. Lessons and diagnostic items are stored as text resources inside the JAR, so the content can be reviewed without changing code. \todo{confirm JavaFX against a web front end with the group}
+
+\subsection{Key Interfaces}
+The trace layer is the only route from the interface to the domain. The interface never calls the BST directly. Each trace operation returns a list of \texttt{TraceStep} objects that the interface replays one at a time, so the step controls in FR7 only move an index through the list. The domain classes produce the same result whether or not a trace is requested, which means the trace cannot change the tree.
+
+The assessment layer receives a \texttt{TraceResult} or a student answer and returns a \texttt{Feedback} object with a message and, when the answer is wrong, the identifier of the lesson to route to. The router is a plain lookup from the misconception that the answer reveals to a lesson identifier, so the routing rules can be read and tested directly.
+
+\subsection{Component Diagram}
+The component relationships are as follows.
+
+\begin{itemize}
+    \item \texttt{ui} depends on \texttt{trace} and \texttt{assess}.
+    \item \texttt{trace} depends on \texttt{bst}.
+    \item \texttt{assess} depends on \texttt{trace} for the results it scores, and on the lesson resources.
+    \item \texttt{bst} depends on nothing in the application.
+\end{itemize}
+
+A diagram of these components will be inserted here for the presentation. \todo{insert component diagram}
+
+\subsection{Quality Attributes}
+The architecture supports the non-functional requirements as follows. Correctness (NFR2) is supported because the ordering invariant lives in one class and is tested without the interface. Accessibility (NFR5) is supported because the interface is the only layer that presents colour, and it uses shape and text as well. Portability (NFR6) is supported by using only the JDK and the JavaFX runtime, with no native code. The main architectural risk is that a degenerate tree slows the trace; the trace layer records the depth of each step so that the interface can show when the tree has become a chain.

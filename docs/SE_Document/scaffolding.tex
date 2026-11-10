@@ -1,0 +1,9 @@
+% Draft scaffolding. Colours use only what the template's `color` package
+% and \definecolor lines provide (blue, gray, and color's built-in red).
+% Set \draftnotesfalse before submission and every marker vanishes.
+\newif\ifdraftnotes
+\draftnotestrue
+
+\newcommand{\owner}[1]{\ifdraftnotes\noindent\textcolor{blue}{\small\textsf{[Owner: #1]}}\par\fi}
+\newcommand{\todo}[1]{\ifdraftnotes\textcolor{red}{\small\textsf{[TODO: #1]}}\fi}
+\newcommand{\pages}[1]{\ifdraftnotes\noindent\textcolor{gray}{\small\textsf{[Target: #1 pages]}}\par\fi}

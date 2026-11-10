@@ -1,0 +1,13 @@
+\section{Introduction}
+\owner{Group}
+\pages{2}
+
+Data structures and algorithms are fundamental to computer science, and the Algorithmic Foundations knowledge area of CS2023 is the minimum core for any computer science degree \cite{Kumar2024}. Within that area, the binary search tree (BST) is one of the first structures students meet that combines a hierarchy with efficient searching. Each node stores a value such that every value in its left subtree is smaller and every value in its right subtree is larger. On a balanced tree this lets search, insertion and deletion run in $O(\lg n)$ time, but when the tree degenerates into a chain of nodes the same operations take $O(n)$ time.
+
+COS212 students meet BSTs for the first time in lectures, where the ordering rule, search, insertion and traversal are presented as step-by-step procedures. Students are expected to trace these procedures by hand, which is difficult without practice. The COS212 app is intended for use before the lecture, so the app cannot assume any prior knowledge of trees. It must give students a way to practise the ordering rule and the search and insertion steps, and to receive scaffolding when they are not yet comfortable with the work.
+
+This document describes how the COS212 app was engineered. It covers the requirements, the system architecture, the detailed design of the BST and its search and insertion algorithms in Java, the testing strategy, and the design decisions and their trade-offs. The instructional design rationale is documented separately in the companion ID document.
+
+The prototype is limited to the BST data structure, its search and insertion operations, and an in-order traversal that displays the stored values in sorted order. Deletion and self-balancing variants such as AVL trees and red-black trees are out of scope. Balancing is covered in a later lecture, and the prototype is intended to make the basic ordering rule and the search path clear before those ideas are introduced. Known limitations, including the degenerate case, are discussed in the later sections.
+
+The rest of this document is organised as follows. Section~\ref{sec:problem} defines the problem domain and the chosen algorithm, and Section~\ref{sec:requirements} records the requirements. Section~\ref{sec:process} describes the software engineering process, and Sections~\ref{sec:architecture} and~\ref{sec:design} present the architecture and detailed design. Sections~\ref{sec:assessment} to~\ref{sec:data} cover the assessment, user interface and data handling. Section~\ref{sec:testing} describes testing, Section~\ref{sec:decisions} records the design decisions, and Sections~\ref{sec:deployment} and~\ref{sec:limitations} cover deployment and limitations.

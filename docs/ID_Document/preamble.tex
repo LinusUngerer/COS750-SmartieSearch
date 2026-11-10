@@ -1,0 +1,64 @@
+% ===========================================================================
+% Department template preamble (COS700_Research_Report_Template/report.tex),
+% reproduced verbatim. Do not edit above the ADDITIONS line.
+% ===========================================================================
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{lmodern}
+\usepackage{mdframed}
+\usepackage{url}
+\usepackage{amsthm}
+\newtheorem{definition}{Definition}
+
+\newcommand{\BlackBox}{\rule{1.5ex}{1.5ex}}
+
+\definecolor{blue}{rgb}{0,0,0.8}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset
+{
+   basicstyle=\ttfamily\footnotesize,
+   language=C++,
+   numbers=right,
+   numberstyle=\color{gray},
+   showtabs=true,
+   breaklines=true,
+   breakatwhitespace=true,
+   captionpos=bottom,
+   keywordstyle=\color{blue},
+   commentstyle=\color{dkgreen},
+   stringstyle=\color{mauve},
+   frame=single
+}
+
+\mdfsetup
+{
+   skipabove=\topskip,
+   skipbelow=\topskip,
+   leftmargin=2em,
+   rightmargin=2em
+}
+
+% ===========================================================================
+% ADDITIONS — packages the report's tables and figures need. The template's
+% own packages above are untouched; these only add capabilities.
+% ===========================================================================
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}     % \toprule etc. in tables
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{tabularx}     % X columns for wrapping table text
+\usepackage{longtable}    % tables may break across pages, above the footer
+\usepackage{float}        % [H] placement
+\usepackage{subcaption}   % side-by-side screenshots in Appendix D
+\graphicspath{{figures/}{./}}
+
+% Engine snippets are Python; the template's \lstset default is C++.
+% Override per listing: \begin{lstlisting}[language=Python] ... \end{lstlisting}

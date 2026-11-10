@@ -1,0 +1,41 @@
+\section{Limitations and Future Work}\label{sec:limitations}
+\owner{Group}
+\pages{1}
+
+This section states what the prototype does not do, why each limitation was accepted, and what would be needed to remove it. The limitations fall into three groups: those of the data structure, those of the software, and those of the educational evaluation.
+
+\subsection{Limitations of the Data Structure}
+\begin{itemize}
+    \item \textbf{No self-balancing.} Values inserted in sorted order produce a chain, and search and insertion then take $O(n)$ time (decision D3 in Section~\ref{sec:decisions}). The app shows the depth of each step so that the chain is visible, and the 100-node limit in NFR4 keeps the cost small. The prototype cannot show a tree being restored to balance.
+    \item \textbf{No deletion.} Students cannot see the two-child case, which is the most involved part of the lecture material. This is a deliberate scope decision, not an oversight.
+    \item \textbf{Integer values only.} The interface accepts integers, so the ordering rule is shown on numbers only. Strings and other comparable values are supported by the domain classes but are not offered in the interface.
+\end{itemize}
+
+\subsection{Limitations of the Software}
+\begin{itemize}
+    \item \textbf{Recursive traversal.} The in-order traversal is recursive, so its depth equals the height of the tree. The 100-node limit keeps this safe, but a larger tree would need the iterative form used for insertion and search (decision D6).
+    \item \textbf{Single user, single machine.} Progress is stored locally (Section~\ref{sec:data}), so an instructor cannot see how students are doing and a student cannot move their progress to another computer.
+    \item \textbf{Limited accessibility.} The interface supports keyboard use and does not depend on colour, as required by NFR5. It has not been tested with screen readers, and that is a gap for students who use one.
+    \item \textbf{Platform testing.} The app is tested on the platforms the group has access to. Packaging the JavaFX runtime into a single JAR (Section~\ref{sec:deployment}) has not been verified on every target system.
+\end{itemize}
+
+\subsection{Limitations of the Evaluation}
+\begin{itemize}
+    \item \textbf{Small sample.} The usability study uses a small number of peers who have not studied trees. The results indicate whether the first lesson can be completed unaided, but they cannot show that the app improves learning across a cohort.
+    \item \textbf{Short exposure.} Each participant uses the app for one session. The app's effect on retention, measured after a lecture, is unknown.
+    \item \textbf{Limited assessment.} The diagnostic has five items and the feedback is rule-based. It can detect the misconceptions in Table~\ref{tab:routing}, but it cannot detect a misconception that the items were not written to find.
+\end{itemize}
+
+\subsection{Future Work}
+The following extensions are listed in priority order. Each one builds on the layers in Section~\ref{sec:architecture} and does not require changes to the domain classes beyond those noted.
+
+\begin{enumerate}
+    \item Deletion, starting with the leaf and single-child cases, followed by the two-child case using the in-order predecessor. This would extend the domain layer and the trace layer.
+    \item Self-balancing, starting with AVL trees, with rotations shown in the trace panel. This would add a balancing trace type alongside the search trace.
+    \item A larger item bank with items generated from the tree structure, so that each session presents new questions and the diagnostic cannot be memorised.
+    \item An instructor view, with progress exported as a file that the student chooses to share. This would need a decision on consent and storage before it is built.
+    \item Screen-reader support, tested with students who use one, and extended to the tree canvas through an accessible description of each node.
+    \item Other value types in the interface, so that students can see that the ordering rule works for strings as well as numbers.
+\end{enumerate}
+
+Several of these items would change the evaluation design, so the group should record in Section~\ref{sec:decisions} which items were chosen before any extension is started.

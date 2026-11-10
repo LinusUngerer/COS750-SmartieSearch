@@ -1,0 +1,39 @@
+\section{Deployment}\label{sec:deployment}
+\owner{Group}
+\pages{1}
+
+The prototype is distributed as a single runnable JAR file, with the lesson content packaged inside it. The app is not hosted on a server, so there is nothing to deploy beyond the file itself, and it runs offline. This follows from decisions D5 and D8 in Section~\ref{sec:decisions}.
+
+\subsection{Packaging}
+Maven builds an executable JAR with the JavaFX runtime and the lesson resources included. The build produces one file, \texttt{cos212-app.jar}, which is the only artefact a student needs. The JDK 17 or later is the only installation requirement. The app is started with the following command.
+
+\begin{lstlisting}
+java -jar cos212-app.jar
+\end{lstlisting}
+
+\subsection{Repository Layout}
+The source is held in a single GitHub repository. The layout is shown below.
+
+\begin{lstlisting}
+cos212-app/
+  pom.xml
+  README.md
+  src/main/java/cos212/bst/      domain layer
+  src/main/java/cos212/trace/    trace layer
+  src/main/java/cos212/assess/   assessment layer
+  src/main/java/cos212/ui/       JavaFX interface
+  src/main/resources/lessons/    lesson text and feedback
+  src/test/java/                 JUnit 5 tests
+  docs/                          SE and ID documents, diagrams
+\end{lstlisting}
+
+The layout follows the layers in Section~\ref{sec:architecture}, so that a reader can find the code for each requirement from its package. The \texttt{docs} folder holds the LaTeX sources of the two documents, so that the documents and the code are versioned together.
+
+\subsection{Build and Run Instructions}
+The README gives the steps a reader needs to build and run the app from source, in the following order: install the JDK, clone the repository, run the test suite, package the JAR, and start the app. It also states the commands for each step, so that the instructions can be followed without knowledge of Maven.
+
+\subsection{Releases and Versioning}
+Each increment in Section~\ref{sec:process} that is reviewed and accepted is tagged, and the final prototype is published as a GitHub release with the JAR attached. Version numbers follow the pattern \texttt{major.minor.patch}. The final release for the presentation is version 1.0.0. \todo{confirm the release tag and the GitHub link for the submission}
+
+\subsection{Verification of the Packaged Build}
+The packaged JAR is tested separately from the source build. The check runs the JAR on each target operating system and confirms that the first lesson loads, that a tree can be built and searched, and that the progress file is created in the expected folder. This is the manual start-up check listed for NFR6 in Table~\ref{tab:testmatrix}.

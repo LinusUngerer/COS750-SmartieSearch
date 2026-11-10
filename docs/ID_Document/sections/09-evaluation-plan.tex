@@ -1,0 +1,41 @@
+\section{Evaluation Plan}\label{sec:id-evaluation}
+\owner{Group}
+\pages{2}
+
+The evaluation asks whether the app is usable by a student with no knowledge of trees, and whether a student who uses it does better on tracing tasks afterwards. It has three parts. The usability study is formative, and is run with peers before the presentation. The pre- and post-test and the questionnaire are summative, and are run with a small group of participants. The usage logs are part of the evaluation build only.
+
+\subsection{Usability Study}
+Peers who have not studied trees complete the diagnostic gate and the first lesson without help. The group records whether each task is completed, how long it takes, and where the participant stops. A think-aloud protocol is used, and the participant is asked what they expected to happen whenever they stop. This is the study that tests NFR1 in the SE document.
+
+\subsection{Pre- and Post-Test}
+Participants complete a tracing test before they use the app and again after they have finished the four lessons. The test asks them to trace a search and an insertion by hand, and to classify two trees against the ordering rule. The primary measure is the number of tasks answered correctly. The change between the two tests is reported descriptively, because the sample is too small for statistical inference.
+
+\subsection{Questionnaire}
+After the post-test, participants rate the app on a five-point Likert scale. The items cover how helpful each representation was, how clear the hints were, how easy the app was to use, and whether the student would use the app before a lecture. The questionnaire includes one open item on the feature that helped most, and the responses are summarised by theme.
+
+\subsection{Usage Logs}
+The evaluation build records which lessons are opened, how many hints are used, and how long each trace takes. The logs carry no name or student number. Participants are told which data is recorded before they start, and they can stop at any time. \todo{confirm the consent wording and ethics approval for the logs}
+
+\subsection{Measures Summary}
+Table~\ref{tab:measures} summarises the measures and what each one is used to judge.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Evaluation measures and what they inform.}
+\label{tab:measures}
+\begin{tabularx}{\textwidth}{p{4.2cm} X}
+\toprule
+Measure & Used to judge \\
+\midrule
+Gate completion and time, first lesson completion & Whether the app can be used unaided (NFR1) \\
+Pre- and post-test scores & Whether tracing performance changed \\
+Questionnaire ratings & Whether students found the representations and hints helpful \\
+Hints used per objective & Whether the scaffolding is withdrawn as expected \\
+Routing outcomes & Whether the diagnostic detects the misconceptions it was written for \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Limits of the Evaluation}
+The sample is small, and the study covers one session per participant. The results can show whether the app is usable and whether it is worth testing with a full cohort. They cannot show that the app improves exam results, and they do not measure retention after a lecture. These limits are stated in the Limitations and Future Work section of the SE document.

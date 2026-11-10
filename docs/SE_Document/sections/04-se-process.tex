@@ -1,0 +1,45 @@
+\section{Software Engineering Process}\label{sec:process}
+\owner{Group}
+\pages{2}
+
+The prototype was developed with an iterative, incremental process. Each increment delivers a working part of the requirements in Section~\ref{sec:requirements}, is tested, and is then reviewed by the group before the next increment starts. The cycle is build, demonstrate and review. The build step produces an increment, the demonstrate step runs it for the group and for a peer, and the review step compares the result against the requirement identifiers and records any change. Requirements that the review shows to be incomplete or wrong are updated in this document before work on the affected increment continues.
+
+The process was chosen for three reasons. The BST is a small, well-defined structure, so the core can be completed and tested early. The educational features, namely the search trace, the diagnostic and the feedback, depend on the core working correctly, so they must come after it. The schedule is short, so each increment must end in something that can be demonstrated.
+
+\subsection{Roles and Responsibilities}
+Each group member is responsible for one area, and every member reviews changes made in other areas through a pull request. The areas are the BST domain classes, the search and insertion trace, the user interface, the assessment and routing, and the testing and documentation. Responsibility for the areas is recorded in the repository's contribution file. \todo{assign the five or seven group members to the five areas}
+
+\subsection{Tools and Infrastructure}
+\begin{itemize}
+    \item \textbf{Language and runtime:} Java 17, with the JDK as the only installation requirement.
+    \item \textbf{Build tool:} Maven, which provides the dependency management and the test runner. \todo{confirm Maven or Gradle}
+    \item \textbf{Testing:} JUnit 5 for unit tests, and a reference implementation of the BST operations used to check the results of the app's own operations.
+    \item \textbf{Version control:} Git, hosted on GitHub. The main branch is protected, and changes are merged through pull requests that another member reviews.
+    \item \textbf{Documentation:} this document and the ID document, written in LaTeX on Overleaf, with the Javadoc generated from the source.
+\end{itemize}
+
+\subsection{Increment Plan}
+Table~\ref{tab:increments} lists the planned increments. The increments are ordered so that the core BST is complete and tested before any feature that depends on it. Each increment is reviewed against the requirement identifiers it claims to deliver.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Planned increments and the requirements each one delivers.}
+\label{tab:increments}
+\begin{tabularx}{\textwidth}{c X p{3.6cm} l}
+\toprule
+Increment & Scope & Requirements & Target \\
+\midrule
+I1 & BST node and tree classes, insertion, search, duplicate rejection, unit tests & FR1, FR2, FR3, NFR2 & 10 Nov \\
+I2 & Search and insertion trace, step controls, node highlighting & FR4, FR5, FR7, NFR5 & 11 Nov \\
+I3 & In-order traversal, diagnostic check and routing & FR6, FR8 & 12 Nov \\
+I4 & Feedback, progress tracking and the lesson content & FR9, FR10, NFR1 & 13 Nov \\
+I5 & Usability fixes, Javadoc, packaging as a runnable JAR & NFR3, NFR4, NFR6 & 14 Nov \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The schedule is compressed, so the increments are sized to be completed in a day each. If an increment is not complete by its target date, the group reviews whether the lowest-priority requirement in that increment can move to the final increment, and records the decision in Section~\ref{sec:decisions}. Freezing the code and starting the final documentation review is planned for 15 November.
+
+\subsection{Change Control}
+A change to a requirement after its increment has started is recorded as a change in this document, with its identifier, its reason and its effect on the other increments. A change to code that alters the behaviour of a BST operation must be accompanied by a test that fails before the change and passes after it. This rule protects the correctness requirement NFR2 from changes made late in the schedule.
