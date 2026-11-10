@@ -84,13 +84,15 @@ class BinarySearchTreeTest {
 
     @Test
     void insertMatchesTheWorkedExampleFromTheDetailedDesign() {
-        // Tree from Table 6.2 of the SE document, then insert 4.
+        // Example tree from the Detailed Design section of the SE document: 5 at the
+        // root, 3 and 7 below it, 1 below 3, and 6 and 9 below 7. Inserting 4 walks
+        // left at 5, then right at 3, and attaches 4 as the right child of 3.
         BinarySearchTree<Integer> tree = new BinarySearchTree<>();
-        for (int v : new int[] {5, 3, 7, 1, 6, 9}) {
+        for (int v : new int[] {5, 3, 1, 7, 6, 9}) {
             tree.insert(v);
         }
         assertTrue(tree.insert(4));
-        assertEquals(4, tree.root().left.right.left.value);
+        assertEquals(4, tree.root().left.right.value);
         assertInvariant(tree);
     }
 

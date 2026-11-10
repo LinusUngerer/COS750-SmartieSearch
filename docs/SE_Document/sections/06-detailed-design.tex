@@ -37,7 +37,7 @@ The ordering invariant is not stored anywhere. It is maintained by \texttt{inser
 \subsection{Insert Sequence}
 Insertion follows the search path from the root. At each node the new value is compared with the stored value. If the values are equal the value is already present and nothing changes. If the new value is smaller the search moves to the left child, and if it is larger it moves to the right child. When the search reaches a node whose child link is empty, a new node is attached there.
 
-Table~\ref{tab:insert4} shows the sequence for inserting 4 into an example tree. The root is 5, its left child is 3 with children 1 and 6, and its right child is 7 with right child 9.
+Table~\ref{tab:insert4} shows the sequence for inserting 4 into an example tree. The root is 5, its left child is 3 with left child 1, and its right child is 7 with children 6 and 9. This is the tree in the lecture slides, and every value obeys the ordering rule.
 
 \begin{table}[H]
 \centering
@@ -49,9 +49,8 @@ Table~\ref{tab:insert4} shows the sequence for inserting 4 into an example tree.
 Step & Node compared & Result & Next move \\
 \midrule
 1 & 5 & $4 < 5$ & go left to 3 \\
-2 & 3 & $4 > 3$ & go right to 6 \\
-3 & 6 & $4 < 6$ & left link is empty \\
-4 & --- & --- & attach 4 as the left child of 6 \\
+2 & 3 & $4 > 3$ & right link is empty \\
+3 & --- & --- & attach 4 as the right child of 3 \\
 \bottomrule
 \end{tabularx}
 \end{table}
