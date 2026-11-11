@@ -1,6 +1,7 @@
 package cos212.ui;
 
 import cos212.assess.Diagnostic;
+import cos212.assess.ProgressStore;
 import cos212.assess.ProgressTracker;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -26,6 +27,7 @@ public final class SmartieSearchApp extends Application {
 
     private final ProgressTracker tracker = new ProgressTracker();
     private final Diagnostic diagnostic = new Diagnostic();
+    private final ProgressStore store = new ProgressStore();
     private final BorderPane root = new BorderPane();
     private final Button lessonsTab = Ui.nav("Lessons", "lessons");
     private final Button diagnosticTab = Ui.nav("Diagnostic Gate", "diagnostic");
@@ -43,6 +45,8 @@ public final class SmartieSearchApp extends Application {
 
     @Override
     public void start(Stage stage) {
+        store.load(tracker, diagnostic);
+        tracker.addChangeListener(this::saveProgress);
         treeScreen = new TreeActivityScreen(tracker);
         lessonsScreen = new LessonsScreen(tracker, diagnostic, this::startDiagnostic, this::showProgress);
         progressScreen = new ProgressScreen(tracker, this::showLessons);
@@ -115,7 +119,7 @@ public final class SmartieSearchApp extends Application {
     }
 
     private void showTree() {
-        if (!diagnostic.passed()) {
+        if (!diagnostic.unlocked()) {
             return;
         }
         select(treeTab);
@@ -130,10 +134,20 @@ public final class SmartieSearchApp extends Application {
 
     /** Keeps the tree activity unlocked only after the gate is passed, and refreshes the lessons. */
     private void onDiagnosticChanged() {
-        treeTab.setDisable(!diagnostic.passed());
+        treeTab.setDisable(!diagnostic.unlocked());
         if (lessonsScreen != null) {
             lessonsScreen.refresh();
         }
+        saveProgress();
+    }
+
+    private void saveProgress() {
+        store.save(tracker, diagnostic);
+    }
+
+    @Override
+    public void stop() {
+        saveProgress();
     }
 
     private void select(Button tab) {

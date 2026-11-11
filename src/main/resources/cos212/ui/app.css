@@ -117,7 +117,7 @@
 }
 .summary-value {
     -fx-text-fill: white;
-    -fx-font-size: 18px;
+    -fx-font-size: 20px;
     -fx-font-weight: bold;
 }
 .note {
@@ -188,21 +188,115 @@
     -fx-border-radius: 14;
     -fx-padding: 16;
 }
+.progress-header {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-padding: 18 24 18 24;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 5, 0, 0, 4);
+}
 .progress-summary {
-    -fx-background-color: #3F4E96;
-    -fx-background-radius: 12;
-    -fx-padding: 10 16 10 16;
+    -fx-background-color: rgba(2, 27, 110, 0.75);
+    -fx-background-radius: 15;
+    -fx-padding: 0 22 0 20;
+    -fx-pref-width: 254;
+    -fx-min-height: 66;
+    -fx-pref-height: 66;
 }
 .progress-summary .note {
     -fx-text-fill: white;
+    -fx-font-size: 12px;
+}
+.summary-divider .line {
+    -fx-border-color: #DCC6B1;
+    -fx-border-width: 0 0 0 1;
+}
+.progress-rule {
+    -fx-background-color: #DCC6B1;
 }
 .mastery-guide {
     -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-padding: 12 24 12 32;
+}
+.info-icon {
+    -fx-min-width: 18;
+    -fx-min-height: 18;
+    -fx-max-width: 18;
+    -fx-max-height: 18;
+    -fx-background-radius: 9;
+    -fx-border-color: #683519;
+    -fx-border-radius: 9;
+    -fx-font-family: "Times New Roman", serif;
+    -fx-font-style: italic;
+    -fx-font-size: 13px;
+    -fx-text-fill: #683519;
+}
+.guide-title {
+    -fx-font-family: "Comic Sans MS", "Trebuchet MS", sans-serif;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #683519;
+}
+.guide-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #1D1A2B;
+}
+.caption {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1D1A2B;
+}
+.progress-dot {
+    -fx-font-size: 15px;
+    -fx-text-fill: radial-gradient(center 50% 50%, radius 60%, white 0%, #D19CFF 40%, #9A56D4 100%);
+    -fx-effect: dropshadow(gaussian, rgba(154, 86, 212, 0.45), 4, 0, 0, 0);
+}
+.btn-cta {
+    -fx-background-color: linear-gradient(to right, #A3001C 0%, #E01A3C 32%, #FF4E74 100%);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
     -fx-background-radius: 12;
-    -fx-border-color: #E5D2BE;
-    -fx-border-width: 1;
-    -fx-border-radius: 12;
-    -fx-padding: 14;
+    -fx-min-width: 195;
+    -fx-pref-height: 40;
+    -fx-padding: 0 22 0 22;
+    -fx-cursor: hand;
+}
+.btn-cta:hover {
+    -fx-background-color: linear-gradient(to right, #8A0017 0%, #C21433 32%, #E63B5E 100%);
+}
+.legend-dot {
+    -fx-font-size: 8px;
+}
+.legend-secure {
+    -fx-text-fill: #021B6E;
+}
+.legend-practised {
+    -fx-text-fill: #00AEEE;
+}
+.legend-untried {
+    -fx-text-fill: #5A5A5A;
+}
+.objective-row {
+    -fx-padding: 0 24 0 16;
+    -fx-min-height: 92;
+    -fx-pref-height: 92;
+    -fx-background-radius: 15;
+    -fx-border-width: 0;
+    -fx-effect: dropshadow(gaussian, rgba(89, 64, 38, 0.06), 3, 0, 0, 2);
+}
+.objective-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1D1A2B;
+}
+.stat-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #5B5366;
+}
+.percent-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #021B6E;
 }
 .feedback-right {
     -fx-border-color: #E5D2BE #E5D2BE #E5D2BE #35A56A;
@@ -352,4 +446,51 @@
     -fx-border-color: #D8C7B1;
     -fx-border-radius: 9;
     -fx-padding: 8 10 8 10;
+}
+
+/* Progress page only: scoped so the lessons screen keeps its own bars and chips */
+.progress-page .page-title.progress-title {
+    -fx-font-size: 36px;
+}
+.progress-page .subtitle {
+    -fx-font-size: 17px;
+    -fx-text-fill: #1D1A2B;
+}
+.progress-page .wf-bar {
+    -fx-pref-height: 8;
+}
+.progress-page .wf-bar > .track {
+    -fx-background-color: #EBD6BF;
+    -fx-background-radius: 4;
+}
+.progress-page .wf-bar > .bar {
+    -fx-background-color: linear-gradient(to right, #021B6E, #00AEEE);
+    -fx-background-radius: 4;
+    -fx-background-insets: 0;
+    -fx-padding: 4;
+}
+.progress-page .chip {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 3 12 3 12;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+}
+.progress-page .chip-untried {
+    -fx-background-color: #FAF8F5;
+    -fx-border-color: #D5C8B9;
+    -fx-text-fill: #7B737D;
+}
+.progress-page .chip-practised {
+    -fx-background-color: #E9FAFF;
+    -fx-border-color: #65D6FF;
+    -fx-text-fill: #021B6E;
+}
+.progress-page .chip-secure {
+    -fx-background-color: #021B6E;
+    -fx-border-color: #021B6E;
+    -fx-text-fill: white;
+}
+.progress-page .mono-small {
+    -fx-font-size: 11px;
 }
