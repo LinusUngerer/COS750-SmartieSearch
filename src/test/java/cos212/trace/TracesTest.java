@@ -71,9 +71,13 @@ class TracesTest {
     }
 
     @Test
-    void everyStepHasAnExplanation() {
+    void everyStepHasAnExplanationAndARule() {
         for (TraceStep<Integer> step : Traces.search(exampleTree(), 4)) {
             assertFalse(step.explanation().isBlank());
+            assertFalse(step.rule().isBlank());
+        }
+        for (TraceStep<Integer> step : Traces.insert(exampleTree(), 6)) {
+            assertFalse(step.rule().isBlank());
         }
     }
 }

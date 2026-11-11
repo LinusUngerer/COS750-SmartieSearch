@@ -19,6 +19,20 @@ public record TraceStep<T>(T value, Comparison comparison, Move move, String exp
         GREATER
     }
 
+    /**
+     * @return the rule that justifies this step, shown under the explanation in the trace panel
+     */
+    public String rule() {
+        return switch (move) {
+            case LEFT -> "a smaller value belongs in the left subtree.";
+            case RIGHT -> "a larger value belongs in the right subtree.";
+            case FOUND -> "an equal value ends the search.";
+            case MISSING -> "an empty link means the value is not in the tree.";
+            case DUPLICATE -> "a duplicate is never inserted.";
+            case ATTACH_LEFT, ATTACH_RIGHT, ATTACH_ROOT -> "a new value is attached as a leaf at an empty link.";
+        };
+    }
+
     /** The move taken at a step. */
     public enum Move {
         LEFT,

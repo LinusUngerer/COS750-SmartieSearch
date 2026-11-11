@@ -3,6 +3,7 @@ package cos212.ui;
 import cos212.bst.BinarySearchTree.NodeView;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -12,27 +13,36 @@ import javafx.scene.text.TextAlignment;
 
 /**
  * Draws the tree. Each node is a circle with its value inside. The node being compared
- * has a thick outline and the word "current" above it, so the highlight does not depend
- * on colour alone (NFR5).
+ * has a thick outline and the word "current" above it. Nodes already passed in the trace
+ * have a dashed outline. A key in the top left explains the four marks, so no mark
+ * depends on colour alone (NFR5).
  */
 final class TreeCanvas extends Canvas {
 
     private static final double MARGIN = 40;
     private static final double RADIUS = 20;
+    private static final double TOP = 140;
     private static final Color HIGHLIGHT = Color.web("#1d4ed8");
 
     private NodeView<Integer> root;
     private Integer current;
+    private Set<Integer> visited = Set.of();
 
     TreeCanvas() {
         widthProperty().addListener((obs, oldValue, newValue) -> paint());
         heightProperty().addListener((obs, oldValue, newValue) -> paint());
     }
 
-    /** Shows the tree, highlighting the node with the given value, or no node if null. */
-    void show(NodeView<Integer> root, Integer current) {
+    /**
+     * Shows the tree.
+     *
+     * @param current the value being compared now, or {@code null} for none
+     * @param visited the values already passed in the trace
+     */
+    void show(NodeView<Integer> root, Integer current, Set<Integer> visited) {
         this.root = root;
         this.current = current;
+        this.visited = visited;
         paint();
     }
 
@@ -48,7 +58,8 @@ final class TreeCanvas extends Canvas {
         if (root == null) {
             g.setFill(Color.GRAY);
             g.setTextAlign(TextAlignment.LEFT);
-            g.fillText("The tree is empty. Insert a value to start.", MARGIN, MARGIN);
+            g.fillText("The tree is empty. Insert a value to start.", MARGIN, TOP);
+            drawKey(g);
             return;
         }
 
@@ -63,7 +74,7 @@ final class TreeCanvas extends Canvas {
         }
         for (Placed p : placed) {
             p.x = MARGIN + (p.rank + 0.5) * (width - 2 * MARGIN) / count;
-            p.y = MARGIN + (p.depth + 0.5) * (height - 2 * MARGIN) / (maxDepth + 1);
+            p.y = TOP + (p.depth + 0.5) * (height - TOP - MARGIN) / (maxDepth + 1);
         }
 
         g.setStroke(Color.GRAY);
@@ -76,11 +87,24 @@ final class TreeCanvas extends Canvas {
 
         for (Placed p : placed) {
             boolean isCurrent = current != null && current.equals(p.value);
+            boolean isVisited = visited.contains(p.value);
             g.setFill(Color.WHITE);
             g.fillOval(p.x - RADIUS, p.y - RADIUS, 2 * RADIUS, 2 * RADIUS);
-            g.setStroke(isCurrent ? HIGHLIGHT : Color.GRAY);
-            g.setLineWidth(isCurrent ? 4 : 1);
+            if (isCurrent) {
+                g.setStroke(HIGHLIGHT);
+                g.setLineWidth(4);
+                g.setLineDashes();
+            } else {
+                g.setStroke(Color.GRAY);
+                g.setLineWidth(1);
+                if (isVisited) {
+                    g.setLineDashes(5, 4);
+                } else {
+                    g.setLineDashes();
+                }
+            }
             g.strokeOval(p.x - RADIUS, p.y - RADIUS, 2 * RADIUS, 2 * RADIUS);
+            g.setLineDashes();
             g.setFill(Color.BLACK);
             g.fillText(String.valueOf(p.value), p.x, p.y);
             if (isCurrent) {
@@ -88,6 +112,58 @@ final class TreeCanvas extends Canvas {
                 g.fillText("current", p.x, p.y - RADIUS - 12);
             }
         }
+        drawKey(g);
+    }
+
+    /** Draws the key in the top left corner: what each mark means. */
+    private static void drawKey(GraphicsContext g) {
+        double x = 16;
+        double y = 16;
+        double w = 230;
+        double h = 118;
+        g.setFill(Color.WHITE);
+        g.fillRect(x, y, w, h);
+        g.setStroke(Color.GRAY);
+        g.setLineWidth(1);
+        g.strokeRect(x, y, w, h);
+
+        String[] labels = {
+            "Node: not yet compared",
+            "Current: being compared now",
+            "Visited: already passed",
+            "Link: parent to child"
+        };
+        g.setFont(Font.font(12));
+        g.setTextAlign(TextAlignment.LEFT);
+        g.setTextBaseline(VPos.CENTER);
+        for (int i = 0; i < labels.length; i++) {
+            double cy = y + 22 + i * 24;
+            double cx = x + 20;
+            g.setFill(Color.WHITE);
+            if (i == 1) {
+                g.setStroke(HIGHLIGHT);
+                g.setLineWidth(3);
+                g.setLineDashes();
+            } else if (i == 2) {
+                g.setStroke(Color.GRAY);
+                g.setLineWidth(1);
+                g.setLineDashes(4, 3);
+            } else {
+                g.setStroke(Color.GRAY);
+                g.setLineWidth(1);
+                g.setLineDashes();
+            }
+            if (i == 3) {
+                g.strokeLine(cx - 8, cy, cx + 8, cy);
+            } else {
+                g.fillOval(cx - 8, cy - 8, 16, 16);
+                g.strokeOval(cx - 8, cy - 8, 16, 16);
+            }
+            g.setLineDashes();
+            g.setFill(Color.BLACK);
+            g.fillText(labels[i], x + 38, cy);
+        }
+        g.setTextAlign(TextAlignment.CENTER);
     }
 
     /** Walks the tree in order, giving each node its in-order rank and recording its links. */
