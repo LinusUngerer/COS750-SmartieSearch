@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -15,14 +16,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
- * The COS212 Smartie Search window, laid out as in the team's design: a navigation
- * column on the left, the controls for Build, Search and Traverse beside the tree, the
- * trace and the next-step panel on the right, and the result along the bottom.
+ * The COS212 Smartie Search window, laid out as in the team's wireframes: a navy top bar
+ * with the three screens, the controls for Build, Search and Traverse beside the tree,
+ * the trace and the next-step panel on the right, and the result along the bottom.
  * Built as a landscape window, with a minimum size of 1024 by 680 pixels.
  *
  * <p>Controls that belong to later increments are shown but disabled: In-order (I3),
@@ -34,7 +36,6 @@ public final class SmartieSearchApp extends Application {
             + " (for example 45 or -3). The tree was not changed.";
     private static final String CARD_STYLE = "-fx-background-color: white; -fx-background-radius: 8;"
             + " -fx-border-color: #d9cbb8; -fx-border-radius: 8; -fx-padding: 12;";
-    private static final String SIDEBAR_STYLE = "-fx-background-color: #0b3a8a; -fx-padding: 12;";
     private static final String NOTE_STYLE = "-fx-font-size: 11px; -fx-text-fill: #555555;";
     private static final String ERROR_STYLE = "-fx-text-fill: #b42318; -fx-font-weight: bold;";
     private static final String RESULT_BORDER = "-fx-border-color: #0b3a8a; -fx-border-width: 0 0 0 4;";
@@ -57,7 +58,9 @@ public final class SmartieSearchApp extends Application {
     @Override
     public void start(Stage stage) {
         BorderPane root = new BorderPane();
-        root.setLeft(new HBox(sidebar(), leftColumn()));
+        root.setStyle("-fx-background-color: #FBF4EB;");
+        root.setTop(topBar());
+        root.setLeft(leftColumn());
         root.setCenter(centre());
         root.setRight(rightColumn());
         root.setBottom(resultBar());
@@ -81,25 +84,28 @@ public final class SmartieSearchApp extends Application {
         refresh();
     }
 
-    private VBox sidebar() {
-        Label heading = new Label("SmartieSearch");
-        heading.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
-        Button lessons = navButton("Lessons", false);
-        Button diagnostic = navButton("Diagnostic Gate", false);
-        Button activity = navButton("Tree Activity", true);
-        Button progress = navButton("My Progress", false);
-        VBox box = new VBox(10, heading, lessons, diagnostic, activity, progress);
-        box.setStyle(SIDEBAR_STYLE);
-        box.setPrefWidth(190);
-        return box;
+    /** The navy top bar with the app name and the three screens, as in the team's wireframes. */
+    private HBox topBar() {
+        Label title = new Label("COS212 BST tutor");
+        title.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
+        Region space = new Region();
+        HBox.setHgrow(space, Priority.ALWAYS);
+        Button lessons = tabButton("Lessons", false);
+        Button activity = tabButton("Tree activity", true);
+        Button progress = tabButton("Progress", false);
+        HBox bar = new HBox(28, title, space, lessons, activity, progress);
+        bar.setAlignment(Pos.CENTER_LEFT);
+        bar.setPadding(new Insets(0, 20, 0, 20));
+        bar.setPrefHeight(52);
+        bar.setStyle("-fx-background-color: #021B6E;");
+        return bar;
     }
 
-    private static Button navButton(String text, boolean selected) {
+    private static Button tabButton(String text, boolean selected) {
         Button button = new Button(text);
-        button.setMaxWidth(Double.MAX_VALUE);
-        button.setStyle(selected
-                ? "-fx-background-color: #1d4ed8; -fx-text-fill: white; -fx-font-weight: bold;"
-                : "-fx-background-color: transparent; -fx-text-fill: white;");
+        button.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-padding: 4 2 4 2;"
+                + (selected ? " -fx-border-color: transparent transparent #00AEEE transparent;"
+                        + " -fx-border-width: 0 0 3 0;" : ""));
         button.setDisable(!selected);
         button.setTooltip(new javafx.scene.control.Tooltip(
                 selected ? text : text + " is added in a later increment."));
