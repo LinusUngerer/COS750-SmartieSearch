@@ -80,7 +80,18 @@ public class BinarySearchTree<T extends Comparable<T>> {
      * @return the stored values in sorted order
      */
     public List<T> inOrder() {
-        throw new UnsupportedOperationException("increment I3");
+        List<T> values = new ArrayList<>(size);
+        inOrder(root, values);
+        return values;
+    }
+
+    private static <T> void inOrder(BSTNode<T> node, List<T> values) {
+        if (node == null) {
+            return;
+        }
+        inOrder(node.left, values);
+        values.add(node.value);
+        inOrder(node.right, values);
     }
 
     /**

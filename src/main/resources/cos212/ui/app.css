@@ -1,0 +1,275 @@
+/*
+ * Styles for the COS212 BST tutor. The colours and sizes come from the team's HTML
+ * wireframes: navy #021B6E, sky #00AEEE, red #D92F3D, brown #683519, apricot #EBC69F,
+ * paper #FBF4EB, line #D8C7B1, ink #1D1A2B, mid #5B5366.
+ */
+
+.app {
+    -fx-background-color: #FBF4EB;
+    -fx-font-family: "Segoe UI", "Inter", sans-serif;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1D1A2B;
+}
+
+/* Top bar and tabs */
+.top-bar {
+    -fx-background-color: #021B6E;
+    -fx-padding: 0 20 0 20;
+    -fx-pref-height: 52;
+}
+.top-title {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+.tab {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255, 255, 255, 0.8);
+    -fx-padding: 4 2 4 2;
+    -fx-font-size: 13px;
+}
+.tab:hover {
+    -fx-text-fill: white;
+}
+.tab:disabled {
+    -fx-opacity: 0.4;
+}
+.tab-selected {
+    -fx-text-fill: white;
+    -fx-border-color: transparent transparent #00AEEE transparent;
+    -fx-border-width: 0 0 3 0;
+}
+
+/* Headings and text */
+.page-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #021B6E;
+}
+.card-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #021B6E;
+}
+.subtitle {
+    -fx-text-fill: #5B5366;
+}
+.note {
+    -fx-font-size: 12px;
+    -fx-text-fill: #5B5366;
+}
+.result-text {
+    -fx-font-size: 13px;
+    -fx-text-fill: #1D1A2B;
+}
+.feedback-body {
+    -fx-font-size: 13px;
+    -fx-text-fill: #1D1A2B;
+}
+.mono {
+    -fx-font-family: Consolas, monospace;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1D1A2B;
+}
+.mono-small {
+    -fx-font-family: Consolas, monospace;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #683519;
+}
+.stat-value {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1D1A2B;
+}
+.error {
+    -fx-text-fill: #B42318;
+    -fx-font-weight: bold;
+}
+.lock {
+    -fx-text-fill: #D92F3D;
+    -fx-font-weight: bold;
+}
+.apricot-text {
+    -fx-text-fill: #3B1F0D;
+    -fx-font-size: 12px;
+}
+
+/* Cards */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 6;
+    -fx-border-color: #D8C7B1;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 6;
+    -fx-padding: 14;
+}
+.banner-diag {
+    -fx-background-color: white;
+    -fx-background-radius: 6;
+    -fx-border-color: #D8C7B1 #D8C7B1 #D8C7B1 #D92F3D;
+    -fx-border-width: 1.5 1.5 1.5 6;
+    -fx-border-radius: 6;
+    -fx-padding: 14;
+}
+.apricot-card {
+    -fx-background-color: #EBC69F;
+    -fx-background-radius: 6;
+    -fx-border-color: #683519;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 6;
+    -fx-padding: 14;
+}
+.feedback-right {
+    -fx-border-color: #D8C7B1 #D8C7B1 #D8C7B1 #1F7A3A;
+    -fx-border-width: 1.5 1.5 1.5 6;
+}
+.feedback-wrong {
+    -fx-border-color: #D8C7B1 #D8C7B1 #D8C7B1 #D92F3D;
+    -fx-border-width: 1.5 1.5 1.5 6;
+}
+
+/* Buttons */
+.btn-primary {
+    -fx-background-color: #021B6E;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-padding: 7 14 7 14;
+}
+.btn-primary:hover {
+    -fx-background-color: #0A2A8A;
+}
+.btn-primary:disabled {
+    -fx-opacity: 0.5;
+}
+.btn-secondary {
+    -fx-background-color: white;
+    -fx-text-fill: #021B6E;
+    -fx-font-weight: bold;
+    -fx-border-color: #021B6E;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 7 14 7 14;
+}
+.btn-secondary:hover {
+    -fx-background-color: #EEF3FB;
+}
+.btn-secondary:disabled {
+    -fx-opacity: 0.5;
+}
+.btn-off {
+    -fx-background-color: #F1EBE2;
+    -fx-text-fill: #9A8F80;
+    -fx-border-color: #D8C7B1;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 7 14 7 14;
+}
+
+/* Requirement tags: small red labels, as in the wireframes */
+.tag {
+    -fx-background-color: #D92F3D;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 3;
+    -fx-padding: 0 5 0 5;
+}
+
+/* Status chips */
+.chip {
+    -fx-background-color: transparent;
+    -fx-border-color: #5B5366;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 0 8 0 8;
+    -fx-font-size: 11px;
+    -fx-text-fill: #5B5366;
+}
+.chip-untried {
+    -fx-border-color: #9A8F80;
+    -fx-text-fill: #9A8F80;
+}
+.chip-started {
+    -fx-border-color: #683519;
+    -fx-text-fill: #683519;
+}
+.chip-practised {
+    -fx-border-color: #00AEEE;
+    -fx-text-fill: #0A6F99;
+}
+.chip-secure {
+    -fx-background-color: #021B6E;
+    -fx-border-color: #021B6E;
+    -fx-text-fill: white;
+}
+
+/* Progress bars */
+.wf-bar {
+    -fx-pref-height: 10;
+    -fx-accent: #00AEEE;
+}
+.wf-bar > .track {
+    -fx-background-color: #E7DDD0;
+    -fx-background-radius: 5;
+}
+.wf-bar > .bar {
+    -fx-background-color: #00AEEE;
+    -fx-background-radius: 5;
+}
+
+/* Result line and trace */
+.result-bar {
+    -fx-background-color: white;
+    -fx-background-radius: 6;
+    -fx-border-color: #021B6E;
+    -fx-border-width: 0 0 0 6;
+    -fx-padding: 10 14 10 14;
+    -fx-font-size: 13px;
+}
+.result-error {
+    -fx-text-fill: #B42318;
+    -fx-border-color: #B42318;
+}
+.trace-step {
+    -fx-font-size: 12px;
+    -fx-text-fill: #1D1A2B;
+    -fx-padding: 5 0 5 0;
+    -fx-border-color: #D8C7B1;
+    -fx-border-width: 0 0 1 0;
+}
+.trace-step-current {
+    -fx-font-weight: bold;
+    -fx-text-fill: #021B6E;
+    -fx-border-color: #00AEEE;
+    -fx-border-width: 0 0 1 3;
+    -fx-padding: 5 0 5 8;
+}
+
+/* Diagnostic choices */
+.choice {
+    -fx-background-color: white;
+    -fx-background-radius: 6;
+    -fx-border-color: #D8C7B1;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 6;
+    -fx-padding: 9 12 9 12;
+    -fx-alignment: center-left;
+    -fx-text-fill: #1D1A2B;
+    -fx-font-size: 12px;
+}
+.choice:hover {
+    -fx-border-color: #021B6E;
+}
+.choice:selected {
+    -fx-border-color: #021B6E;
+    -fx-background-color: #EEF3FB;
+    -fx-font-weight: bold;
+}
+.choice:disabled {
+    -fx-opacity: 0.85;
+}

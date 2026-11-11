@@ -12,23 +12,26 @@ import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
 /**
- * Draws the tree. Each node is a circle with its value inside. The node being compared
- * has a thick outline and the word "current" above it. Nodes already passed in the trace
- * have a dashed outline. A key in the top left explains the four marks, so no mark
- * depends on colour alone (NFR5).
+ * Draws a tree. Each node is a circle with its value inside. The node being compared has
+ * a thick outline and the word "current" above it, and nodes already passed have a dashed
+ * outline. The key in the top left explains the marks, so no mark depends on colour alone
+ * (NFR5). The key can be turned off for the diagnostic, where the question has its own text.
  */
 final class TreeCanvas extends Canvas {
 
     private static final double MARGIN = 40;
     private static final double RADIUS = 20;
     private static final double TOP = 140;
+    private static final double TOP_WITHOUT_KEY = 40;
     private static final Color HIGHLIGHT = Color.web("#1d4ed8");
 
+    private final boolean showKey;
     private NodeView<Integer> root;
     private Integer current;
     private Set<Integer> visited = Set.of();
 
-    TreeCanvas() {
+    TreeCanvas(boolean showKey) {
+        this.showKey = showKey;
         widthProperty().addListener((obs, oldValue, newValue) -> paint());
         heightProperty().addListener((obs, oldValue, newValue) -> paint());
     }
@@ -36,6 +39,7 @@ final class TreeCanvas extends Canvas {
     /**
      * Shows the tree.
      *
+     * @param root the root of the tree, or {@code null} for an empty tree
      * @param current the value being compared now, or {@code null} for none
      * @param visited the values already passed in the trace
      */
@@ -50,6 +54,7 @@ final class TreeCanvas extends Canvas {
         GraphicsContext g = getGraphicsContext2D();
         double width = getWidth();
         double height = getHeight();
+        double top = showKey ? TOP : TOP_WITHOUT_KEY;
         g.clearRect(0, 0, width, height);
         g.setFont(Font.font(14));
         g.setTextAlign(TextAlignment.CENTER);
@@ -58,11 +63,16 @@ final class TreeCanvas extends Canvas {
         if (root == null) {
             g.setFill(Color.GRAY);
             g.setTextAlign(TextAlignment.LEFT);
-            g.fillText("The tree is empty. Insert a value to start.", MARGIN, TOP);
-            drawKey(g);
-            return;
+            g.fillText("The tree is empty. Insert a value to start.", MARGIN, top);
+        } else {
+            drawTree(g, width, height, top);
         }
+        if (showKey) {
+            drawKey(g);
+        }
+    }
 
+    private void drawTree(GraphicsContext g, double width, double height, double top) {
         List<Placed> placed = new ArrayList<>();
         List<int[]> edges = new ArrayList<>();
         collect(root, 0, -1, new int[] {0}, placed, edges);
@@ -74,7 +84,7 @@ final class TreeCanvas extends Canvas {
         }
         for (Placed p : placed) {
             p.x = MARGIN + (p.rank + 0.5) * (width - 2 * MARGIN) / count;
-            p.y = TOP + (p.depth + 0.5) * (height - TOP - MARGIN) / (maxDepth + 1);
+            p.y = top + (p.depth + 0.5) * (height - top - MARGIN) / (maxDepth + 1);
         }
 
         g.setStroke(Color.GRAY);
@@ -112,7 +122,6 @@ final class TreeCanvas extends Canvas {
                 g.fillText("current", p.x, p.y - RADIUS - 12);
             }
         }
-        drawKey(g);
     }
 
     /** Draws the key in the top left corner: what each mark means. */

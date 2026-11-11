@@ -175,6 +175,22 @@ class BinarySearchTreeTest {
         assertThrows(NullPointerException.class, () -> tree.contains(null));
     }
 
+    // ---- in-order traversal --------------------------------------------------
+
+    @Test
+    void inOrderListsValuesInSortedOrder() {
+        BinarySearchTree<Integer> tree = new BinarySearchTree<>();
+        for (int v : new int[] {5, 3, 7, 1, 6, 9}) {
+            tree.insert(v);
+        }
+        assertEquals(java.util.List.of(1, 3, 5, 6, 7, 9), tree.inOrder());
+    }
+
+    @Test
+    void inOrderOfEmptyTreeIsEmpty() {
+        assertEquals(java.util.List.of(), new BinarySearchTree<Integer>().inOrder());
+    }
+
     // ---- property test against TreeSet ---------------------------------------
 
     @Test

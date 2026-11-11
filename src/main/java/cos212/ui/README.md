@@ -12,9 +12,20 @@ tree activity and the progress screen.
 
 ## Status
 
-Increment I2 is built: the tree canvas, the trace panel and the step controls.
-`SmartieSearchApp` is the entry point. Run it with `make run` or `mvn javafx:run`.
-The in-order button and the progress screen are added in increments I3 and I4.
+All four screens are built from the team's wireframes: Lessons, Diagnostic check,
+Tree activity and Progress. `SmartieSearchApp` is the entry point. Run it with
+`make run` or `mvn javafx:run`.
+
+- `TreeActivityScreen`: Build, Search, Traverse (In-order), the tree, the trace and the
+  predict panel with Left, Right and three hints. Predictions and hints are recorded.
+- `DiagnosticScreen`: five questions in `DiagnosticBank`. Four correct passes the gate and
+  unlocks the tree activity; a failed result names the lessons to revisit.
+- `LessonsScreen`: the diagnostic banner and the four lessons, locked until the gate is
+  passed. The Open lesson buttons stay disabled until lesson content is written (I4).
+- `ProgressScreen`: one row per objective, with the mastery status from `ProgressTracker`.
+
+Styles are in `src/main/resources/cos212/ui/app.css`. The colours and sizes follow the
+wireframes. Progress is held in memory; saving it to a local file is still to do.
 
 The window is landscape by design: the canvas and trace panel sit side by side, with
 a default size of 1280 by 800 and a minimum of 1024 by 680.
