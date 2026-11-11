@@ -123,6 +123,7 @@ final class TreeActivityScreen extends BorderPane {
         build.setMinWidth(210);
 
         Button search = Ui.primary("Search");
+        search.setOnAction(e -> search());
         searchField.setPromptText("Value");
         searchField.setOnAction(e -> search());
         searchField.setPrefWidth(130);
