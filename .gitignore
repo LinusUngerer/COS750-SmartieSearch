@@ -25,3 +25,6 @@ docs/**/*.out
 docs/**/*.synctex.gz
 docs/**/*.toc
 docs/**/*.pdf
+
+# Run and build logs
+*.log
