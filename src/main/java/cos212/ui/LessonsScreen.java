@@ -36,7 +36,7 @@ final class LessonsScreen extends VBox {
 
     /** Rebuilds the screen from the current diagnostic and progress. */
     void refresh() {
-        boolean unlocked = diagnostic.passed();
+        boolean unlocked = diagnostic.unlocked();
         getChildren().setAll(header(), banner(), lessonRow(unlocked), viewProgressRow());
     }
 
@@ -46,7 +46,7 @@ final class LessonsScreen extends VBox {
     }
 
     private HBox banner() {
-        String status = diagnostic.passed() ? "passed"
+        String status = diagnostic.unlocked() ? "passed"
                 : diagnostic.isComplete() ? "not passed"
                 : diagnostic.answered() > 0 ? "in progress"
                 : "not attempted";
