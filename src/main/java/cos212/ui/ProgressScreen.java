@@ -35,17 +35,44 @@ final class ProgressScreen extends VBox {
         }
         Button back = Ui.secondary("Back to lessons");
         back.setOnAction(e -> backToLessons.run());
-        VBox meaning = new VBox(4, Ui.title("What the bars mean"),
-                Ui.css(new Label("Practised: at least 5 items answered. Secure: at least 4 of your last 5 first"
-                        + " answers correct, with no hints."), "apricot-text"));
-        meaning.getStyleClass().add("apricot-card");
-        getChildren().setAll(header(), rows, meaning, Ui.row(8, back));
+        getChildren().setAll(header(), masteryGuide(), objectivesHeader(), rows, Ui.row(8, back));
     }
 
     private HBox header() {
-        Label subtitle = Ui.css(new Label("What you have practised so far, and how accurately."), "subtitle");
-        HBox header = Ui.row(10, new VBox(4, Ui.pageTitle("Progress"), subtitle), Ui.tag("FR10"));
+        Label subtitle = Ui.css(new Label("See what you have practised so far, and where to focus next."),
+                "subtitle");
+        long secure = Objectives.ALL.stream()
+                .filter(objective -> tracker.status(objective.id()) == ProgressTracker.Status.SECURE)
+                .count();
+        int average = (int) Math.round(Objectives.ALL.stream()
+                .mapToInt(objective -> tracker.progressPercent(objective.id())).average().orElse(0));
+        VBox summary = Ui.card(
+                Ui.css(new Label(secure + " of " + Objectives.ALL.size() + " secure"), "summary-value"),
+                Ui.note(average + "% practised"));
+        summary.getStyleClass().add("progress-summary");
+        HBox header = Ui.row(14, new VBox(4, Ui.pageTitle("Progress"), subtitle), summary);
+        HBox.setHgrow(header.getChildren().get(0), Priority.ALWAYS);
         header.setAlignment(Pos.TOP_LEFT);
+        return header;
+    }
+
+    private HBox masteryGuide() {
+        VBox copy = new VBox(4, Ui.title("How mastery works"),
+                Ui.css(new Label("Practised means at least 5 answers. Secure means at least 4 of your last 5"
+                        + " first answers were correct, with no hints."), "apricot-text"));
+        Button lessons = Ui.primary("Continue learning");
+        lessons.setOnAction(e -> backToLessons.run());
+        HBox.setHgrow(copy, Priority.ALWAYS);
+        HBox guide = Ui.row(16, copy, lessons);
+        guide.getStyleClass().add("mastery-guide");
+        return guide;
+    }
+
+    private HBox objectivesHeader() {
+        HBox legend = Ui.row(10, Ui.chip(ProgressTracker.Status.SECURE),
+                Ui.chip(ProgressTracker.Status.PRACTISED), Ui.chip(ProgressTracker.Status.UNTRIED));
+        HBox header = Ui.row(12, Ui.title("Learning objectives"), legend);
+        HBox.setHgrow(header.getChildren().get(0), Priority.ALWAYS);
         return header;
     }
 
@@ -53,15 +80,15 @@ final class ProgressScreen extends VBox {
         String id = objective.id();
         VBox name = new VBox(2, Ui.css(new Label(id), "mono-small"),
                 Ui.css(new Label(objective.title()), "card-title"), Ui.note(objective.description()));
-        name.setPrefWidth(300);
+        name.setPrefWidth(245);
 
         ProgressBar bar = Ui.bar(tracker.progressPercent(id) / 100.0);
         HBox.setHgrow(bar, Priority.ALWAYS);
 
         HBox chip = new HBox(Ui.chip(tracker.status(id)));
-        chip.setPrefWidth(95);
+        chip.setPrefWidth(82);
 
-        HBox row = Ui.row(16, name, bar, chip,
+        HBox row = Ui.row(12, name, bar, chip,
                 stat("Attempts", tracker.attempts(id)),
                 stat("First-time correct", tracker.correctFirst(id)),
                 stat("Hints used", tracker.hints(id)));
@@ -71,7 +98,7 @@ final class ProgressScreen extends VBox {
 
     private static VBox stat(String label, int value) {
         VBox box = new VBox(2, Ui.note(label), Ui.css(new Label(String.valueOf(value)), "stat-value"));
-        box.setPrefWidth(110);
+        box.setPrefWidth(78);
         return box;
     }
 }

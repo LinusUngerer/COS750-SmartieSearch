@@ -23,7 +23,8 @@ final class TreeCanvas extends Canvas {
     private static final double RADIUS = 20;
     private static final double TOP = 140;
     private static final double TOP_WITHOUT_KEY = 40;
-    private static final Color HIGHLIGHT = Color.web("#1d4ed8");
+    private static final Color HIGHLIGHT = Color.web("#021B6E");
+    private static final Color LINE = Color.web("#5B5366");
 
     private final boolean showKey;
     private NodeView<Integer> root;
@@ -61,7 +62,7 @@ final class TreeCanvas extends Canvas {
         g.setTextBaseline(VPos.CENTER);
 
         if (root == null) {
-            g.setFill(Color.GRAY);
+            g.setFill(LINE);
             g.setTextAlign(TextAlignment.LEFT);
             g.fillText("The tree is empty. Insert a value to start.", MARGIN, top);
         } else {
@@ -87,7 +88,7 @@ final class TreeCanvas extends Canvas {
             p.y = top + (p.depth + 0.5) * (height - top - MARGIN) / (maxDepth + 1);
         }
 
-        g.setStroke(Color.GRAY);
+        g.setStroke(LINE);
         g.setLineWidth(1);
         for (int[] edge : edges) {
             Placed from = placed.get(edge[0]);
@@ -105,7 +106,7 @@ final class TreeCanvas extends Canvas {
                 g.setLineWidth(4);
                 g.setLineDashes();
             } else {
-                g.setStroke(Color.GRAY);
+                g.setStroke(LINE);
                 g.setLineWidth(1);
                 if (isVisited) {
                     g.setLineDashes(5, 4);
@@ -130,9 +131,9 @@ final class TreeCanvas extends Canvas {
         double y = 16;
         double w = 230;
         double h = 118;
-        g.setFill(Color.WHITE);
+        g.setFill(Color.web("#FCF5EE"));
         g.fillRect(x, y, w, h);
-        g.setStroke(Color.GRAY);
+        g.setStroke(Color.web("#D8C7B1"));
         g.setLineWidth(1);
         g.strokeRect(x, y, w, h);
 
@@ -154,11 +155,11 @@ final class TreeCanvas extends Canvas {
                 g.setLineWidth(3);
                 g.setLineDashes();
             } else if (i == 2) {
-                g.setStroke(Color.GRAY);
+                g.setStroke(LINE);
                 g.setLineWidth(1);
                 g.setLineDashes(4, 3);
             } else {
-                g.setStroke(Color.GRAY);
+                g.setStroke(LINE);
                 g.setLineWidth(1);
                 g.setLineDashes();
             }

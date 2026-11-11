@@ -15,15 +15,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 /**
- * The tree activity. Build, Search and Traverse are on the left, the tree in the middle,
- * and the trace, the next-step prediction and the step controls on the right. Predictions
- * and hints are recorded in the progress tracker.
+ * The tree activity. The tree and trace share the main row; build, search, traversal,
+ * prediction and trace controls sit below it. Predictions and hints are recorded.
  */
 final class TreeActivityScreen extends BorderPane {
 
@@ -58,9 +58,9 @@ final class TreeActivityScreen extends BorderPane {
     TreeActivityScreen(ProgressTracker tracker) {
         this.tracker = tracker;
         setPadding(new Insets(12));
-        setLeft(leftColumn());
-        setCenter(centre());
-        setRight(rightColumn());
+        setTop(heading());
+        setCenter(mainArea());
+        setBottom(bottomArea());
         left.setOnAction(e -> predict(Move.LEFT));
         right.setOnAction(e -> predict(Move.RIGHT));
         hint.setOnAction(e -> showHint());
@@ -81,60 +81,76 @@ final class TreeActivityScreen extends BorderPane {
         }
     }
 
-    private VBox leftColumn() {
-        insertField.setPromptText("Value");
-        insertField.setOnAction(e -> insert());
+    private VBox heading() {
+        VBox copy = new VBox(4, Ui.pageTitle("Tree Activity"),
+                Ui.note("Create your own BST and follow along with the insertion, deletion, and traversal paths."));
+        VBox header = Ui.card(copy);
+        BorderPane.setMargin(header, new Insets(0, 0, 10, 0));
+        return header;
+    }
+
+    private HBox mainArea() {
+        StackPane pane = new StackPane(canvas);
+        pane.setPrefHeight(320);
+        canvas.widthProperty().bind(pane.widthProperty());
+        canvas.heightProperty().bind(pane.heightProperty());
+        VBox tree = Ui.card(Ui.note("Tree canvas. Current node: thick outline and the word current. Visited: dashed."),
+                pane);
+        VBox trace = Ui.card(Ui.titleRow("Trace"), traceList);
+        VBox.setVgrow(pane, Priority.ALWAYS);
+        VBox.setVgrow(traceList, Priority.ALWAYS);
+        HBox.setHgrow(tree, Priority.ALWAYS);
+        tree.setPrefWidth(0);
+        trace.setPrefWidth(280);
+        VBox.setVgrow(tree, Priority.ALWAYS);
+        VBox.setVgrow(trace, Priority.ALWAYS);
+        HBox main = new HBox(12, tree, trace);
+        VBox.setVgrow(main, Priority.ALWAYS);
+        return main;
+    }
+
+    private VBox bottomArea() {
         Button insert = Ui.primary("Insert");
         insert.setOnAction(e -> insert());
-        Button empty = Ui.secondary("New empty tree");
+        insertField.setPromptText("Value");
+        insertField.setOnAction(e -> insert());
+        insertField.setPrefWidth(130);
+        insertField.setMaxWidth(Double.MAX_VALUE);
+        Button empty = Ui.secondary("New tree");
         empty.setOnAction(e -> clearTree());
-        VBox build = Ui.card(Ui.titleRow("Build", "FR1"), Ui.note("Value"), insertField, insert,
-                Ui.noteWithTags("Duplicate shows a message and leaves the tree unchanged.", "FR2"), empty);
+        HBox buildInput = Ui.row(8, insertField, insert);
+        VBox build = new VBox(8, Ui.note("Insert value"), buildInput, empty);
+        build.setMinWidth(210);
 
+        Button search = Ui.primary("Search");
         searchField.setPromptText("Value");
         searchField.setOnAction(e -> search());
-        Button search = Ui.primary("Search");
-        search.setOnAction(e -> search());
-        VBox searchCard = Ui.card(Ui.titleRow("Search", "FR3"), Ui.note("Value"), searchField, search);
-
+        searchField.setPrefWidth(130);
+        searchField.setMaxWidth(Double.MAX_VALUE);
+        HBox searchInput = Ui.row(8, searchField, search);
+        VBox searchControls = new VBox(8, Ui.note("Search value"), searchInput);
+        searchControls.setMinWidth(210);
         Button inOrder = Ui.secondary("In-order");
         inOrder.setOnAction(e -> inOrder());
         traverseResult.setWrapText(true);
-        VBox traverse = Ui.card(Ui.titleRow("Traverse", "FR6"), inOrder, traverseResult);
-
-        VBox column = new VBox(12, build, searchCard, traverse);
-        column.setPadding(new Insets(0, 12, 0, 0));
-        column.setPrefWidth(240);
-        return column;
-    }
-
-    private VBox centre() {
-        StackPane pane = new StackPane(canvas);
-        canvas.widthProperty().bind(pane.widthProperty());
-        canvas.heightProperty().bind(pane.heightProperty());
-        VBox card = Ui.card(
-                Ui.noteWithTags("Tree canvas. Current node: thick outline and the word current. Visited: dashed.",
-                        "FR4", "FR5"),
-                pane);
-        VBox.setVgrow(pane, Priority.ALWAYS);
-        VBox.setVgrow(card, Priority.ALWAYS);
-        result.setMaxWidth(Double.MAX_VALUE);
-        return new VBox(12, card, result);
-    }
-
-    private VBox rightColumn() {
-        VBox trace = Ui.card(Ui.titleRow("Trace", null), traceList);
-        VBox.setVgrow(trace, Priority.ALWAYS);
-
-        HBox answers = new HBox(6, left, right, hint);
-        HBox stepButtons = new HBox(6, previous, next, reset);
-        VBox predict = Ui.card(Ui.titleRow("Predict the next step", "FR7"),
+        VBox controls = Ui.card(Ui.titleRow("Build, search and traverse"),
+                Ui.row(10, build, searchControls),
+                Ui.note("Duplicates leave the tree unchanged."),
+                inOrder, traverseResult);
+        HBox answers = new HBox(8, left, right, hint);
+        HBox stepButtons = new HBox(8, previous, next, reset);
+        VBox predict = Ui.card(Ui.titleRow("Predict the next step"),
                 Ui.note("Which subtree next?"), answers, hintText, predictFeedback, stepButtons, stepCaption);
-
-        VBox column = new VBox(12, trace, predict);
-        column.setPadding(new Insets(0, 0, 0, 12));
-        column.setPrefWidth(300);
-        return column;
+        controls.setMinWidth(440);
+        controls.setPrefWidth(470);
+        predict.setMinWidth(340);
+        predict.setPrefWidth(370);
+        FlowPane controlsRow = new FlowPane(12, 12, controls, predict);
+        controlsRow.setPrefWrapLength(900);
+        result.setMaxWidth(Double.MAX_VALUE);
+        VBox bottom = new VBox(10, result, controlsRow);
+        BorderPane.setMargin(bottom, new Insets(10, 0, 0, 0));
+        return bottom;
     }
 
     private void insert() {

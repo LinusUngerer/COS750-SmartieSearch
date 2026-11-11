@@ -50,7 +50,7 @@ final class LessonsScreen extends VBox {
                 : diagnostic.isComplete() ? "not passed"
                 : diagnostic.answered() > 0 ? "in progress"
                 : "not attempted";
-        VBox text = new VBox(6, Ui.titleRow("Diagnostic check", "FR8"),
+        VBox text = new VBox(6, Ui.titleRow("Diagnostic check"),
                 Ui.note("5 questions on the ordering rule. 4 correct unlocks the tree activities. Status: "
                         + status + "."));
         HBox.setHgrow(text, Priority.ALWAYS);
@@ -90,13 +90,14 @@ final class LessonsScreen extends VBox {
         open.setMaxWidth(Double.MAX_VALUE);
         open.setTooltip(new Tooltip("Lesson content is added in increment I4."));
         VBox card = Ui.card(id, Ui.title(lesson.title()), Ui.note(lesson.description()), objectives, lock, open);
-        card.setMinWidth(200);
+        card.getStyleClass().add("lesson-card");
+        card.setMinWidth(150);
         return card;
     }
 
     private HBox viewProgressRow() {
         Button view = Ui.secondary("View progress");
         view.setOnAction(e -> viewProgress.run());
-        return Ui.row(8, view, Ui.tag("FR10"));
+        return Ui.row(8, view);
     }
 }
