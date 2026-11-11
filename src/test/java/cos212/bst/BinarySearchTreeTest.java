@@ -43,6 +43,18 @@ class BinarySearchTreeTest {
         assertFalse(new BinarySearchTree<Integer>().contains(1));
     }
 
+    @Test
+    void clearRemovesEveryValue() {
+        BinarySearchTree<Integer> tree = new BinarySearchTree<>();
+        for (int v : new int[] {5, 3, 7}) {
+            tree.insert(v);
+        }
+        tree.clear();
+        assertEquals(0, tree.size());
+        assertFalse(tree.contains(5));
+        assertTrue(tree.insert(5));
+    }
+
     // ---- insertion -----------------------------------------------------------
 
     @Test

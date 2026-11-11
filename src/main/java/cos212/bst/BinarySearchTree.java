@@ -91,6 +91,14 @@ public class BinarySearchTree<T extends Comparable<T>> {
     }
 
     /**
+     * Removes every value, leaving an empty tree.
+     */
+    public void clear() {
+        root = null;
+        size = 0;
+    }
+
+    /**
      * A read-only view of one node, used to draw the tree. The view has no setters,
      * so the ordering invariant can only change through {@link #insert}.
      */
