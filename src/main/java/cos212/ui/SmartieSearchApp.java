@@ -3,6 +3,8 @@ package cos212.ui;
 import cos212.assess.Diagnostic;
 import cos212.assess.ProgressTracker;
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -12,23 +14,23 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 /**
- * The COS212 BST tutor window: a navy top bar with the three screens, and the screen in the
+ * The COS212 BST tutor window, with persistent navigation and the active screen in the
  * middle. The tree activity is locked until the diagnostic is passed, as FR8 requires.
- * Built as a landscape window, with a minimum size of 1024 by 680 pixels.
  */
 public final class SmartieSearchApp extends Application {
 
     private final ProgressTracker tracker = new ProgressTracker();
     private final Diagnostic diagnostic = new Diagnostic();
     private final BorderPane root = new BorderPane();
-    private final Button lessonsTab = Ui.tab("Lessons");
-    private final Button treeTab = Ui.tab("Tree activity");
-    private final Button progressTab = Ui.tab("Progress");
+    private final Button lessonsTab = Ui.nav("Lessons", "lessons");
+    private final Button diagnosticTab = Ui.nav("Diagnostic Gate", "diagnostic");
+    private final Button treeTab = Ui.nav("Tree Activity", "tree");
+    private final Button progressTab = Ui.nav("My Progress", "progress");
 
     private TreeActivityScreen treeScreen;
     private LessonsScreen lessonsScreen;
@@ -48,38 +50,56 @@ public final class SmartieSearchApp extends Application {
                 this::showTree, this::showLessons);
 
         lessonsTab.setOnAction(e -> showLessons());
+        diagnosticTab.setOnAction(e -> startDiagnostic());
         treeTab.setOnAction(e -> showTree());
         progressTab.setOnAction(e -> showProgress());
 
         root.getStyleClass().add("app");
         root.setTop(topBar());
+        root.setLeft(sidebar());
 
-        Scene scene = new Scene(root, 1280, 800);
+        Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+        double windowWidth = Math.min(1366, bounds.getWidth() * 0.98);
+        double windowHeight = Math.min(768, bounds.getHeight() * 0.96);
+        Scene scene = new Scene(root, Math.max(900, windowWidth - 16), Math.max(560, windowHeight - 40));
         scene.getStylesheets().add(getClass().getResource("app.css").toExternalForm());
         scene.setOnKeyPressed(e -> {
-            if (root.getCenter() == treeScreen && (e.getCode() == KeyCode.RIGHT
+            if (root.getCenter() instanceof ScrollPane pane && pane.getContent() == treeScreen
+                    && (e.getCode() == KeyCode.RIGHT
                     || e.getCode() == KeyCode.LEFT || e.getCode() == KeyCode.ESCAPE)) {
                 treeScreen.handleKey(e.getCode());
             }
         });
 
         stage.setTitle("COS212 Smartie Search");
-        stage.setMinWidth(1024);
-        stage.setMinHeight(680);
+        stage.setMinWidth(Math.min(980, windowWidth));
+        stage.setMinHeight(Math.min(620, windowHeight));
+        stage.setWidth(windowWidth);
+        stage.setHeight(windowHeight);
+        stage.setX(bounds.getMinX() + (bounds.getWidth() - windowWidth) / 2);
+        stage.setY(bounds.getMinY() + (bounds.getHeight() - windowHeight) / 2);
         stage.setScene(scene);
         stage.show();
         showLessons();
     }
 
     private HBox topBar() {
-        Label title = Ui.css(new Label("COS212 BST tutor"), "top-title");
-        Region space = new Region();
-        HBox.setHgrow(space, Priority.ALWAYS);
-        treeTab.setTooltip(new Tooltip("Pass the diagnostic check to unlock the tree activities."));
-        HBox bar = Ui.row(28, title, space, lessonsTab, treeTab, progressTab);
+        Label mark = Ui.css(new Label("🌳"), "brand-mark");
+        Label title = Ui.css(new Label("SmartieSearch"), "top-title");
+        HBox brand = Ui.row(12, mark, title);
+        HBox bar = Ui.row(28, brand);
         bar.getStyleClass().add("top-bar");
+        treeTab.setTooltip(new Tooltip("Pass the diagnostic check to unlock the tree activities."));
         onDiagnosticChanged();
         return bar;
+    }
+
+    private VBox sidebar() {
+        VBox navigation = new VBox(10, lessonsTab, diagnosticTab, treeTab, progressTab);
+        navigation.getStyleClass().add("sidebar-nav");
+        VBox side = new VBox(navigation);
+        side.getStyleClass().add("sidebar");
+        return side;
     }
 
     private void showLessons() {
@@ -89,7 +109,7 @@ public final class SmartieSearchApp extends Application {
     }
 
     private void startDiagnostic() {
-        select(lessonsTab);
+        select(diagnosticTab);
         root.setCenter(scroll(diagnosticScreen));
         diagnosticScreen.restart();
     }
@@ -99,7 +119,7 @@ public final class SmartieSearchApp extends Application {
             return;
         }
         select(treeTab);
-        root.setCenter(treeScreen);
+        root.setCenter(scroll(treeScreen));
     }
 
     private void showProgress() {
@@ -117,16 +137,17 @@ public final class SmartieSearchApp extends Application {
     }
 
     private void select(Button tab) {
-        for (Button other : new Button[] {lessonsTab, treeTab, progressTab}) {
+        for (Button other : new Button[] {lessonsTab, diagnosticTab, treeTab, progressTab}) {
             other.getStyleClass().remove("tab-selected");
         }
         tab.getStyleClass().add("tab-selected");
     }
 
-    private static ScrollPane scroll(Node content) {
+    private ScrollPane scroll(Node content) {
         ScrollPane pane = new ScrollPane(content);
         pane.setFitToWidth(true);
-        pane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        pane.getStyleClass().add("content-scroll");
+        BorderPane.setMargin(pane, new Insets(8, 8, 8, 0));
         return pane;
     }
 }

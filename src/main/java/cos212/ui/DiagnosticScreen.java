@@ -12,6 +12,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -20,7 +21,7 @@ import javafx.scene.layout.VBox;
  * rule, and a result that unlocks the tree activities or routes the student to the lessons
  * for the gaps.
  */
-final class DiagnosticScreen extends HBox {
+final class DiagnosticScreen extends VBox {
 
     private final List<DiagnosticBank.Item> items = DiagnosticBank.ITEMS;
     private final ProgressTracker tracker;
@@ -32,6 +33,7 @@ final class DiagnosticScreen extends HBox {
     private final TreeCanvas canvas = new TreeCanvas(false);
     private final Label question = Ui.css(new Label(), "card-title");
     private final Label progress = Ui.css(new Label(), "subtitle");
+    private final Label status = Ui.css(new Label(), "diagnostic-status");
     private final ToggleGroup group = new ToggleGroup();
     private final VBox choices = new VBox(8);
     private final Button submit = Ui.primary("Submit answer");
@@ -50,29 +52,47 @@ final class DiagnosticScreen extends HBox {
         this.onChange = onChange;
         this.openTree = openTree;
         this.backToLessons = backToLessons;
-        setSpacing(16);
-        setPadding(new Insets(22, 28, 22, 28));
+        setSpacing(14);
+        setPadding(new Insets(22, 24, 22, 24));
 
         question.setWrapText(true);
         progress.setWrapText(true);
         submit.setOnAction(e -> submit());
         StackPane canvasPane = new StackPane(canvas);
-        canvasPane.setPrefHeight(230);
+        canvasPane.setPrefHeight(260);
         canvas.widthProperty().bind(canvasPane.widthProperty());
         canvas.heightProperty().bind(canvasPane.heightProperty());
 
-        questionArea.getChildren().setAll(Ui.card(question, Ui.note("Look at the whole tree, then pick an answer."),
-                canvasPane, choices, Ui.row(10, submit, error, Ui.tag("FR8"))));
-        VBox left = new VBox(16, new VBox(4, Ui.pageTitle("Diagnostic check"), progress), questionArea);
-        HBox.setHgrow(left, Priority.ALWAYS);
+        VBox treePanel = Ui.card(Ui.title("Question tree"),
+                Ui.note("Look at the whole tree before choosing."), canvasPane);
+        Region answerSpacer = new Region();
+        VBox.setVgrow(answerSpacer, Priority.ALWAYS);
+        submit.setMaxWidth(Double.MAX_VALUE);
+        VBox answerPanel = Ui.card(Ui.title("Pick one answer"), choices, answerSpacer, submit, error);
+        answerPanel.setMinWidth(310);
+        treePanel.setMinWidth(290);
+        HBox questionColumns = new HBox(14, treePanel, answerPanel);
+        HBox.setHgrow(treePanel, Priority.ALWAYS);
+        HBox.setHgrow(answerPanel, Priority.ALWAYS);
+        treePanel.prefWidthProperty().bind(questionColumns.widthProperty().multiply(0.58).subtract(8));
+        answerPanel.prefWidthProperty().bind(questionColumns.widthProperty().multiply(0.42).subtract(6));
+        questionColumns.setMinHeight(350);
+        VBox.setVgrow(questionColumns, Priority.ALWAYS);
+        questionArea.getChildren().setAll(question, questionColumns);
 
         Button back = Ui.secondary("Back to lessons");
         back.setOnAction(e -> backToLessons.run());
-        VBox right = new VBox(16, feedbackArea, resultArea, back);
-        right.setPrefWidth(340);
-
-        getChildren().setAll(left, right);
+        getChildren().setAll(header(), progress, questionArea, feedbackArea, resultArea, back);
         restart();
+    }
+
+    private HBox header() {
+        VBox title = new VBox(4, Ui.pageTitle("Diagnostic Gate"),
+                Ui.note("Check your understanding of the BST ordering rule."));
+        VBox statusCard = Ui.card(Ui.note("Status"), status);
+        statusCard.getStyleClass().add("diagnostic-status-card");
+        HBox.setHgrow(title, Priority.ALWAYS);
+        return Ui.row(14, title, statusCard);
     }
 
     /** Starts the diagnostic from the first item, with no answers recorded. */
@@ -85,6 +105,7 @@ final class DiagnosticScreen extends HBox {
         feedbackArea.getChildren().clear();
         resultArea.getChildren().clear();
         showItem();
+        updateStatus();
         onChange.run();
     }
 
@@ -130,6 +151,7 @@ final class DiagnosticScreen extends HBox {
         error.setText("");
         feedbackArea.getChildren().setAll(feedbackCard(correct, item));
         updateProgress();
+        updateStatus();
         onChange.run();
     }
 
@@ -138,7 +160,7 @@ final class DiagnosticScreen extends HBox {
         next.setOnAction(e -> next());
         Label body = Ui.css(new Label(correct ? item.correctFeedback() : item.wrongFeedback()), "feedback-body");
         body.setWrapText(true);
-        VBox card = Ui.card(Ui.titleRow(correct ? "Correct" : "Not quite", "FR9"), body, Ui.row(8, next));
+        VBox card = Ui.card(Ui.titleRow(correct ? "Correct" : "Not quite"), body, Ui.row(8, next));
         card.getStyleClass().add(correct ? "feedback-right" : "feedback-wrong");
         return card;
     }
@@ -166,13 +188,13 @@ final class DiagnosticScreen extends HBox {
         if (diagnostic.passed()) {
             Button open = Ui.primary("Open tree activity");
             open.setOnAction(e -> openTree.run());
-            resultArea.getChildren().add(Ui.card(Ui.titleRow("Gate passed", "FR8"),
+            resultArea.getChildren().add(Ui.card(Ui.titleRow("Gate passed"),
                     Ui.css(new Label(score + " The tree activities are now unlocked."), "result-text"), open));
         } else {
             Button retry = Ui.secondary("Retry the diagnostic");
             retry.setOnAction(e -> restart());
             String missed = String.join(", ", diagnostic.missedLessons());
-            resultArea.getChildren().add(Ui.card(Ui.titleRow("Result when the gate is failed", "FR8"),
+            resultArea.getChildren().add(Ui.card(Ui.titleRow("Result when the gate is failed"),
                     Ui.css(new Label(score + " The ordering rule is not secure yet."), "result-text"),
                     Ui.note("Go to " + missed + " before you retry."),
                     Ui.row(8, retry)));
@@ -185,7 +207,17 @@ final class DiagnosticScreen extends HBox {
         for (int i = 0; i < items.size(); i++) {
             dots.append(i <= index ? "● " : "○ ");
         }
-        progress.setText("Question " + (index + 1) + " of " + items.size() + "   " + dots.toString().trim()
-                + "   No timer. Choose one answer, then submit.");
+        progress.setText("Question " + (index + 1) + " of " + items.size() + "    "
+                + dots.toString().trim() + "    No timer. Choose one answer, then submit.");
+    }
+
+    private void updateStatus() {
+        status.setText(diagnostic.passed() ? "Passed"
+                : diagnostic.isComplete() ? "Not passed"
+                : diagnostic.answered() > 0 ? "In progress"
+                : "Not started");
+        status.getStyleClass().removeAll("status-passed", "status-progress", "status-unattempted");
+        status.getStyleClass().add(diagnostic.passed() ? "status-passed"
+                : diagnostic.answered() > 0 ? "status-progress" : "status-unattempted");
     }
 }
