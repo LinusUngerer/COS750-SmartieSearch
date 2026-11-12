@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The content of the four lessons. Each lesson follows the structure in the content design
+ * The content of the five lessons, L0 to L4. Each lesson follows the structure in the content design
  * section of the ID document: Predict (answer before any explanation), Show (a worked
  * example, step by step), Try (a similar example with a hint available) and Check (formative
  * questions that are recorded in the progress record). The misconceptions M1 to M6 that each
@@ -77,6 +77,37 @@ final class LessonBank {
         return from > to ? null : node(from, null, chain(from + 1, to));
     }
 
+    // ---- L0: what is a BST? (define-bst) -------------------------------------------------
+    // SCAFFOLD: the structure (Predict, Show, Try, Check) and the progress wiring are in place.
+    // Every text below marked TODO is a placeholder to be replaced with the real lesson content.
+    // The Try and Check pages record against "define-bst", so the Lessons and Progress screens
+    // already respond to them.
+
+    private static final List<Page> L0 = List.of(
+            predict(BALANCED_50,
+                    "TODO (Predict): a question that surfaces the student's current idea of what a BST is.",
+                    List.of("TODO: choice A", "TODO: choice B (correct)", "TODO: choice C", "TODO: choice D"),
+                    1,
+                    "TODO: feedback when the prediction is right.",
+                    "TODO: feedback when the prediction is wrong. Not recorded."),
+            show("TODO (Show): what a binary tree is", BALANCED_50, 50, Set.of(),
+                    "TODO: define a binary tree (each node has at most a left and a right child)."),
+            show("TODO (Show): what makes it a search tree", BALANCED_50, 30, Set.of(50),
+                    "TODO: state the definition of a BST in words, using a worked example."),
+            tryIt("define-bst", BALANCED_40, 40, Set.of(),
+                    "TODO (Try): a question like the worked example, with a hint available.",
+                    List.of("TODO: choice A", "TODO: choice B (correct)", "TODO: choice C", "TODO: choice D"),
+                    1,
+                    "TODO: feedback when right.",
+                    "TODO: feedback when wrong.",
+                    "TODO: hint."),
+            check("define-bst", BALANCED_50,
+                    "TODO (Check): a question that tests the definition of a BST.",
+                    List.of("TODO: choice A", "TODO: choice B", "TODO: choice C (correct)", "TODO: choice D"),
+                    2,
+                    "TODO: feedback when right.",
+                    "TODO: feedback when wrong."));
+
     // ---- L1: the ordering rule -----------------------------------------------------------
 
     private static final Shape DEEP_BREAK = node(50, node(30, leaf(20), leaf(60)), node(70, leaf(55), leaf(80)));
@@ -112,7 +143,7 @@ final class LessonBank {
                     "Replace 60 with 40 and the tree is a BST. 40 is larger than 30, so it belongs on 30's"
                             + " right, and it is smaller than 50, so it belongs in 50's left subtree. A value"
                             + " must fit every subtree it is in."),
-            tryIt("define-bst", BALANCED_40, 40, Set.of(),
+            tryIt("ordering-rule", BALANCED_40, 40, Set.of(),
                     "Suppose 45 is added to this tree. Inside which subtree of 40 must it sit?",
                     List.of("The left subtree of 40", "The right subtree of 40",
                             "Either subtree: both have room", "Neither: 45 cannot be added"),
@@ -131,7 +162,7 @@ final class LessonBank {
                     "Check each value against every ancestor. 45 is in 40's left subtree, but 45 is larger"
                             + " than 40.",
                     "45 is in 40's left subtree. What must be true of every value there?"),
-            check("define-bst", BALANCED_50, "Which sentence defines a binary search tree?",
+            check("ordering-rule", BALANCED_50, "Which sentence defines a binary search tree?",
                     List.of("A binary tree where every node has zero or two children",
                             "A binary tree where each node's left child is smaller and its right child is"
                                     + " larger",
@@ -376,7 +407,7 @@ final class LessonBank {
                     "The values do not decide the cost: the shape does. A search can go as deep as the"
                             + " height, so a taller tree can need more comparisons."));
 
-    static final Map<String, List<Page>> PAGES = Map.of("L1", L1, "L2", L2, "L3", L3, "L4", L4);
+    static final Map<String, List<Page>> PAGES = Map.of("L0", L0, "L1", L1, "L2", L2, "L3", L3, "L4", L4);
 
     private LessonBank() {
     }

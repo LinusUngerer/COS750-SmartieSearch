@@ -22,9 +22,12 @@ final class Objectives {
             new Objective("shape-cost", "Shape and cost", "Predict how tree shape changes cost"));
 
     static final List<Lesson> LESSONS = List.of(
+            new Lesson("L0", "What is a BST?",
+                    "Define a binary search tree and state its ordering rule in words.",
+                    List.of("define-bst")),
             new Lesson("L1", "The ordering rule",
-                    "What a BST is and why left is smaller, right is larger.",
-                    List.of("define-bst", "ordering-rule")),
+                    "Why left is smaller, right is larger, and how to check a whole subtree.",
+                    List.of("ordering-rule")),
             new Lesson("L2", "Searching", "Use the rule to choose a subtree at each node.",
                     List.of("trace-search")),
             new Lesson("L3", "Inserting", "Follow the search path and attach a new leaf.",

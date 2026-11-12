@@ -7,7 +7,8 @@ it can be reviewed and revised without changing Java.
 
 | File | Contents |
 |---|---|
-| `L1-ordering-rule.md` | The ordering rule and checking a whole subtree (objectives `define-bst`, `ordering-rule`) |
+| `L0-define-bst.md` | What a BST is, in words (objective `define-bst`) |
+| `L1-ordering-rule.md` | The ordering rule and checking a whole subtree (objective `ordering-rule`) |
 | `L2-searching.md` | How a search chooses a subtree at each node (objective `trace-search`) |
 | `L3-inserting.md` | Insertion as a leaf, and duplicate rejection (objective `trace-insert`) |
 | `L4-shape-and-height.md` | Why insertion order changes the shape (objective `shape-cost`) |

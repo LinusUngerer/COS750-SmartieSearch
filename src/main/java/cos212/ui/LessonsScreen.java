@@ -14,7 +14,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 /**
- * The lesson list: the diagnostic check, then the four lessons in order. Lessons stay
+ * The lesson list: the diagnostic check, then the five lessons in order, L0 first. Lessons stay
  * locked until the diagnostic is passed. Each lesson's button opens it at the page the
  * student reached last time.
  */
@@ -47,7 +47,7 @@ final class LessonsScreen extends VBox {
     }
 
     private VBox header() {
-        Label subtitle = Ui.css(new Label("Four lessons, in order. Start with the diagnostic."), "subtitle");
+        Label subtitle = Ui.css(new Label("Five lessons, in order. Start with the diagnostic."), "subtitle");
         return new VBox(4, Ui.pageTitle("Lessons"), subtitle);
     }
 

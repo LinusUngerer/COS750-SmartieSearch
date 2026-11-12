@@ -20,8 +20,8 @@ Tree activity and Progress. `SmartieSearchApp` is the entry point. Run it with
   predict panel with Left, Right and three hints. Predictions and hints are recorded.
 - `DiagnosticScreen`: five questions in `DiagnosticBank`. Four correct passes the gate and
   unlocks the tree activity; a failed result names the lessons to revisit.
-- `LessonsScreen`: the diagnostic banner and the four lessons, locked until the gate is
-  passed. The Open lesson buttons stay disabled until lesson content is written (I4).
+- `LessonsScreen`: the diagnostic banner and the five lessons (L0 to L4), locked until the gate is
+  passed. The Open lesson buttons open each lesson; L0 is placeholder scaffolding until its content is written.
 - `ProgressScreen`: one row per objective, with the mastery status from `ProgressTracker`.
 
 Styles are in `src/main/resources/cos212/ui/app.css`. The colours and sizes follow the
