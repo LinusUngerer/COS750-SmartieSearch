@@ -31,39 +31,49 @@ final class LessonBank {
     }
 
     /**
-     * One page of a lesson: either an explanation (no choices) or a multiple-choice question.
+     * One page of a lesson: either an explanation, a multiple-choice question or a fill-in question.
      * Predict questions are not recorded; Try and Check questions are recorded against
      * {@code objective}, with any hint the student used.
      */
     record Page(Stage stage, String title, Shape tree, Integer current, Set<Integer> visited, String text,
             List<String> choices, int correct, String rightFeedback, String wrongFeedback, String hint,
-            String objective) {
+            String objective, Set<RepresentationMode> modes, List<String> fillAnswers) {
 
         boolean isQuestion() {
-            return choices != null;
+            return choices != null || fillAnswers != null;
         }
     }
 
     private static Page show(String title, Shape tree, Integer current, Set<Integer> visited, String text) {
-        return new Page(Stage.SHOW, title, tree, current, visited, text, null, -1, null, null, null, null);
+        return new Page(Stage.SHOW, title, tree, current, visited, text, null, -1, null, null, null, null,
+                Set.of(RepresentationMode.VISUAL, RepresentationMode.READ_WRITE), null);
     }
 
     private static Page predict(Shape tree, String question, List<String> choices, int correct,
             String right, String wrong) {
         return new Page(Stage.PREDICT, "Predict before you learn", tree, null, Set.of(), question, choices,
-                correct, right, wrong, null, null);
+                correct, right, wrong, null, null,
+                Set.of(RepresentationMode.VISUAL, RepresentationMode.READ_WRITE), null);
     }
 
     private static Page tryIt(String objective, Shape tree, Integer current, Set<Integer> visited,
             String question, List<String> choices, int correct, String right, String wrong, String hint) {
         return new Page(Stage.TRY, "Your turn", tree, current, visited, question, choices, correct, right,
-                wrong, hint, objective);
+                wrong, hint, objective, Set.of(RepresentationMode.VISUAL, RepresentationMode.READ_WRITE), null);
     }
 
     private static Page check(String objective, Shape tree, String question, List<String> choices,
             int correct, String right, String wrong) {
         return new Page(Stage.CHECK, "Check your understanding", tree, null, Set.of(), question, choices,
-                correct, right, wrong, null, objective);
+                correct, right, wrong, null, objective,
+                Set.of(RepresentationMode.VISUAL, RepresentationMode.READ_WRITE), null);
+    }
+
+    private static Page fillIn(String objective, Shape tree, String question, List<String> answers,
+            String right, String wrong) {
+        return new Page(Stage.CHECK, "Check your understanding", tree, null, Set.of(), question, null, -1,
+                right, wrong, null, objective,
+                Set.of(RepresentationMode.VISUAL, RepresentationMode.READ_WRITE), answers);
     }
 
     // ---- trees used across the lessons ---------------------------------------------------
@@ -159,6 +169,11 @@ final class LessonBank {
                             + " same holds at 2 and at 6.",
                     "Check the ordering at each node. The root can be any value, and a BST can have any number"
                             + " of nodes. Here every left value is smaller and every right value is larger."),
+            fillIn("define-bst", BALANCED_50,
+                    "Complete: Values smaller than a node go in its ___ subtree.",
+                    List.of("left"),
+                    "Correct: smaller values belong in the left subtree.",
+                    "Compare the value with its node. Smaller values belong on the left."),
             check("define-bst", CHAIN_7, "Is this tree a binary search tree?",
                     List.of("No: a BST must have nodes on both sides",
                             "Yes: each value is larger than those above it, so the ordering holds",
@@ -324,7 +339,12 @@ final class LessonBank {
                     1,
                     "65 > 60, and larger values are always on the right.",
                     "Pair the direction with the comparison: larger goes right, smaller goes left. 65 is"
-                            + " larger than 60."));
+                            + " larger than 60."),
+            fillIn("trace-search", BALANCED_50,
+                    "Complete: 60 is ___ than 50, so the search goes ___.",
+                    List.of("larger", "right"),
+                    "Correct: 60 is larger than 50, so the search goes right.",
+                    "Compare 60 with 50. Larger values go right."));
 
     // ---- L3: inserting -------------------------------------------------------------------
 
@@ -397,7 +417,12 @@ final class LessonBank {
                     List.of("40, 20 and 10", "10 only", "40, 60 and 70", "Every node"),
                     0,
                     "5 < 40, left. 5 < 20, left. 5 < 10, left, which is empty: 5 becomes 10's left child.",
-                    "Insertion follows the search path from the root: 40, then 20, then 10."));
+                    "Insertion follows the search path from the root: 40, then 20, then 10."),
+            fillIn("trace-insert", BALANCED_40,
+                    "Complete: 55 is ___ than 40, so it first goes ___.",
+                    List.of("larger", "right"),
+                    "Correct: 55 is larger than 40, so it first goes right.",
+                    "Insertion starts at the root, 40. Larger values go right."));
 
     // ---- L4: shape and height ------------------------------------------------------------
 

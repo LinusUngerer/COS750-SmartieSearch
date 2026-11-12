@@ -39,8 +39,17 @@ class LessonBankTest {
                 if (!page.isQuestion()) {
                     continue;
                 }
-                assertTrue(page.correct() >= 0 && page.correct() < page.choices().size(),
-                        lesson.id() + ": correct index out of range in " + page.text());
+                assertTrue(page.modes().contains(RepresentationMode.VISUAL),
+                        lesson.id() + ": question is missing its tree representation");
+                assertTrue(page.modes().contains(RepresentationMode.READ_WRITE),
+                        lesson.id() + ": question is missing its text representation");
+                if (page.fillAnswers() != null) {
+                    assertTrue(!page.fillAnswers().isEmpty(), lesson.id() + ": fill-in has no answers");
+                    assertNull(page.choices(), lesson.id() + ": fill-in should not expose answer choices");
+                } else {
+                    assertTrue(page.correct() >= 0 && page.correct() < page.choices().size(),
+                            lesson.id() + ": correct index out of range in " + page.text());
+                }
                 assertNotNull(page.rightFeedback());
                 assertNotNull(page.wrongFeedback());
                 if (page.stage() == LessonBank.Stage.PREDICT) {
@@ -63,5 +72,16 @@ class LessonBankTest {
                     .anyMatch(p -> p.stage() == LessonBank.Stage.CHECK && objective.id().equals(p.objective()));
             assertTrue(checked, objective.id() + " has no Check question");
         }
+    }
+
+    @Test
+    void fillInQuestionsAreAvailableForSearchAndInsertion() {
+        List<LessonBank.Page> fillIns = LessonBank.PAGES.values().stream().flatMap(List::stream)
+                .filter(page -> page.fillAnswers() != null)
+                .toList();
+
+        assertTrue(fillIns.size() >= 2);
+        assertTrue(fillIns.stream().anyMatch(page -> "trace-search".equals(page.objective())));
+        assertTrue(fillIns.stream().anyMatch(page -> "trace-insert".equals(page.objective())));
     }
 }

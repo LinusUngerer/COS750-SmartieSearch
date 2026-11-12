@@ -5,6 +5,7 @@ import java.util.List;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -23,6 +24,7 @@ final class QuestionView extends VBox {
     }
 
     private final List<Option> options = new ArrayList<>();
+    private final List<TextField> blanks = new ArrayList<>();
     private final Runnable onSelect;
     private int selected = -1;
     private boolean graded;
@@ -38,6 +40,7 @@ final class QuestionView extends VBox {
     /** Shows a new set of answers, with nothing selected. */
     void show(List<String> choices) {
         options.clear();
+        blanks.clear();
         getChildren().clear();
         for (int i = 0; i < choices.size(); i++) {
             Option option = optionCard(i, choices.get(i));
@@ -48,9 +51,42 @@ final class QuestionView extends VBox {
         graded = false;
     }
 
+    /** Shows text fields for a fill-in-the-blank question. */
+    void showFillIn(int blankCount) {
+        options.clear();
+        blanks.clear();
+        getChildren().clear();
+        HBox fields = Ui.row(8);
+        for (int i = 0; i < blankCount; i++) {
+            Label label = Ui.css(new Label("Blank " + (i + 1)), "option-letter");
+            TextField field = new TextField();
+            field.setPromptText("Type answer");
+            field.setPrefColumnCount(9);
+            field.textProperty().addListener((obs, oldValue, newValue) -> onSelect.run());
+            blanks.add(field);
+            fields.getChildren().addAll(label, field);
+        }
+        getChildren().add(fields);
+        selected = -1;
+        graded = false;
+    }
+
     /** @return the index of the selected answer, or -1 if none is selected */
     int selected() {
         return selected;
+    }
+
+    /** @return whether the current question has a complete response */
+    boolean hasAnswer() {
+        return blanks.isEmpty() ? selected >= 0
+                : blanks.stream().allMatch(field -> !field.getText().isBlank());
+    }
+
+    /** Compares fill-in responses without regard to case or surrounding whitespace. */
+    boolean matches(List<String> expected) {
+        return blanks.size() == expected.size()
+                && java.util.stream.IntStream.range(0, blanks.size())
+                        .allMatch(i -> blanks.get(i).getText().trim().equalsIgnoreCase(expected.get(i).trim()));
     }
 
     /** @return whether the current answers have been graded */
@@ -67,10 +103,15 @@ final class QuestionView extends VBox {
      * @param pill a short extra note shown as a pill, or {@code null} for none
      */
     void grade(boolean correct, String heading, String body, String pill) {
-        if (graded || selected < 0) {
+        if (graded || !hasAnswer()) {
             return;
         }
         graded = true;
+        if (!blanks.isEmpty()) {
+            blanks.forEach(field -> field.setDisable(true));
+            getChildren().add(feedbackPanel(correct, heading, body, pill));
+            return;
+        }
         for (int i = 0; i < options.size(); i++) {
             Option option = options.get(i);
             option.card().setCursor(Cursor.DEFAULT);
