@@ -22,7 +22,7 @@ import javafx.stage.Stage;
 
 /**
  * The COS212 BST tutor window, with persistent navigation and the active screen in the
- * middle. The tree activity is locked until the diagnostic is passed, as FR8 requires.
+ * middle. The lessons are open from the start; the tree activity is locked until the diagnostic is passed, as FR8 requires.
  */
 public final class SmartieSearchApp extends Application {
 
@@ -119,9 +119,6 @@ public final class SmartieSearchApp extends Application {
     }
 
     private void openLesson(Objectives.Lesson lesson) {
-        if (!diagnostic.unlocked()) {
-            return;
-        }
         select(lessonsTab);
         root.setCenter(scroll(lessonScreen));
         lessonScreen.open(lesson);
@@ -147,7 +144,7 @@ public final class SmartieSearchApp extends Application {
         root.setCenter(scroll(progressScreen));
     }
 
-    /** Keeps the tree activity unlocked only after the gate is passed, and refreshes the lessons. */
+    /** Keeps the tree activity unlocked only after the gate is passed, and refreshes the lessons banner. */
     private void onDiagnosticChanged() {
         treeTab.setDisable(!diagnostic.unlocked());
         if (lessonsScreen != null) {
