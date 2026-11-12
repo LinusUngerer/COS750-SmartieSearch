@@ -1,8 +1,6 @@
 package cos212.bst;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A binary search tree that enforces the ordering invariant: every value in the
@@ -92,6 +90,29 @@ public class BinarySearchTree<T extends Comparable<T>> {
         inOrder(node.left, values);
         values.add(node.value);
         inOrder(node.right, values);
+    }
+
+    /**
+     * @return the stored values level by level, from the root down, left to right
+     */
+    public List<T> breadthFirst() {
+        List<T> values = new ArrayList<>(size);
+        if (root == null) {
+            return values;
+        }
+        Queue<BSTNode<T>> queue = new ArrayDeque<>();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            BSTNode<T> node = queue.remove();
+            values.add(node.value);
+            if (node.left != null) {
+                queue.add(node.left);
+            }
+            if (node.right != null) {
+                queue.add(node.right);
+            }
+        }
+        return values;
     }
 
     /**

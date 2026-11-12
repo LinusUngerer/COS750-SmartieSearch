@@ -20,6 +20,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Region;
 
 /**
  * The tree activity. The tree and trace share the main row; build, search, traversal,
@@ -92,9 +93,31 @@ final class TreeActivityScreen extends BorderPane {
     private HBox mainArea() {
         StackPane pane = new StackPane(canvas);
         pane.setPrefHeight(320);
-        VBox tree = Ui.card(Ui.note("Tree canvas. Current node: thick outline and the word current. Visited: dashed."),
-                pane);
+
         VBox trace = Ui.card(Ui.titleRow("Trace"), traceList);
+
+        Button keyToggle = Ui.secondary("Hide Key");
+        keyToggle.setOnAction(e -> {
+            boolean show = !canvas.isKeyShown();
+            canvas.setKeyShown(show);
+            keyToggle.setText(show ? "Hide Key" : "Show Key");
+        });
+
+        Button traceToggle = Ui.secondary("Hide Trace");
+        traceToggle.setOnAction(e -> {
+            boolean show = !trace.isVisible();
+            trace.setVisible(show);
+            trace.setManaged(show);   // frees the space so the tree widens
+            traceToggle.setText(show ? "Hide Trace" : "Show Trace");
+        });
+        keyToggle.setMinWidth(Region.USE_PREF_SIZE);
+        traceToggle.setMinWidth(Region.USE_PREF_SIZE);
+        HBox toggles = new HBox(8, keyToggle, traceToggle);
+
+        VBox tree = Ui.card(
+                Ui.note("Tree canvas. Current node: thick outline and the word current. Visited: dashed."),
+                toggles, pane);
+
         VBox.setVgrow(pane, Priority.ALWAYS);
         VBox.setVgrow(traceList, Priority.ALWAYS);
         HBox.setHgrow(tree, Priority.ALWAYS);
@@ -110,42 +133,58 @@ final class TreeActivityScreen extends BorderPane {
     private VBox bottomArea() {
         Button insert = Ui.primary("Insert");
         insert.setOnAction(e -> insert());
+        insert.setMinWidth(Region.USE_PREF_SIZE);
         insertField.setPromptText("Value");
         insertField.setOnAction(e -> insert());
-        insertField.setPrefWidth(130);
-        insertField.setMaxWidth(Double.MAX_VALUE);
+        insertField.setPrefWidth(110);
+        insertField.setMinWidth(60);
+        HBox.setHgrow(insertField, Priority.ALWAYS);
         Button empty = Ui.secondary("New tree");
         empty.setOnAction(e -> clearTree());
         HBox buildInput = Ui.row(8, insertField, insert);
         VBox build = new VBox(8, Ui.note("Insert value"), buildInput, empty);
-        build.setMinWidth(210);
+        build.setMinWidth(Region.USE_PREF_SIZE);
 
         Button search = Ui.primary("Search");
         search.setOnAction(e -> search());
+        search.setMinWidth(Region.USE_PREF_SIZE);
         searchField.setPromptText("Value");
         searchField.setOnAction(e -> search());
-        searchField.setPrefWidth(130);
-        searchField.setMaxWidth(Double.MAX_VALUE);
+        searchField.setPrefWidth(110);
+        searchField.setMinWidth(60);
+        HBox.setHgrow(searchField, Priority.ALWAYS);
         HBox searchInput = Ui.row(8, searchField, search);
         VBox searchControls = new VBox(8, Ui.note("Search value"), searchInput);
-        searchControls.setMinWidth(210);
-        Button inOrder = Ui.secondary("In-order");
-        inOrder.setOnAction(e -> inOrder());
+        searchControls.setMinWidth(Region.USE_PREF_SIZE);
+
+        // CHANGED: renamed to Depth First, and Breadth First added beside it
+        Button depthFirst = Ui.secondary("Depth First");
+        depthFirst.setOnAction(e -> inOrder());
+        depthFirst.setMinWidth(Region.USE_PREF_SIZE);
+        Button breadthFirst = Ui.secondary("Breadth First");
+        breadthFirst.setOnAction(e -> BFT());
+        breadthFirst.setMinWidth(Region.USE_PREF_SIZE);
+        HBox traversals = Ui.row(8, depthFirst, breadthFirst);
+
         traverseResult.setWrapText(true);
+        traverseResult.setMaxWidth(420);
+
         VBox controls = Ui.card(Ui.titleRow("Build, search and traverse"),
                 Ui.row(10, build, searchControls),
                 Ui.note("Duplicates leave the tree unchanged."),
-                inOrder, traverseResult);
+                traversals, traverseResult);
+
         HBox answers = new HBox(8, left, right, hint);
         HBox stepButtons = new HBox(8, previous, next, reset);
         VBox predict = Ui.card(Ui.titleRow("Predict the next step"),
                 Ui.note("Which subtree next?"), answers, hintText, predictFeedback, stepButtons, stepCaption);
-        controls.setMinWidth(440);
-        controls.setPrefWidth(470);
-        predict.setMinWidth(340);
-        predict.setPrefWidth(370);
+
+        controls.setMinWidth(Region.USE_PREF_SIZE);
+        predict.setMinWidth(Region.USE_PREF_SIZE);
+        predict.setMaxWidth(420);
+
         FlowPane controlsRow = new FlowPane(12, 12, controls, predict);
-        controlsRow.setPrefWrapLength(900);
+        controlsRow.setPrefWrapLength(1000);
         result.setMaxWidth(Double.MAX_VALUE);
         VBox bottom = new VBox(10, result, controlsRow);
         BorderPane.setMargin(bottom, new Insets(10, 0, 0, 0));
@@ -189,6 +228,12 @@ final class TreeActivityScreen extends BorderPane {
         traverseResult.setText(tree.size() == 0
                 ? "The tree is empty."
                 : tree.inOrder().toString().replace("[", "").replace("]", ""));
+    }
+
+    private void BFT() {
+        traverseResult.setText(tree.size() == 0
+                ? "The tree is empty."
+                : tree.breadthFirst().toString().replace("[", "").replace("]", ""));
     }
 
     private void startTrace(List<TraceStep<Integer>> newSteps, boolean insert) {
