@@ -1,7 +1,9 @@
 package cos212.ui;
 
 import cos212.assess.Diagnostic;
+import cos212.assess.LessonProgress;
 import cos212.assess.ProgressTracker;
+import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,8 +15,8 @@ import javafx.scene.layout.VBox;
 
 /**
  * The lesson list: the diagnostic check, then the four lessons in order. Lessons stay
- * locked until the diagnostic is passed. Lesson content is added in increment I4, so the
- * Open lesson buttons are shown but disabled.
+ * locked until the diagnostic is passed. Each lesson's button opens it at the page the
+ * student reached last time.
  */
 final class LessonsScreen extends VBox {
 
@@ -22,13 +24,17 @@ final class LessonsScreen extends VBox {
     private final Diagnostic diagnostic;
     private final Runnable startDiagnostic;
     private final Runnable viewProgress;
+    private final LessonProgress lessons;
+    private final Consumer<Objectives.Lesson> openLesson;
 
-    LessonsScreen(ProgressTracker tracker, Diagnostic diagnostic, Runnable startDiagnostic,
-            Runnable viewProgress) {
+    LessonsScreen(ProgressTracker tracker, Diagnostic diagnostic, LessonProgress lessons,
+            Runnable startDiagnostic, Runnable viewProgress, Consumer<Objectives.Lesson> openLesson) {
         this.tracker = tracker;
         this.diagnostic = diagnostic;
+        this.lessons = lessons;
         this.startDiagnostic = startDiagnostic;
         this.viewProgress = viewProgress;
+        this.openLesson = openLesson;
         setSpacing(16);
         setPadding(new Insets(22, 28, 22, 28));
         refresh();
@@ -54,7 +60,9 @@ final class LessonsScreen extends VBox {
                 Ui.note("5 questions on the ordering rule. 4 correct unlocks the tree activities. Status: "
                         + status + "."));
         HBox.setHgrow(text, Priority.ALWAYS);
-        Button start = Ui.primary("Start diagnostic");
+        Button start = Ui.primary(diagnostic.isComplete() ? "View diagnostic result"
+                : diagnostic.answered() > 0 ? "Continue diagnostic (question " + (diagnostic.answered() + 1) + ")"
+                : "Start diagnostic");
         start.setOnAction(e -> startDiagnostic.run());
         HBox banner = Ui.row(16, text, start);
         banner.getStyleClass().add("banner-diag");
@@ -85,14 +93,30 @@ final class LessonsScreen extends VBox {
         }
         Label lock = unlocked ? Ui.note("") : Ui.css(new Label("Locked until the diagnostic is passed"), "lock");
         lock.setWrapText(true);
-        Button open = Ui.off("Open lesson");
-        open.setDisable(true);
+        Button open = openButton(lesson, unlocked);
         open.setMaxWidth(Double.MAX_VALUE);
-        open.setTooltip(new Tooltip("Lesson content is added in increment I4."));
         VBox card = Ui.card(id, Ui.title(lesson.title()), Ui.note(lesson.description()), objectives, lock, open);
         card.getStyleClass().add("lesson-card");
         card.setMinWidth(150);
         return card;
+    }
+
+    /** The button that opens the lesson, labelled with where the student is in it. */
+    private Button openButton(Objectives.Lesson lesson, boolean unlocked) {
+        if (!unlocked) {
+            Button locked = Ui.off("Open lesson");
+            locked.setDisable(true);
+            locked.setTooltip(new Tooltip("Pass the diagnostic check to open the lessons."));
+            return locked;
+        }
+        int pages = LessonBank.PAGES.get(lesson.id()).size();
+        int position = Math.min(lessons.position(lesson.id()), pages);
+        String label = position >= pages ? "Review lesson"
+                : position > 0 ? "Continue (page " + (position + 1) + " of " + pages + ")"
+                : "Open lesson";
+        Button open = position > 0 && position < pages ? Ui.primary(label) : Ui.secondary(label);
+        open.setOnAction(e -> openLesson.accept(lesson));
+        return open;
     }
 
     private HBox viewProgressRow() {

@@ -1,6 +1,7 @@
 package cos212.ui;
 
 import cos212.assess.Diagnostic;
+import cos212.assess.LessonProgress;
 import cos212.assess.ProgressStore;
 import cos212.assess.ProgressTracker;
 import javafx.application.Application;
@@ -27,6 +28,7 @@ public final class SmartieSearchApp extends Application {
 
     private final ProgressTracker tracker = new ProgressTracker();
     private final Diagnostic diagnostic = new Diagnostic();
+    private final LessonProgress lessons = new LessonProgress();
     private final ProgressStore store = new ProgressStore();
     private final BorderPane root = new BorderPane();
     private final Button lessonsTab = Ui.nav("Lessons", "lessons");
@@ -38,6 +40,7 @@ public final class SmartieSearchApp extends Application {
     private LessonsScreen lessonsScreen;
     private ProgressScreen progressScreen;
     private DiagnosticScreen diagnosticScreen;
+    private LessonScreen lessonScreen;
 
     public static void main(String[] args) {
         launch(args);
@@ -45,10 +48,13 @@ public final class SmartieSearchApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        store.load(tracker, diagnostic);
+        store.load(tracker, diagnostic, lessons);
         tracker.addChangeListener(this::saveProgress);
         treeScreen = new TreeActivityScreen(tracker);
-        lessonsScreen = new LessonsScreen(tracker, diagnostic, this::startDiagnostic, this::showProgress);
+        lessonsScreen = new LessonsScreen(tracker, diagnostic, lessons, this::startDiagnostic,
+                this::showProgress, this::openLesson);
+        lessonScreen = new LessonScreen(tracker, lessons, this::saveProgress, this::showLessons,
+                this::openLesson);
         progressScreen = new ProgressScreen(tracker, this::showLessons);
         diagnosticScreen = new DiagnosticScreen(tracker, diagnostic, this::onDiagnosticChanged,
                 this::showTree, this::showLessons);
@@ -112,10 +118,19 @@ public final class SmartieSearchApp extends Application {
         root.setCenter(scroll(lessonsScreen));
     }
 
+    private void openLesson(Objectives.Lesson lesson) {
+        if (!diagnostic.unlocked()) {
+            return;
+        }
+        select(lessonsTab);
+        root.setCenter(scroll(lessonScreen));
+        lessonScreen.open(lesson);
+    }
+
     private void startDiagnostic() {
         select(diagnosticTab);
         root.setCenter(scroll(diagnosticScreen));
-        diagnosticScreen.restart();
+        diagnosticScreen.resume();
     }
 
     private void showTree() {
@@ -142,7 +157,7 @@ public final class SmartieSearchApp extends Application {
     }
 
     private void saveProgress() {
-        store.save(tracker, diagnostic);
+        store.save(tracker, diagnostic, lessons);
     }
 
     @Override

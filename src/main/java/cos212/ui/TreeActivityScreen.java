@@ -92,8 +92,6 @@ final class TreeActivityScreen extends BorderPane {
     private HBox mainArea() {
         StackPane pane = new StackPane(canvas);
         pane.setPrefHeight(320);
-        canvas.widthProperty().bind(pane.widthProperty());
-        canvas.heightProperty().bind(pane.heightProperty());
         VBox tree = Ui.card(Ui.note("Tree canvas. Current node: thick outline and the word current. Visited: dashed."),
                 pane);
         VBox trace = Ui.card(Ui.titleRow("Trace"), traceList);

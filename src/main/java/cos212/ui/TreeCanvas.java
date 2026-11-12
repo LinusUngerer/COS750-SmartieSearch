@@ -37,6 +37,50 @@ final class TreeCanvas extends Canvas {
         heightProperty().addListener((obs, oldValue, newValue) -> paint());
     }
 
+    // A plain Canvas has a fixed size, so a parent can grow it but never shrink it. These
+    // overrides let the parent layout size the canvas both ways, and the drawing follows.
+
+    @Override
+    public boolean isResizable() {
+        return true;
+    }
+
+    @Override
+    public double minWidth(double height) {
+        return 120;
+    }
+
+    @Override
+    public double minHeight(double width) {
+        return 120;
+    }
+
+    @Override
+    public double prefWidth(double height) {
+        return 400;
+    }
+
+    @Override
+    public double prefHeight(double width) {
+        return 280;
+    }
+
+    @Override
+    public double maxWidth(double height) {
+        return Double.MAX_VALUE;
+    }
+
+    @Override
+    public double maxHeight(double width) {
+        return Double.MAX_VALUE;
+    }
+
+    @Override
+    public void resize(double width, double height) {
+        setWidth(width);
+        setHeight(height);
+    }
+
     /**
      * Shows the tree.
      *
@@ -83,10 +127,17 @@ final class TreeCanvas extends Canvas {
         for (Placed p : placed) {
             maxDepth = Math.max(maxDepth, p.depth);
         }
+        double margin = Math.min(MARGIN, Math.max(12, width * 0.05));
+        double column = (width - 2 * margin) / count;
+        double row = (height - top - margin) / (maxDepth + 1);
+        // Shrink the nodes when the canvas is small, so they never overlap.
+        double radius = Math.max(9, Math.min(RADIUS, Math.min(column * 0.45, row * 0.32)));
+        double scale = radius / RADIUS;
         for (Placed p : placed) {
-            p.x = MARGIN + (p.rank + 0.5) * (width - 2 * MARGIN) / count;
-            p.y = top + (p.depth + 0.5) * (height - top - MARGIN) / (maxDepth + 1);
+            p.x = margin + (p.rank + 0.5) * column;
+            p.y = top + (p.depth + 0.5) * row;
         }
+        g.setFont(Font.font(Math.max(9, 14 * scale)));
 
         g.setStroke(LINE);
         g.setLineWidth(1);
@@ -100,7 +151,7 @@ final class TreeCanvas extends Canvas {
             boolean isCurrent = current != null && current.equals(p.value);
             boolean isVisited = visited.contains(p.value);
             g.setFill(Color.WHITE);
-            g.fillOval(p.x - RADIUS, p.y - RADIUS, 2 * RADIUS, 2 * RADIUS);
+            g.fillOval(p.x - radius, p.y - radius, 2 * radius, 2 * radius);
             if (isCurrent) {
                 g.setStroke(HIGHLIGHT);
                 g.setLineWidth(4);
@@ -114,13 +165,13 @@ final class TreeCanvas extends Canvas {
                     g.setLineDashes();
                 }
             }
-            g.strokeOval(p.x - RADIUS, p.y - RADIUS, 2 * RADIUS, 2 * RADIUS);
+            g.strokeOval(p.x - radius, p.y - radius, 2 * radius, 2 * radius);
             g.setLineDashes();
             g.setFill(Color.BLACK);
             g.fillText(String.valueOf(p.value), p.x, p.y);
             if (isCurrent) {
                 g.setFill(HIGHLIGHT);
-                g.fillText("current", p.x, p.y - RADIUS - 12);
+                g.fillText("current", p.x, p.y - radius - 12 * scale);
             }
         }
     }
