@@ -26,7 +26,8 @@ final class TreeCanvas extends Canvas {
     private static final Color HIGHLIGHT = Color.web("#021B6E");
     private static final Color LINE = Color.web("#5B5366");
 
-    private final boolean showKey;
+    private boolean showKey;
+    private boolean keyVisible = true;
     private NodeView<Integer> root;
     private Integer current;
     private Set<Integer> visited = Set.of();
@@ -79,6 +80,15 @@ final class TreeCanvas extends Canvas {
     public void resize(double width, double height) {
         setWidth(width);
         setHeight(height);
+    }
+
+    boolean isKeyShown() {
+        return showKey;
+    }
+
+    void setKeyShown(boolean shown) {
+        this.showKey = shown;
+        paint();
     }
 
     /**
