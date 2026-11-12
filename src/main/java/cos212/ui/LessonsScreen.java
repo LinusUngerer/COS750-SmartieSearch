@@ -7,16 +7,15 @@ import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 /**
- * The lesson list: the diagnostic check, then the five lessons in order, L0 first. Lessons stay
- * locked until the diagnostic is passed. Each lesson's button opens it at the page the
- * student reached last time.
+ * The lesson list: the diagnostic check, then the five lessons in order, L0 first. The lessons are
+ * open from the start; only the tree activity waits for the diagnostic. Each lesson's button
+ * opens it at the page the student reached last time.
  */
 final class LessonsScreen extends VBox {
 
@@ -42,12 +41,11 @@ final class LessonsScreen extends VBox {
 
     /** Rebuilds the screen from the current diagnostic and progress. */
     void refresh() {
-        boolean unlocked = diagnostic.unlocked();
-        getChildren().setAll(header(), banner(), lessonRow(unlocked), viewProgressRow());
+        getChildren().setAll(header(), banner(), lessonRow(), viewProgressRow());
     }
 
     private VBox header() {
-        Label subtitle = Ui.css(new Label("Five lessons, in order. Start with the diagnostic."), "subtitle");
+        Label subtitle = Ui.css(new Label("Five lessons, in order. Take the diagnostic any time to unlock the tree activities."), "subtitle");
         return new VBox(4, Ui.pageTitle("Lessons"), subtitle);
     }
 
@@ -69,17 +67,17 @@ final class LessonsScreen extends VBox {
         return banner;
     }
 
-    private HBox lessonRow(boolean unlocked) {
+    private HBox lessonRow() {
         HBox row = new HBox(16);
         for (Objectives.Lesson lesson : Objectives.LESSONS) {
-            VBox card = lessonCard(lesson, unlocked);
+            VBox card = lessonCard(lesson);
             HBox.setHgrow(card, Priority.ALWAYS);
             row.getChildren().add(card);
         }
         return row;
     }
 
-    private VBox lessonCard(Objectives.Lesson lesson, boolean unlocked) {
+    private VBox lessonCard(Objectives.Lesson lesson) {
         Label id = Ui.css(new Label(lesson.id()), "chip");
         VBox objectives = new VBox(10);
         VBox.setVgrow(objectives, Priority.ALWAYS);
@@ -91,24 +89,16 @@ final class LessonsScreen extends VBox {
             objectives.getChildren().add(new VBox(4, head,
                     Ui.bar(tracker.progressPercent(objectiveId) / 100.0)));
         }
-        Label lock = unlocked ? Ui.note("") : Ui.css(new Label("Locked until the diagnostic is passed"), "lock");
-        lock.setWrapText(true);
-        Button open = openButton(lesson, unlocked);
+        Button open = openButton(lesson);
         open.setMaxWidth(Double.MAX_VALUE);
-        VBox card = Ui.card(id, Ui.title(lesson.title()), Ui.note(lesson.description()), objectives, lock, open);
+        VBox card = Ui.card(id, Ui.title(lesson.title()), Ui.note(lesson.description()), objectives, open);
         card.getStyleClass().add("lesson-card");
         card.setMinWidth(150);
         return card;
     }
 
     /** The button that opens the lesson, labelled with where the student is in it. */
-    private Button openButton(Objectives.Lesson lesson, boolean unlocked) {
-        if (!unlocked) {
-            Button locked = Ui.off("Open lesson");
-            locked.setDisable(true);
-            locked.setTooltip(new Tooltip("Pass the diagnostic check to open the lessons."));
-            return locked;
-        }
+    private Button openButton(Objectives.Lesson lesson) {
         int pages = LessonBank.PAGES.get(lesson.id()).size();
         int position = Math.min(lessons.position(lesson.id()), pages);
         String label = position >= pages ? "Review lesson"
