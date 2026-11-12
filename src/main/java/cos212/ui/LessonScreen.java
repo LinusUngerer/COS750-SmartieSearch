@@ -61,6 +61,7 @@ final class LessonScreen extends VBox {
         pageText.setWrapText(true);
         hintText.setWrapText(true);
         action.setMaxWidth(Double.MAX_VALUE);
+        action.setDefaultButton(true);
         action.setOnAction(e -> act());
         hintButton.setOnAction(e -> showHint());
 
@@ -70,7 +71,7 @@ final class LessonScreen extends VBox {
         StackPane canvasPane = new StackPane(canvas);
         canvasPane.setMinHeight(240);
         canvasPane.setPrefHeight(340);
-        VBox treePanel = Ui.card(Ui.title("Tree"), canvasPane);
+        VBox treePanel = Ui.card(Ui.title("Tree"), canvasPane, Ui.treeDescription(canvas));
         VBox.setVgrow(canvasPane, Priority.ALWAYS);
         pageArea.getChildren().setAll(textCard, new TwoColumns(treePanel, rightColumn));
 
@@ -78,6 +79,11 @@ final class LessonScreen extends VBox {
         Button back = Ui.secondary("Back to lessons");
         back.setOnAction(e -> backToLessons.run());
         getChildren().setAll(heading, pageArea, doneArea, back);
+    }
+
+    /** Picks answer {@code choice} (0 for A) from the keyboard. */
+    void chooseOption(int choice) {
+        answers.choose(choice);
     }
 
     /** Opens the lesson at the page the student reached last time. */

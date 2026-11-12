@@ -116,7 +116,7 @@ final class TreeActivityScreen extends BorderPane {
 
         VBox tree = Ui.card(
                 Ui.note("Tree canvas. Current node: thick outline and the word current. Visited: dashed."),
-                toggles, pane);
+                toggles, pane, Ui.treeDescription(canvas));
 
         VBox.setVgrow(pane, Priority.ALWAYS);
         VBox.setVgrow(traceList, Priority.ALWAYS);

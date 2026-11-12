@@ -81,6 +81,20 @@ final class Ui {
         return bar;
     }
 
+    /**
+     * A text description of the tree on the canvas, shown under it when "Describe trees in
+     * text" is on in Settings. Screen readers get the same text from the canvas itself.
+     */
+    static Label treeDescription(TreeCanvas canvas) {
+        Label text = css(new Label(), "tree-description");
+        text.setWrapText(true);
+        text.setMaxWidth(Double.MAX_VALUE);
+        text.textProperty().bind(canvas.descriptionProperty());
+        text.visibleProperty().bind(Settings.current().describeTreesProperty());
+        text.managedProperty().bind(text.visibleProperty());
+        return text;
+    }
+
     /** The status chip for an objective, with the wording used in the wireframes. */
     static Label chip(Status status) {
         String text = switch (status) {

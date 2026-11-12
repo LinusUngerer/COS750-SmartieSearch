@@ -3,6 +3,8 @@ package cos212.ui;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.geometry.Pos;
+import javafx.scene.AccessibleAction;
+import javafx.scene.AccessibleRole;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -16,11 +18,15 @@ import javafx.scene.layout.VBox;
  * presses Space or Enter on it) to select it. After grading, the chosen card turns green or
  * red, the other cards fade, and a feedback panel appears directly under the chosen card.
  * Used by the diagnostic gate and by the lesson questions, so both look the same.
+ *
+ * <p>For screen readers each card is announced as a button named "Option A: ..." with its
+ * state (selected, correct or not correct) added, and the feedback is announced as text. The
+ * keys A to D also pick an answer (see {@link #choose(int)}).
  */
 final class QuestionView extends VBox {
 
     /** One answer card and the parts of it that change when it is selected or graded. */
-    private record Option(HBox card, Label mark, Label verdict) {
+    private record Option(HBox card, Label mark, Label verdict, String name) {
     }
 
     private final List<Option> options = new ArrayList<>();
@@ -69,6 +75,17 @@ final class QuestionView extends VBox {
         getChildren().add(fields);
         selected = -1;
         graded = false;
+    }
+
+    /**
+     * Selects an answer from the keyboard, as if its card had been clicked. Does nothing for a
+     * fill-in question, an answer that does not exist, or once the question is graded.
+     */
+    void choose(int choice) {
+        if (choice >= 0 && choice < options.size()) {
+            select(choice);
+            options.get(choice).card().requestFocus();
+        }
     }
 
     /** @return the index of the selected answer, or -1 if none is selected */
@@ -127,6 +144,7 @@ final class QuestionView extends VBox {
         chosen.verdict().setText(correct ? "Correct!" : "Not quite");
         chosen.verdict().setVisible(true);
         chosen.verdict().setManaged(true);
+        chosen.card().setAccessibleText(chosen.name() + ". Your answer: " + (correct ? "correct." : "not correct."));
         getChildren().add(selected + 1, feedbackPanel(correct, heading, body, pill));
     }
 
@@ -144,8 +162,22 @@ final class QuestionView extends VBox {
         verdict.setVisible(false);
         verdict.setManaged(false);
 
-        HBox card = Ui.row(14, mark, words, verdict);
+        HBox card = new HBox(14, mark, words, verdict) {
+            @Override
+            public void executeAccessibleAction(AccessibleAction action, Object... parameters) {
+                if (action == AccessibleAction.FIRE) {
+                    select(i);
+                } else {
+                    super.executeAccessibleAction(action, parameters);
+                }
+            }
+        };
+        card.setAlignment(Pos.CENTER_LEFT);
         card.getStyleClass().add("option");
+        String name = "Option " + (char) ('A' + i) + ": " + text;
+        card.setAccessibleRole(AccessibleRole.BUTTON);
+        card.setAccessibleText(name);
+        card.setAccessibleHelp("Press Space or Enter, or the letter " + (char) ('A' + i) + ", to choose this answer.");
         card.setMaxWidth(Double.MAX_VALUE);
         card.setFocusTraversable(true);
         card.setCursor(Cursor.HAND);
@@ -156,7 +188,7 @@ final class QuestionView extends VBox {
                 e.consume();
             }
         });
-        return new Option(card, mark, verdict);
+        return new Option(card, mark, verdict, name);
     }
 
     private void select(int choice) {
@@ -168,9 +200,11 @@ final class QuestionView extends VBox {
             Option option = options.get(i);
             option.card().getStyleClass().remove("option-selected");
             option.mark().setText("");
+            option.card().setAccessibleText(option.name());
             if (i == choice) {
                 option.card().getStyleClass().add("option-selected");
                 option.mark().setText("●");
+                option.card().setAccessibleText(option.name() + ". Selected.");
             }
         }
         onSelect.run();
@@ -192,6 +226,10 @@ final class QuestionView extends VBox {
         HBox panel = new HBox(14, icon, words);
         panel.setAlignment(Pos.TOP_LEFT);
         panel.getStyleClass().addAll("feedback-panel", correct ? "feedback-panel-right" : "feedback-panel-wrong");
+        panel.setAccessibleRole(AccessibleRole.TEXT);
+        panel.setAccessibleText((correct ? "Correct. " : "Not correct. ") + heading + ". " + body
+                + (pill == null ? "" : " " + pill + "."));
+        icon.setAccessibleText(correct ? "Correct" : "Not correct");
         return panel;
     }
 }
