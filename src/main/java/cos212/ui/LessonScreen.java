@@ -103,12 +103,17 @@ final class LessonScreen extends VBox {
         pageCount.setText("Page " + (index + 1) + " of " + pages.size());
         pageTitle.setText(page.stage().label + ": " + page.title());
         pageText.setText(page.text());
+        canvas.setDepthShown("L4".equals(lesson.id()));
         canvas.show(page.tree(), page.current(), page.visited());
         error.setText("");
         hintsUsed = 0;
 
         if (page.isQuestion()) {
-            answers.show(page.choices());
+            if (page.fillAnswers() != null) {
+                answers.showFillIn(page.fillAnswers().size());
+            } else {
+                answers.show(page.choices());
+            }
             action.setText("Submit answer");
             rightColumn.getChildren().setAll(answers);
             if (page.hint() != null) {
@@ -150,11 +155,13 @@ final class LessonScreen extends VBox {
     }
 
     private void submit(LessonBank.Page page) {
-        if (answers.selected() < 0) {
-            error.setText("Choose one answer first.");
+        if (!answers.hasAnswer()) {
+            error.setText(page.fillAnswers() == null ? "Choose one answer first." : "Complete every blank first.");
             return;
         }
-        boolean correct = answers.selected() == page.correct();
+        boolean correct = page.fillAnswers() == null
+                ? answers.selected() == page.correct()
+                : answers.matches(page.fillAnswers());
         String heading = correct ? "Great job!"
                 : page.stage() == LessonBank.Stage.PREDICT ? "Not quite, and that's fine" : "Not quite";
         answers.grade(correct, heading, correct ? page.rightFeedback() : page.wrongFeedback(), null);

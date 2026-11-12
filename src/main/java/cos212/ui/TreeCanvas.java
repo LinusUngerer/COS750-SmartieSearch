@@ -28,6 +28,7 @@ final class TreeCanvas extends Canvas {
 
     private boolean showKey;
     private boolean keyVisible = true;
+    private boolean showDepth;
     private NodeView<Integer> root;
     private Integer current;
     private Set<Integer> visited = Set.of();
@@ -91,6 +92,11 @@ final class TreeCanvas extends Canvas {
         paint();
     }
 
+    void setDepthShown(boolean shown) {
+        this.showDepth = shown;
+        paint();
+    }
+
     /**
      * Shows the tree.
      *
@@ -138,16 +144,29 @@ final class TreeCanvas extends Canvas {
             maxDepth = Math.max(maxDepth, p.depth);
         }
         double margin = Math.min(MARGIN, Math.max(12, width * 0.05));
-        double column = (width - 2 * margin) / count;
+        double depthLabelsWidth = showDepth ? 48 : 0;
+        double column = (width - 2 * margin - depthLabelsWidth) / count;
         double row = (height - top - margin) / (maxDepth + 1);
         // Shrink the nodes when the canvas is small, so they never overlap.
         double radius = Math.max(9, Math.min(RADIUS, Math.min(column * 0.45, row * 0.32)));
         double scale = radius / RADIUS;
         for (Placed p : placed) {
-            p.x = margin + (p.rank + 0.5) * column;
+            p.x = margin + depthLabelsWidth + (p.rank + 0.5) * column;
             p.y = top + (p.depth + 0.5) * row;
         }
         g.setFont(Font.font(Math.max(9, 14 * scale)));
+
+        if (showDepth) {
+            g.setFill(LINE);
+            g.setFont(Font.font(Math.max(8, 10 * scale)));
+            g.setTextAlign(TextAlignment.LEFT);
+            for (int depth = 0; depth <= maxDepth; depth++) {
+                double y = top + (depth + 0.5) * row;
+                g.fillText("Depth " + depth, margin, y);
+            }
+            g.setTextAlign(TextAlignment.CENTER);
+            g.setFont(Font.font(Math.max(9, 14 * scale)));
+        }
 
         g.setStroke(LINE);
         g.setLineWidth(1);
