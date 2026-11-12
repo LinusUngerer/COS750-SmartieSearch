@@ -78,35 +78,97 @@ final class LessonBank {
     }
 
     // ---- L0: what is a BST? (define-bst) -------------------------------------------------
-    // SCAFFOLD: the structure (Predict, Show, Try, Check) and the progress wiring are in place.
-    // Every text below marked TODO is a placeholder to be replaced with the real lesson content.
-    // The Try and Check pages record against "define-bst", so the Lessons and Progress screens
-    // already respond to them.
+
+    private static final Shape BAD_CHILD = node(40, node(20, leaf(10), leaf(30)), node(60, leaf(70), leaf(80)));
 
     private static final List<Page> L0 = List.of(
             predict(BALANCED_50,
-                    "TODO (Predict): a question that surfaces the student's current idea of what a BST is.",
-                    List.of("TODO: choice A", "TODO: choice B (correct)", "TODO: choice C", "TODO: choice D"),
+                    "This is a binary search tree. Which of these do you think a binary search tree has that"
+                            + " an ordinary binary tree does not?",
+                    List.of("More than two children for some nodes",
+                            "A rule about where smaller and larger values go",
+                            "A perfectly balanced shape",
+                            "Only values that are multiples of 10"),
                     1,
-                    "TODO: feedback when the prediction is right.",
-                    "TODO: feedback when the prediction is wrong. Not recorded."),
-            show("TODO (Show): what a binary tree is", BALANCED_50, 50, Set.of(),
-                    "TODO: define a binary tree (each node has at most a left and a right child)."),
-            show("TODO (Show): what makes it a search tree", BALANCED_50, 30, Set.of(50),
-                    "TODO: state the definition of a BST in words, using a worked example."),
+                    "The shape is not what sets it apart. A BST adds a rule about where smaller and larger"
+                            + " values go.",
+                    "Not quite. A BST is still a binary tree, so nodes have at most two children, and its"
+                            + " shape can vary. What it adds is a rule about where smaller and larger values go."),
+            show("A binary tree", BALANCED_50, 50, Set.of(),
+                    "A tree is made of nodes, each holding a value. The node at the top is the root.\n\n"
+                            + "In a binary tree, every node has at most two children: a left child and a right"
+                            + " child. Here 50 is the root, with 30 on its left and 70 on its right. A node with"
+                            + " no children, such as 20 or 80, is a leaf."),
+            show("Subtrees", BALANCED_50, 30, Set.of(50),
+                    "Every node is the root of a smaller tree of its own, called a subtree.\n\n"
+                            + "The left subtree of 50 is 30 with its children 20 and 40. The right subtree of 50 is"
+                            + " 70 with its children 60 and 80. A plain binary tree says nothing about which"
+                            + " values go where."),
+            show("The ordering rule", BALANCED_50, 50, Set.of(),
+                    "A binary search tree is a binary tree in which, for every node, every value in its left"
+                            + " subtree is smaller and every value in its right subtree is larger.\n\n"
+                            + "At 50, the left subtree holds 30, 20 and 40, all smaller, and the right subtree holds"
+                            + " 70, 60 and 80, all larger. The same holds at 30 and at 70. This ordering is what"
+                            + " lets a search ignore half the tree at each step."),
+            show("A tree that is not a BST", node(50, node(30, leaf(20), leaf(40)), node(70, leaf(80), leaf(60))),
+                    80, Set.of(50, 70),
+                    "This is still a binary tree: no node has more than two children. But it is not a binary"
+                            + " search tree.\n\n"
+                            + "80 is on the left of 70, and values on the left must be smaller. 80 is larger, so the"
+                            + " ordering rule is broken. The next lesson looks at how to spot breaks that are"
+                            + " further from the node."),
             tryIt("define-bst", BALANCED_40, 40, Set.of(),
-                    "TODO (Try): a question like the worked example, with a hint available.",
-                    List.of("TODO: choice A", "TODO: choice B (correct)", "TODO: choice C", "TODO: choice D"),
+                    "In a binary search tree, what is true of every value in the left subtree of 40?",
+                    List.of("It is larger than 40", "It is smaller than 40",
+                            "It is equal to 40", "It can be any value"),
                     1,
-                    "TODO: feedback when right.",
-                    "TODO: feedback when wrong.",
-                    "TODO: hint."),
-            check("define-bst", BALANCED_50,
-                    "TODO (Check): a question that tests the definition of a BST.",
-                    List.of("TODO: choice A", "TODO: choice B", "TODO: choice C (correct)", "TODO: choice D"),
+                    "Smaller values go in the left subtree, so everything to the left of 40 is smaller.",
+                    "Left holds smaller values and right holds larger ones, so every value in 40's left"
+                            + " subtree is smaller than 40.",
+                    "Smaller values go left and larger values go right."),
+            tryIt("define-bst", BAD_CHILD, 70, Set.of(40, 60),
+                    "This is a binary tree. Is it also a binary search tree?",
+                    List.of("Yes: every node has at most two children",
+                            "No: 70 is on the left of 60 but is larger than 60",
+                            "No: 10 is too small to be a leaf",
+                            "No: every node must have two children"),
+                    1,
+                    "70 is 60's left child, but 70 is larger than 60. Being a binary tree is not enough;"
+                            + " the ordering rule must hold too.",
+                    "Having at most two children only makes it a binary tree. Check the ordering: 70 is on the"
+                            + " left of 60 but is larger than 60.",
+                    "Compare each child with its parent. Which child is on the wrong side?"),
+            check("define-bst", BALANCED_50, "Which sentence defines a binary search tree?",
+                    List.of("A binary tree where every node has zero or two children",
+                            "A binary tree where each node's left child is smaller and its right child is"
+                                    + " larger",
+                            "A binary tree where, for every node, all values in its left subtree are smaller"
+                                    + " and all values in its right subtree are larger",
+                            "Any binary tree whose root is the middle value"),
                     2,
-                    "TODO: feedback when right.",
-                    "TODO: feedback when wrong."));
+                    "The rule covers whole subtrees, not just the children.",
+                    "The definition is about every value in each subtree. Checking only the children misses"
+                            + " breaks deeper down."),
+            check("define-bst", BALANCED_4, "Is this tree a binary search tree?",
+                    List.of("No: the root should be 1",
+                            "Yes: at every node, smaller values are on the left and larger values on the right",
+                            "No: a BST cannot have seven nodes",
+                            "No: 4 has two children"),
+                    1,
+                    "At 4, the left subtree (2, 1, 3) is smaller and the right (6, 5, 7) is larger, and the"
+                            + " same holds at 2 and at 6.",
+                    "Check the ordering at each node. The root can be any value, and a BST can have any number"
+                            + " of nodes. Here every left value is smaller and every right value is larger."),
+            check("define-bst", CHAIN_7, "Is this tree a binary search tree?",
+                    List.of("No: a BST must have nodes on both sides",
+                            "Yes: each value is larger than those above it, so the ordering holds",
+                            "No: it has no left children, so it is not a binary tree",
+                            "No: its root should be 4"),
+                    1,
+                    "Every value is larger than the ones above it, so each sits in a right subtree and the"
+                            + " rule holds. A BST does not have to be balanced.",
+                    "The rule is about order, not shape. A node may have only a right child, and each value here"
+                            + " is larger than those above it."));
 
     // ---- L1: the ordering rule -----------------------------------------------------------
 
@@ -127,9 +189,9 @@ final class LessonBank {
                             + " smaller than 50, and it is not.",
                     "Checking only parent and child is not enough. 60 sits in the left subtree of 50, so it"
                             + " must be smaller than 50. The rest of the lesson shows why."),
-            show("What a BST is", BALANCED_50, 50, Set.of(),
-                    "A binary search tree is a binary tree in which, for every node, every value in its left"
-                            + " subtree is smaller and every value in its right subtree is larger.\n\n"
+            show("The rule, for whole subtrees", BALANCED_50, 50, Set.of(),
+                    "You have met the definition: a binary search tree is a binary tree in which, for every"
+                            + " node, every value in its left subtree is smaller and every value in its right subtree is larger.\n\n"
                             + "Here 50 is the root. Every value on its left (30, 20, 40) is smaller than 50,"
                             + " and every value on its right (70, 60, 80) is larger. The same holds at 30 and"
                             + " at 70."),
@@ -162,17 +224,17 @@ final class LessonBank {
                     "Check each value against every ancestor. 45 is in 40's left subtree, but 45 is larger"
                             + " than 40.",
                     "45 is in 40's left subtree. What must be true of every value there?"),
-            check("ordering-rule", BALANCED_50, "Which sentence defines a binary search tree?",
-                    List.of("A binary tree where every node has zero or two children",
-                            "A binary tree where each node's left child is smaller and its right child is"
-                                    + " larger",
-                            "A binary tree where, for every node, all values in its left subtree are smaller"
-                                    + " and all values in its right subtree are larger",
-                            "Any binary tree whose root is the middle value"),
-                    2,
-                    "The rule covers whole subtrees, not just the children.",
-                    "The definition is about every value in each subtree. Checking only the children misses"
-                            + " breaks deeper down."),
+            check("ordering-rule", node(40, node(20, leaf(10), leaf(30)), node(60, leaf(35), leaf(70))),
+                    "Why is this tree not a binary search tree?",
+                    List.of("35 is smaller than its parent, 60",
+                            "35 is in 40's right subtree but is smaller than 40",
+                            "60 is larger than 40",
+                            "10 is smaller than 20"),
+                    1,
+                    "35 is fine as 60's left child, but it is also in 40's right subtree, where every value"
+                            + " must be larger than 40.",
+                    "35 is on the correct side of 60. Check it against 40 as well: it is in 40's right"
+                            + " subtree, so it must be larger than 40."),
             check("ordering-rule", node(50, node(30, leaf(20), leaf(40)), node(70, leaf(45), leaf(80))),
                     "Is this tree a binary search tree?",
                     List.of("Yes: every child is on the correct side of its parent",
