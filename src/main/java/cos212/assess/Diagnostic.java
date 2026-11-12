@@ -1,5 +1,6 @@
 package cos212.assess;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -80,24 +81,45 @@ public final class Diagnostic {
         return passedBefore || passed();
     }
 
-    /** @return the part of the diagnostic that is saved: whether the gate has ever been passed */
+    /**
+     * @return the part of the diagnostic that is saved: whether the gate has ever been passed,
+     *         and the current attempt, so a student can resume where they stopped
+     */
     Map<String, Object> snapshot() {
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("passedBefore", unlocked());
+        out.put("answered", answered);
+        out.put("correct", correct);
+        out.put("missedLessons", new ArrayList<Object>(missedLessons));
         return out;
     }
 
     /**
-     * Restores the saved state. An attempt in progress is not saved, so the answers are
-     * cleared. An empty map also forgets that the gate was ever passed.
+     * Restores the saved state, including an attempt in progress. Nothing changes if the
+     * data is invalid. An empty map clears the attempt and forgets that the gate was passed.
      *
      * @param data a map in the form {@link #snapshot()} produces
      * @throws IllegalArgumentException if the data is malformed
      */
     void restore(Map<String, Object> data) {
-        boolean saved = Json.flag(data, "passedBefore");
+        boolean savedPassed = Json.flag(data, "passedBefore");
+        int savedAnswered = Json.count(data, "answered");
+        int savedCorrect = Json.count(data, "correct");
+        if (savedAnswered > ITEM_COUNT || savedCorrect > savedAnswered) {
+            throw new IllegalArgumentException("diagnostic attempt counts are out of range");
+        }
+        Set<String> savedMissed = new LinkedHashSet<>();
+        for (Object lesson : Json.list(data, "missedLessons")) {
+            if (!(lesson instanceof String name)) {
+                throw new IllegalArgumentException("missedLessons must hold lesson names");
+            }
+            savedMissed.add(name);
+        }
         reset();
-        passedBefore = saved;
+        answered = savedAnswered;
+        correct = savedCorrect;
+        missedLessons.addAll(savedMissed);
+        passedBefore = savedPassed;
     }
 
     /** @return the lessons for the wrong answers, in the order they were missed */

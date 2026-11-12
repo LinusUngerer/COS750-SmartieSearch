@@ -78,6 +78,54 @@ class ProgressStoreTest {
     }
 
     @Test
+    void diagnosticAttemptInProgressSurvivesARestart() {
+        ProgressStore store = new ProgressStore(dir.resolve("progress.json"));
+        Diagnostic diagnostic = new Diagnostic();
+        diagnostic.recordAnswer(true, "L1");
+        diagnostic.recordAnswer(false, "L2");
+        assertTrue(store.save(new ProgressTracker(), diagnostic));
+
+        Diagnostic reloaded = new Diagnostic();
+        assertTrue(store.load(new ProgressTracker(), reloaded));
+        assertEquals(2, reloaded.answered());
+        assertEquals(1, reloaded.correct());
+        assertEquals(java.util.Set.of("L2"), reloaded.missedLessons());
+        assertFalse(reloaded.isComplete());
+
+        for (int i = 0; i < 3; i++) {
+            reloaded.recordAnswer(true, "L1");
+        }
+        assertTrue(reloaded.passed());
+    }
+
+    @Test
+    void lessonPositionsSurviveARestart() {
+        ProgressStore store = new ProgressStore(dir.resolve("progress.json"));
+        LessonProgress lessons = new LessonProgress();
+        lessons.setPosition("L1", 4);
+        lessons.setPosition("L2", 10);
+        lessons.complete("L2");
+        assertTrue(store.save(new ProgressTracker(), new Diagnostic(), lessons));
+
+        LessonProgress reloaded = new LessonProgress();
+        assertTrue(store.load(new ProgressTracker(), new Diagnostic(), reloaded));
+        assertEquals(4, reloaded.position("L1"));
+        assertEquals(10, reloaded.position("L2"));
+        assertEquals(0, reloaded.position("L3"));
+        assertTrue(reloaded.isComplete("L2"));
+        assertFalse(reloaded.isComplete("L1"));
+    }
+
+    @Test
+    void diagnosticAttemptCountsOutOfRangeAreRejected() throws IOException {
+        Path file = dir.resolve("progress.json");
+        Files.writeString(file, "{\"version\":1,\"diagnostic\":{\"answered\":2,\"correct\":3}}");
+        Diagnostic diagnostic = new Diagnostic();
+        assertFalse(new ProgressStore(file).load(new ProgressTracker(), diagnostic));
+        assertEquals(0, diagnostic.answered());
+    }
+
+    @Test
     void damagedFileIsMovedAsideAndTheStudentStartsFresh() throws IOException {
         Path file = dir.resolve("progress.json");
         Files.writeString(file, "{ this is not json");

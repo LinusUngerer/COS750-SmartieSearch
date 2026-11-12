@@ -5,21 +5,19 @@ import cos212.assess.ProgressTracker;
 import java.util.List;
 import java.util.Set;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 /**
- * The diagnostic gate: one question at a time, a submit button, feedback that names the
- * rule, and a result that unlocks the tree activities or routes the student to the lessons
- * for the gaps.
+ * The diagnostic gate: one question at a time. The student picks an option card and submits;
+ * the chosen card turns green or red, feedback that names the rule appears directly under it,
+ * and the same button then moves on to the next question. The result unlocks the tree
+ * activities or routes the student to the lessons for the gaps.
  */
 final class DiagnosticScreen extends VBox {
 
@@ -31,19 +29,21 @@ final class DiagnosticScreen extends VBox {
     private final Runnable backToLessons;
 
     private final TreeCanvas canvas = new TreeCanvas(false);
-    private final Label question = Ui.css(new Label(), "card-title");
+    private final Label questionChip = Ui.css(new Label(), "chip", "chip-question");
+    private final Label lessonChip = Ui.css(new Label(), "chip");
+    private final Label question = Ui.css(new Label(), "question-text");
     private final Label progress = Ui.css(new Label(), "subtitle");
     private final Label status = Ui.css(new Label(), "diagnostic-status");
-    private final ToggleGroup group = new ToggleGroup();
-    private final VBox choices = new VBox(8);
-    private final Button submit = Ui.primary("Submit answer");
     private final Label error = Ui.css(new Label(), "error");
-    private final VBox questionArea = new VBox(12);
-    private final VBox feedbackArea = new VBox(12);
+    private final QuestionView answers = new QuestionView(() -> error.setText(""));
+    private final Button action = Ui.css(new Button("Submit answer"), "btn-primary", "btn-wide");
+    private final Label correctCount = Ui.css(new Label(), "stats-text");
+    private final Label incorrectCount = Ui.css(new Label(), "stats-text");
+    private final Label remainingCount = Ui.css(new Label(), "stats-text");
+    private final VBox questionArea = new VBox(14);
     private final VBox resultArea = new VBox(12);
 
     private int index;
-    private boolean answered;
 
     DiagnosticScreen(ProgressTracker tracker, Diagnostic diagnostic, Runnable onChange, Runnable openTree,
             Runnable backToLessons) {
@@ -57,33 +57,32 @@ final class DiagnosticScreen extends VBox {
 
         question.setWrapText(true);
         progress.setWrapText(true);
-        submit.setOnAction(e -> submit());
-        StackPane canvasPane = new StackPane(canvas);
-        canvasPane.setPrefHeight(260);
-        canvas.widthProperty().bind(canvasPane.widthProperty());
-        canvas.heightProperty().bind(canvasPane.heightProperty());
+        action.setOnAction(e -> {
+            if (answers.graded()) {
+                next();
+            } else {
+                submit();
+            }
+        });
+        action.setMaxWidth(Double.MAX_VALUE);
 
+        VBox questionCard = Ui.card(Ui.row(8, questionChip, lessonChip), question);
+        questionCard.getStyleClass().add("question-card");
+
+        StackPane canvasPane = new StackPane(canvas);
+        canvasPane.setMinHeight(220);
+        canvasPane.setPrefHeight(300);
         VBox treePanel = Ui.card(Ui.title("Question tree"),
                 Ui.note("Look at the whole tree before choosing."), canvasPane);
-        Region answerSpacer = new Region();
-        VBox.setVgrow(answerSpacer, Priority.ALWAYS);
-        submit.setMaxWidth(Double.MAX_VALUE);
-        VBox answerPanel = Ui.card(Ui.title("Pick one answer"), choices, answerSpacer, submit, error);
-        answerPanel.setMinWidth(310);
-        treePanel.setMinWidth(290);
-        HBox questionColumns = new HBox(14, treePanel, answerPanel);
-        HBox.setHgrow(treePanel, Priority.ALWAYS);
-        HBox.setHgrow(answerPanel, Priority.ALWAYS);
-        treePanel.prefWidthProperty().bind(questionColumns.widthProperty().multiply(0.58).subtract(8));
-        answerPanel.prefWidthProperty().bind(questionColumns.widthProperty().multiply(0.42).subtract(6));
-        questionColumns.setMinHeight(350);
-        VBox.setVgrow(questionColumns, Priority.ALWAYS);
-        questionArea.getChildren().setAll(question, questionColumns);
+        VBox.setVgrow(canvasPane, Priority.ALWAYS);
+
+        VBox answerColumn = new VBox(12, answers, action, statsBar(), error);
+        questionArea.getChildren().setAll(questionCard, new TwoColumns(treePanel, answerColumn));
 
         Button back = Ui.secondary("Back to lessons");
         back.setOnAction(e -> backToLessons.run());
-        getChildren().setAll(header(), progress, questionArea, feedbackArea, resultArea, back);
-        restart();
+        getChildren().setAll(header(), progress, questionArea, resultArea, back);
+        resume();
     }
 
     private HBox header() {
@@ -95,80 +94,84 @@ final class DiagnosticScreen extends VBox {
         return Ui.row(14, title, statusCard);
     }
 
+    private HBox statsBar() {
+        HBox bar = Ui.row(14,
+                stat("stats-dot-right", correctCount), divider(),
+                stat("stats-dot-wrong", incorrectCount), divider(),
+                stat("stats-dot-left", remainingCount));
+        bar.setAlignment(Pos.CENTER);
+        bar.getStyleClass().add("stats-bar");
+        return bar;
+    }
+
+    private static HBox stat(String dotClass, Label text) {
+        return Ui.row(6, Ui.css(new Label("●"), "stats-dot", dotClass), text);
+    }
+
+    private static Label divider() {
+        return Ui.css(new Label("|"), "stats-divider");
+    }
+
+    /**
+     * Shows the diagnostic where the student left off: the first unanswered item, or the
+     * result if every item has been answered. Saved answers are kept.
+     */
+    void resume() {
+        resultArea.getChildren().clear();
+        if (diagnostic.isComplete()) {
+            index = items.size() - 1;
+            showResult();
+        } else {
+            index = diagnostic.answered();
+            questionArea.setVisible(true);
+            questionArea.setManaged(true);
+            showItem();
+        }
+        updateStatus();
+    }
+
     /** Starts the diagnostic from the first item, with no answers recorded. */
     void restart() {
         diagnostic.reset();
-        index = 0;
-        answered = false;
-        questionArea.setVisible(true);
-        questionArea.setManaged(true);
-        feedbackArea.getChildren().clear();
-        resultArea.getChildren().clear();
-        showItem();
-        updateStatus();
+        resume();
         onChange.run();
     }
 
     private void showItem() {
         DiagnosticBank.Item item = items.get(index);
+        questionChip.setText("Question " + (index + 1) + " of " + items.size());
+        lessonChip.setText("Lesson " + item.lesson());
         question.setText(item.question());
         canvas.show(item.tree(), null, Set.of());
-        group.getToggles().clear();
-        choices.getChildren().clear();
-        for (int i = 0; i < item.choices().size(); i++) {
-            ToggleButton choice = Ui.css(new ToggleButton(
-                    String.valueOf((char) ('A' + i)) + ". " + item.choices().get(i)), "choice");
-            choice.setToggleGroup(group);
-            choice.setUserData(i);
-            choice.setMaxWidth(Double.MAX_VALUE);
-            choice.setWrapText(true);
-            choices.getChildren().add(choice);
-        }
-        choices.setDisable(false);
-        submit.setDisable(false);
+        answers.show(item.choices());
+        action.setText("Submit answer");
         error.setText("");
-        feedbackArea.getChildren().clear();
-        answered = false;
         updateProgress();
+        updateStats();
     }
 
     private void submit() {
-        if (answered) {
-            return;
-        }
-        Toggle selected = group.getSelectedToggle();
-        if (selected == null) {
+        if (answers.selected() < 0) {
             error.setText("Choose one answer first.");
             return;
         }
         DiagnosticBank.Item item = items.get(index);
-        boolean correct = (Integer) selected.getUserData() == item.correct();
-        answered = true;
+        boolean correct = answers.selected() == item.correct();
         diagnostic.recordAnswer(correct, item.lesson());
         tracker.record(item.objective(), correct, 0);
-        choices.setDisable(true);
-        submit.setDisable(true);
+        answers.grade(correct, correct ? "Great job!" : "Not quite",
+                correct ? item.correctFeedback() : item.wrongFeedback(),
+                correct ? null : "Revisit lesson " + item.lesson());
+
+        action.setText(index < items.size() - 1 ? "Next question  →" : "See result  →");
         error.setText("");
-        feedbackArea.getChildren().setAll(feedbackCard(correct, item));
-        updateProgress();
+        updateStats();
         updateStatus();
         onChange.run();
-    }
-
-    private VBox feedbackCard(boolean correct, DiagnosticBank.Item item) {
-        Button next = Ui.primary(index < items.size() - 1 ? "Next question" : "See result");
-        next.setOnAction(e -> next());
-        Label body = Ui.css(new Label(correct ? item.correctFeedback() : item.wrongFeedback()), "feedback-body");
-        body.setWrapText(true);
-        VBox card = Ui.card(Ui.titleRow(correct ? "Correct" : "Not quite"), body, Ui.row(8, next));
-        card.getStyleClass().add(correct ? "feedback-right" : "feedback-wrong");
-        return card;
+        action.requestFocus();
     }
 
     private void next() {
-        if (!answered) {
-            return;
-        }
         if (index < items.size() - 1) {
             index++;
             showItem();
@@ -182,14 +185,16 @@ final class DiagnosticScreen extends VBox {
         questionArea.setManaged(false);
         progress.setText("Diagnostic complete. The pass mark is " + Diagnostic.PASS_MARK + " of "
                 + Diagnostic.ITEM_COUNT + ".");
-        feedbackArea.getChildren().clear();
         resultArea.getChildren().clear();
         String score = "You got " + diagnostic.correct() + " of " + Diagnostic.ITEM_COUNT + ".";
         if (diagnostic.passed()) {
             Button open = Ui.primary("Open tree activity");
             open.setOnAction(e -> openTree.run());
+            Button retake = Ui.secondary("Retake the diagnostic");
+            retake.setOnAction(e -> restart());
             resultArea.getChildren().add(Ui.card(Ui.titleRow("Gate passed"),
-                    Ui.css(new Label(score + " The tree activities are now unlocked."), "result-text"), open));
+                    Ui.css(new Label(score + " The tree activities are now unlocked."), "result-text"),
+                    Ui.row(8, open, retake)));
         } else {
             Button retry = Ui.secondary("Retry the diagnostic");
             retry.setOnAction(e -> restart());
@@ -207,8 +212,15 @@ final class DiagnosticScreen extends VBox {
         for (int i = 0; i < items.size(); i++) {
             dots.append(i <= index ? "● " : "○ ");
         }
-        progress.setText("Question " + (index + 1) + " of " + items.size() + "    "
-                + dots.toString().trim() + "    No timer. Choose one answer, then submit.");
+        progress.setText(dots.toString().trim() + "    No timer. Choose one answer, then submit.");
+    }
+
+    private void updateStats() {
+        int right = diagnostic.correct();
+        int wrong = diagnostic.answered() - right;
+        correctCount.setText(right + " Correct");
+        incorrectCount.setText(wrong + " Incorrect");
+        remainingCount.setText((Diagnostic.ITEM_COUNT - diagnostic.answered()) + " Remaining");
     }
 
     private void updateStatus() {

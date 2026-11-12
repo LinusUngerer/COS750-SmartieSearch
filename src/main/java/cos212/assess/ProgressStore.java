@@ -60,6 +60,15 @@ public final class ProgressStore {
      * @return {@code true} if saved progress was loaded
      */
     public boolean load(ProgressTracker tracker, Diagnostic diagnostic) {
+        return load(tracker, diagnostic, new LessonProgress());
+    }
+
+    /**
+     * Fills the tracker, diagnostic and lesson positions from the file, if there is one.
+     *
+     * @return {@code true} if saved progress was loaded
+     */
+    public boolean load(ProgressTracker tracker, Diagnostic diagnostic, LessonProgress lessons) {
         if (!Files.isRegularFile(file)) {
             return false;
         }
@@ -73,13 +82,17 @@ public final class ProgressStore {
                     ? Json.object(root.get("diagnostic"), "diagnostic") : Map.of();
             Map<String, Object> savedObjectives = root.containsKey("objectives")
                     ? Json.object(root.get("objectives"), "objectives") : Map.of();
+            Map<String, Object> savedLessons = root.containsKey("lessons")
+                    ? Json.object(root.get("lessons"), "lessons") : Map.of();
             tracker.restore(savedObjectives);
             diagnostic.restore(savedDiagnostic);
+            lessons.restore(savedLessons);
             return true;
         } catch (IOException | IllegalArgumentException e) {
             System.err.println("Could not read " + file + " (" + e.getMessage() + "). Starting fresh.");
             tracker.restore(Map.of());
             diagnostic.restore(Map.of());
+            lessons.restore(Map.of());
             moveAside();
             return false;
         }
@@ -91,10 +104,21 @@ public final class ProgressStore {
      * @return {@code true} if the file was written
      */
     public boolean save(ProgressTracker tracker, Diagnostic diagnostic) {
+        return save(tracker, diagnostic, new LessonProgress());
+    }
+
+    /**
+     * Writes the tracker, diagnostic and lesson positions to the file, replacing the previous
+     * contents.
+     *
+     * @return {@code true} if the file was written
+     */
+    public boolean save(ProgressTracker tracker, Diagnostic diagnostic, LessonProgress lessons) {
         Map<String, Object> root = new LinkedHashMap<>();
         root.put("version", VERSION);
         root.put("diagnostic", diagnostic.snapshot());
         root.put("objectives", tracker.snapshot());
+        root.put("lessons", lessons.snapshot());
         try {
             Path parent = file.toAbsolutePath().getParent();
             Files.createDirectories(parent);
