@@ -65,6 +65,7 @@ final class DiagnosticScreen extends VBox {
             }
         });
         action.setMaxWidth(Double.MAX_VALUE);
+        action.setDefaultButton(true);
 
         VBox questionCard = Ui.card(Ui.row(8, questionChip, lessonChip), question);
         questionCard.getStyleClass().add("question-card");
@@ -73,7 +74,7 @@ final class DiagnosticScreen extends VBox {
         canvasPane.setMinHeight(220);
         canvasPane.setPrefHeight(300);
         VBox treePanel = Ui.card(Ui.title("Question tree"),
-                Ui.note("Look at the whole tree before choosing."), canvasPane);
+                Ui.note("Look at the whole tree before choosing."), canvasPane, Ui.treeDescription(canvas));
         VBox.setVgrow(canvasPane, Priority.ALWAYS);
 
         VBox answerColumn = new VBox(12, answers, action, statsBar(), error);
@@ -128,6 +129,11 @@ final class DiagnosticScreen extends VBox {
             showItem();
         }
         updateStatus();
+    }
+
+    /** Picks answer {@code choice} (0 for A) from the keyboard. */
+    void chooseOption(int choice) {
+        answers.choose(choice);
     }
 
     /** Starts the diagnostic from the first item, with no answers recorded. */
