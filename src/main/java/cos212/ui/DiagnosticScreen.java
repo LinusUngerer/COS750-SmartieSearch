@@ -6,20 +6,37 @@ import java.util.List;
 import java.util.Set;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 /**
- * The diagnostic gate: one question at a time. The student picks an option card and submits;
- * the chosen card turns green or red, feedback that names the rule appears directly under it,
- * and the same button then moves on to the next question. The result unlocks the tree
- * activities or routes the student to the lessons for the gaps.
+ * The diagnostic gate: keeps VBox as root so SmartieSearchApp's scroll layout
+ * sizes cleanly,
+ * while dimming the question area when the spotlight walkthrough banner is
+ * active.
  */
 final class DiagnosticScreen extends VBox {
+
+    private static final String[] GUIDE_TITLES = {
+            "Welcome to the Diagnostic Gate",
+            "Check the ENTIRE subtree (Watch out for deep nodes!)",
+            "No timers & targeted lesson routing"
+    };
+
+    private static final String[] GUIDE_TEXTS = {
+            "Answer 5 quick questions on the Binary Search Tree ordering rule (left is smaller, right is larger) to unlock the interactive Tree Activity.",
+            "Every value in a left subtree must be smaller than the root—even several levels deep. Look at the whole diagram before choosing!",
+            "There is no time limit. If you miss 2 or more questions, the app will point you straight to the lesson that explains that exact rule."
+    };
+
+    private static final String SPOTLIGHT_STYLE = "-fx-border-color: #003380; -fx-border-width: 2.5; -fx-border-radius: 14; -fx-background-radius: 14;"
+            + "-fx-effect: dropshadow(three-pass-box, rgba(0, 51, 128, 0.28), 16, 0.2, 0, 2);";
 
     private final List<DiagnosticBank.Item> items = DiagnosticBank.ITEMS;
     private final ProgressTracker tracker;
@@ -42,6 +59,17 @@ final class DiagnosticScreen extends VBox {
     private final Label remainingCount = Ui.css(new Label(), "stats-text");
     private final VBox questionArea = new VBox(14);
     private final VBox resultArea = new VBox(12);
+    private final Button backBtn = Ui.secondary("Back to lessons");
+
+    // Walkthrough guide card
+    private final VBox guideBanner = Ui.card();
+    private final Label guideStepChip = Ui.css(new Label(), "chip", "chip-question");
+    private final Label guideTitle = Ui.title("");
+    private final Label guideBody = Ui.note("");
+    private final Button guidePrevBtn = Ui.secondary("<");
+    private final Button guideNextBtn = Ui.primary(">");
+    private HBox headerRow;
+    private int guideIndex = 0;
 
     private int index;
 
@@ -73,6 +101,7 @@ final class DiagnosticScreen extends VBox {
         StackPane canvasPane = new StackPane(canvas);
         canvasPane.setMinHeight(220);
         canvasPane.setPrefHeight(300);
+
         VBox treePanel = Ui.card(Ui.title("Question tree"),
                 Ui.note("Look at the whole tree before choosing."), canvasPane, Ui.treeDescription(canvas));
         VBox.setVgrow(canvasPane, Priority.ALWAYS);
@@ -80,19 +109,74 @@ final class DiagnosticScreen extends VBox {
         VBox answerColumn = new VBox(12, answers, action, statsBar(), error);
         questionArea.getChildren().setAll(questionCard, new TwoColumns(treePanel, answerColumn));
 
-        Button back = Ui.secondary("Back to lessons");
-        back.setOnAction(e -> backToLessons.run());
-        getChildren().setAll(header(), progress, questionArea, resultArea, back);
+        buildGuideBanner();
+        headerRow = header();
+        backBtn.setOnAction(e -> backToLessons.run());
+        getChildren().setAll(headerRow, guideBanner, progress, questionArea, resultArea, backBtn);
+
         resume();
+        showGuide(!diagnostic.isComplete());
+    }
+
+    private void buildGuideBanner() {
+        Button startBtn = Ui.primary("Got it, start check");
+        startBtn.setOnAction(e -> showGuide(false));
+
+        guidePrevBtn.setOnAction(e -> {
+            if (guideIndex > 0) {
+                guideIndex--;
+                updateGuideText();
+            }
+        });
+
+        guideNextBtn.setOnAction(e -> {
+            if (guideIndex < GUIDE_TITLES.length - 1) {
+                guideIndex++;
+                updateGuideText();
+            }
+        });
+
+        guideBody.setWrapText(true);
+        guideBanner.getChildren().setAll(
+                Ui.row(10, guideStepChip, guideTitle),
+                guideBody,
+                Ui.row(8, guidePrevBtn, guideNextBtn, startBtn));
+        guideBanner.setStyle(SPOTLIGHT_STYLE);
+        updateGuideText();
+    }
+
+    private void updateGuideText() {
+        guideStepChip.setText("Tip " + (guideIndex + 1) + " of " + GUIDE_TITLES.length);
+        guideTitle.setText(GUIDE_TITLES[guideIndex]);
+        guideBody.setText(GUIDE_TEXTS[guideIndex]);
+        guidePrevBtn.setDisable(guideIndex == 0);
+        guideNextBtn.setDisable(guideIndex >= GUIDE_TITLES.length - 1);
+    }
+
+    private void showGuide(boolean visible) {
+        if (visible) {
+            guideIndex = 0;
+            updateGuideText();
+        }
+        guideBanner.setVisible(visible);
+        guideBanner.setManaged(visible);
+
+        for (Node n : new Node[] { headerRow, progress, questionArea, resultArea, backBtn }) {
+            n.setDisable(visible);
+            n.setOpacity(visible ? 0.32 : 1.0);
+        }
     }
 
     private HBox header() {
         VBox title = new VBox(4, Ui.pageTitle("Diagnostic Gate"),
                 Ui.note("Check your understanding of the BST ordering rule."));
+        Button showGuideBtn = Ui.secondary("Show guide");
+        showGuideBtn.setMinWidth(Region.USE_PREF_SIZE);
+        showGuideBtn.setOnAction(e -> showGuide(true));
         VBox statusCard = Ui.card(Ui.note("Status"), status);
         statusCard.getStyleClass().add("diagnostic-status-card");
         HBox.setHgrow(title, Priority.ALWAYS);
-        return Ui.row(14, title, statusCard);
+        return Ui.row(14, title, showGuideBtn, statusCard);
     }
 
     private HBox statsBar() {
@@ -114,7 +198,8 @@ final class DiagnosticScreen extends VBox {
     }
 
     /**
-     * Shows the diagnostic where the student left off: the first unanswered item, or the
+     * Shows the diagnostic where the student left off: the first unanswered item,
+     * or the
      * result if every item has been answered. Saved answers are kept.
      */
     void resume() {
@@ -232,8 +317,8 @@ final class DiagnosticScreen extends VBox {
     private void updateStatus() {
         status.setText(diagnostic.passed() ? "Passed"
                 : diagnostic.isComplete() ? "Not passed"
-                : diagnostic.answered() > 0 ? "In progress"
-                : "Not started");
+                        : diagnostic.answered() > 0 ? "In progress"
+                                : "Not started");
         status.getStyleClass().removeAll("status-passed", "status-progress", "status-unattempted");
         status.getStyleClass().add(diagnostic.passed() ? "status-passed"
                 : diagnostic.answered() > 0 ? "status-progress" : "status-unattempted");
