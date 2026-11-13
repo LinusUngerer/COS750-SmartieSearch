@@ -10,6 +10,12 @@ import java.util.Map;
  * not name is left as it is. Students pick from this fixed set and cannot enter their own
  * colours, so every palette can be checked in advance (see PaletteTest).
  *
+ * <p>The three colour-blindness entries are simulations, not recolourings: they show the whole
+ * app as a person with that deficiency sees it, by passing every colour through a matrix in
+ * linear RGB. The five core SmartieSearch colours are pinned to the values in the supplied
+ * reference palettes (Protan, Deutan and Tritan), and every other colour follows the same
+ * matrix, so the whole interface stays consistent with those references.
+ *
  * <p>Colour is never the only signal in the app: correct and wrong answers also carry a tick
  * or cross and a word, and the current tree node has a thick outline and the word "current"
  * (NFR5). The palettes make the colours themselves distinguishable as well.
@@ -19,19 +25,19 @@ enum Palette {
     STANDARD("Standard colours", "The SmartieSearch colours.", Map.of()),
 
     DEUTERANOPIA("Red-green (green weak, deuteranopia)",
-            "Correct answers are blue and wrong answers are orange, instead of green and red.",
-            redGreen()),
+            "Simulates deuteranopia: how the app looks with no working green-sensitive cones."
+                    + " Greens and reds turn to similar olive and brown shades.",
+            Simulations.DEUTAN_PINNED, Simulations.DEUTAN),
 
     PROTANOPIA("Red-green (red weak, protanopia)",
-            "Correct answers are blue and wrong answers are orange, instead of green and red.",
-            redGreen()),
+            "Simulates protanopia: how the app looks with no working red-sensitive cones."
+                    + " Reds turn dark and muddy and are easily mistaken for greens.",
+            Simulations.PROTAN_PINNED, Simulations.PROTAN),
 
     BLUE_YELLOW("Blue-yellow (tritanopia)",
-            "For tritanopia: correct answers are green and wrong answers are magenta, which stay"
-                    + " distinct when blue and yellow are hard to tell apart.",
-            feedback(
-                    "#1D7A35", "#17652B", "#0F4A1E", "#E2F3E6", "#B5DFC0", "#D2ECD9", "#F1FAF3",
-                    "#C2185B", "#9C1249", "#730D36", "#FBE1EC", "#F2B5CD", "#F8D0E0", "#FFF3F8")),
+            "Simulates tritanopia: how the app looks with no working blue-sensitive cones."
+                    + " Blues look teal and yellows look pink.",
+            Simulations.TRITAN_PINNED, Simulations.TRITAN),
 
     HIGH_CONTRAST("High contrast",
             "For low vision: white background, black text, dark borders and strong status colours.",
@@ -53,25 +59,21 @@ enum Palette {
         return "RED_GREEN".equals(name) ? DEUTERANOPIA : valueOf(name);
     }
 
-    /**
-     * Blue for correct and orange for wrong. Protanopia and deuteranopia both lose the
-     * difference between red and green, and both keep blue against orange, so the two
-     * entries share these colours (PaletteTest checks each against its own simulation).
-     */
-    private static Map<String, String> redGreen() {
-        return feedback(
-                "#0067A5", "#004F80", "#003A5E", "#DDEBF7", "#A9CBE6", "#CFE3F3", "#F0F6FB",
-                "#B84A00", "#8A3500", "#6B2900", "#FCE6D2", "#F0C29C", "#F9D8BC", "#FFF5EC");
-    }
-
     final String label;
     final String description;
     private final Map<String, String> replacements;
+    /** A 3x3 matrix applied to linear RGB, or null if this palette is not a simulation. */
+    private final double[][] simulation;
 
     Palette(String label, String description, Map<String, String> replacements) {
+        this(label, description, replacements, null);
+    }
+
+    Palette(String label, String description, Map<String, String> replacements, double[][] simulation) {
         this.label = label;
         this.description = description;
         this.replacements = replacements;
+        this.simulation = simulation;
     }
 
     /**
@@ -83,7 +85,71 @@ enum Palette {
         if (this == GREYSCALE) {
             return grey(key);
         }
-        return replacements.getOrDefault(key, key);
+        String named = replacements.get(key);
+        if (named != null) {
+            return named;
+        }
+        return simulation == null ? key : simulate(key, simulation);
+    }
+
+    /**
+     * The colour-blindness simulations. Each matrix works on linear RGB and keeps white and black
+     * unchanged (every row sums to one). The matrices were fitted to the reference palettes
+     * (Protan.png, Deutan.png, Tritan.png). The pinned maps hold the exact reference value of each
+     * of the five core colours in the default palette. They live in a nested class because enum
+     * constants are built before the enum's own static fields.
+     */
+    private static final class Simulations {
+        static final double[][] PROTAN = {
+            {0.1590, 1.1227, -0.2817},
+            {0.1063, 0.8593, 0.0344},
+            {0.0025, 0.0087, 0.9888}};
+        static final double[][] DEUTAN = {
+            {0.3764, 0.8275, -0.2039},
+            {0.2570, 0.6498, 0.0932},
+            {-0.0219, 0.0405, 0.9814}};
+        static final double[][] TRITAN = {
+            {1.0050, 0.0194, -0.0244},
+            {-0.0119, 0.9424, 0.0695},
+            {0.0659, 0.3937, 0.5404}};
+
+        // Default palette: Midnight Blue, Fresh Sky, Scarlet Rush, Dark Walnut, Soft Apricot.
+        static final Map<String, String> PROTAN_PINNED = pinned(
+                "#00216F", "#84A8EC", "#62593D", "#453C18", "#D7C99F");
+        static final Map<String, String> DEUTAN_PINNED = pinned(
+                "#00296E", "#73A0ED", "#8E7C31", "#504414", "#DCCD9E");
+        static final Map<String, String> TRITAN_PINNED = pinned(
+                "#002F40", "#00B2D8", "#D92950", "#693038", "#F0C0C5");
+
+        private static Map<String, String> pinned(String... simulated) {
+            String[] core = {"#021B6E", "#00AEEE", "#D92F3D", "#683519", "#EBC69F"};
+            Map<String, String> map = new HashMap<>();
+            for (int i = 0; i < core.length; i++) {
+                map.put(core[i], simulated[i]);
+            }
+            return Map.copyOf(map);
+        }
+    }
+
+    /** @return the colour as seen through a simulation matrix applied to linear RGB */
+    private static String simulate(String hex, double[][] m) {
+        double[] in = {
+            linear(Integer.parseInt(hex.substring(1, 3), 16)),
+            linear(Integer.parseInt(hex.substring(3, 5), 16)),
+            linear(Integer.parseInt(hex.substring(5, 7), 16))};
+        int[] out = new int[3];
+        for (int row = 0; row < 3; row++) {
+            double v = m[row][0] * in[0] + m[row][1] * in[1] + m[row][2] * in[2];
+            out[row] = encode(v);
+        }
+        return String.format("#%02X%02X%02X", out[0], out[1], out[2]);
+    }
+
+    /** @return a linear channel value (clamped to 0..1) as an sRGB value 0..255 */
+    private static int encode(double linear) {
+        double y = Math.max(0, Math.min(1, linear));
+        double s = y <= 0.0031308 ? 12.92 * y : 1.055 * Math.pow(y, 1 / 2.4) - 0.055;
+        return (int) Math.round(Math.max(0, Math.min(1, s)) * 255);
     }
 
     /**
