@@ -188,12 +188,6 @@
     -fx-border-radius: 14;
     -fx-padding: 16;
 }
-.progress-header {
-    -fx-background-color: white;
-    -fx-background-radius: 15;
-    -fx-padding: 18 24 18 24;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 5, 0, 0, 4);
-}
 .progress-summary {
     -fx-background-color: rgba(2, 27, 110, 0.75);
     -fx-background-radius: 15;
@@ -209,9 +203,6 @@
 .summary-divider .line {
     -fx-border-color: #DCC6B1;
     -fx-border-width: 0 0 0 1;
-}
-.progress-rule {
-    -fx-background-color: #DCC6B1;
 }
 .mastery-guide {
     -fx-background-color: white;
@@ -245,11 +236,6 @@
     -fx-font-size: 10px;
     -fx-font-weight: bold;
     -fx-text-fill: #1D1A2B;
-}
-.progress-dot {
-    -fx-font-size: 15px;
-    -fx-text-fill: radial-gradient(center 50% 50%, radius 60%, white 0%, #D19CFF 40%, #9A56D4 100%);
-    -fx-effect: dropshadow(gaussian, rgba(154, 86, 212, 0.45), 4, 0, 0, 0);
 }
 .btn-cta {
     -fx-background-color: linear-gradient(to right, #A3001C 0%, #E01A3C 32%, #FF4E74 100%);
@@ -449,13 +435,6 @@
 }
 
 /* Progress page only: scoped so the lessons screen keeps its own bars and chips */
-.progress-page .page-title.progress-title {
-    -fx-font-size: 36px;
-}
-.progress-page .subtitle {
-    -fx-font-size: 17px;
-    -fx-text-fill: #1D1A2B;
-}
 .progress-page .wf-bar {
     -fx-pref-height: 8;
 }
@@ -490,9 +469,6 @@
     -fx-background-color: #021B6E;
     -fx-border-color: #021B6E;
     -fx-text-fill: white;
-}
-.progress-page .mono-small {
-    -fx-font-size: 11px;
 }
 /* Diagnostic question layout: question card, option cards, inline feedback, stats */
 .question-card {
