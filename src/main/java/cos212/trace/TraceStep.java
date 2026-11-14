@@ -30,6 +30,13 @@ public record TraceStep<T>(T value, Comparison comparison, Move move, String exp
             case MISSING -> "an empty link means the value is not in the tree.";
             case DUPLICATE -> "a duplicate is never inserted.";
             case ATTACH_LEFT, ATTACH_RIGHT, ATTACH_ROOT -> "a new value is attached as a leaf at an empty link.";
+            case DELETE_NODE -> "a node with at most one child is replaced by that child, or by nothing.";
+            case SEEK_LEFT, SEEK_RIGHT -> "the largest value in a subtree is its rightmost node.";
+            case REPLACEMENT_FOUND -> "a node with no right child holds the largest value in its subtree.";
+            case COPY_VALUE -> "delete by copying overwrites the deleted value with the replacement's value.";
+            case REMOVE_REPLACEMENT -> "the replacement's old node is removed, and its left child takes its place.";
+            case MERGE_ATTACH -> "the right subtree hangs below the rightmost node of the left subtree, so every value stays in order.";
+            case MERGE_REPLACE -> "the left subtree takes the place of the deleted node.";
         };
     }
 
@@ -42,6 +49,14 @@ public record TraceStep<T>(T value, Comparison comparison, Move move, String exp
         DUPLICATE,
         ATTACH_LEFT,
         ATTACH_RIGHT,
-        ATTACH_ROOT
+        ATTACH_ROOT,
+        DELETE_NODE,
+        SEEK_LEFT,
+        SEEK_RIGHT,
+        REPLACEMENT_FOUND,
+        COPY_VALUE,
+        REMOVE_REPLACEMENT,
+        MERGE_ATTACH,
+        MERGE_REPLACE
     }
 }

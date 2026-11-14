@@ -41,6 +41,7 @@ final class TreeActivityScreen extends BorderPane {
     private final Label traverseResult = Ui.mono("");
     private final TextField insertField = new TextField();
     private final TextField searchField = new TextField();
+    private final TextField deleteField = new TextField();
     private final Button left = Ui.secondary("Left");
     private final Button right = Ui.secondary("Right");
     private final Button hint = Ui.secondary("Hint (0 of 3)");
@@ -157,6 +158,18 @@ final class TreeActivityScreen extends BorderPane {
         VBox searchControls = new VBox(8, Ui.note("Search value"), searchInput);
         searchControls.setMinWidth(Region.USE_PREF_SIZE);
 
+        deleteField.setPromptText("Value");
+        deleteField.setPrefWidth(110);
+        deleteField.setMinWidth(60);
+        Button deleteCopy = Ui.primary("Delete Copy");
+        deleteCopy.setOnAction(e -> deleteByCopying());
+        deleteCopy.setMinWidth(Region.USE_PREF_SIZE);
+        Button deleteMerge = Ui.primary("Delete Merge");
+        deleteMerge.setOnAction(e -> deleteByMerging());
+        deleteMerge.setMinWidth(Region.USE_PREF_SIZE);
+        searchControls.getChildren().addAll(Ui.note("Delete value"), deleteField,
+                Ui.row(8, deleteCopy, deleteMerge));
+
         // CHANGED: renamed to Depth First, and Breadth First added beside it
         Button depthFirst = Ui.secondary("Depth First");
         depthFirst.setOnAction(e -> inOrder());
@@ -214,6 +227,34 @@ final class TreeActivityScreen extends BorderPane {
         setResult(tree.contains(value)
                 ? value + " found after " + comparisons() + " comparisons."
                 : value + " not found after " + comparisons() + " comparisons.", false);
+        refresh();
+    }
+
+    private void deleteByCopying() {
+        Integer value = parseValue(deleteField);
+        if (value == null) {
+            return;
+        }
+        startTrace(Traces.deleteByCopying(tree, value), false);
+        boolean removed = tree.deleteByCopying(value);
+        setResult(removed
+                ? value + " deleted by copying after " + comparisons() + " comparisons."
+                : value + " not found after " + comparisons() + " comparisons, so nothing changed.", false);
+        deleteField.clear();
+        refresh();
+    }
+
+    private void deleteByMerging() {
+        Integer value = parseValue(deleteField);
+        if (value == null) {
+            return;
+        }
+        startTrace(Traces.deleteByMerging(tree, value), false);
+        boolean removed = tree.deleteByMerging(value);
+        setResult(removed
+                ? value + " deleted by merging after " + comparisons() + " comparisons."
+                : value + " not found after " + comparisons() + " comparisons, so nothing changed.", false);
+        deleteField.clear();
         refresh();
     }
 
