@@ -1,8 +1,7 @@
 \section{System Architecture}\label{sec:architecture}
-\owner{Group}
-\pages{3}
 
-The COS212 app is organised into four layers. The domain layer holds the BST and knows nothing about the user interface. The trace layer runs the search and insertion operations and records every step. The assessment layer decides what to ask the student and where to route them. The user interface layer displays the tree and the trace and collects the student's input. Dependencies point only downwards: the user interface uses the trace and assessment layers, which use the domain layer, and the domain layer depends on no other layer. This keeps the correctness-critical code testable without a window, and it allows the educational features to change without touching the tree.
+
+The COS212 app is organised into four layers. The domain layer holds the BST and knows nothing about the user interface. The trace layer runs the search, insertion and deletion operations and records every step. The assessment layer decides what to ask the student and where to route them. The user interface layer displays the tree and the trace and collects the student's input. Dependencies point only downwards: the user interface uses the trace and assessment layers, which use the domain layer, and it also uses the domain layer directly to hold the tree the student builds. The domain layer depends on no other layer. This keeps the correctness-critical code testable without a window, and it allows the educational features to change without touching the tree.
 
 \subsection{Layers}
 Table~\ref{tab:layers} lists each layer, the package that holds it, its responsibility and the requirements it supports.
@@ -16,19 +15,21 @@ Table~\ref{tab:layers} lists each layer, the package that holds it, its responsi
 \toprule
 Layer & Package & Responsibility & Requirements \\
 \midrule
-Domain & \texttt{cos212.bst} & \texttt{BSTNode<T>} and \texttt{BinarySearchTree<T>}: insertion, search, in-order traversal and the ordering invariant. No I/O and no UI types. & FR1, FR2, FR3, FR6, NFR2 \\
-Trace & \texttt{cos212.trace} & Wraps search and insertion, recording each comparison as a \texttt{TraceStep} with the node, the target, the outcome and the reason for the next move. & FR4, FR5, FR7 \\
+Domain & \texttt{cos212.bst} & \texttt{BSTNode<T>} and \texttt{BinarySearchTree<T>}: insertion, search, deletion by copying and by merging, in-order and breadth-first traversal, copying a tree, and the ordering invariant. No I/O and no UI types. & FR1, FR2, FR3, FR6, FR11, FR14, NFR2 \\
+Trace & \texttt{cos212.trace} & Wraps search, insertion and deletion, recording each comparison as a \texttt{TraceStep} with the node, the target, the outcome and the reason for the next move. Builds a trace by reading the tree and never changes it. & FR4, FR5, FR7, FR12, FR13 \\
 Assessment & \texttt{cos212.assess} & Diagnostic items, the router that selects the lesson for a wrong answer, feedback messages and progress records. & FR8, FR9, FR10 \\
-Interface & \texttt{cos212.ui} & Tree canvas, trace panel, step controls and the lesson and quiz screens. Reads from the other layers and sends student actions to them. & FR1, FR7, NFR1, NFR5 \\
+Interface & \texttt{cos212.ui} & Tree canvas, trace panel, step controls, the Predict card, the Undo and Redo history (\texttt{TreeHistory}, which has no JavaFX types so it can be tested without a window) and the lesson and quiz screens. Reads from the other layers and sends student actions to them. & FR1, FR7, FR13, FR14, NFR1, NFR5 \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \subsection{Technology Stack}
-The app is written in Java 17 and built with Maven, as recorded in Section~\ref{sec:process}. The user interface is built with JavaFX, which runs on Windows, macOS and Linux with the JDK alone and supports the keyboard navigation required by NFR5. A web front end was considered and rejected because it would add a server or a browser-compatibility layer that the prototype does not need. Lessons and diagnostic items are stored as text resources inside the JAR, so the content can be reviewed without changing code. \todo{confirm JavaFX against a web front end with the group}
+The app is written in Java 17 and built with Maven, as recorded in Section~\ref{sec:process}. The user interface is built with JavaFX, which runs on Windows, macOS and Linux with the JDK alone and supports the keyboard navigation required by NFR5. A web front end was considered and rejected because it would add a server or a browser-compatibility layer that the prototype does not need. Lessons and diagnostic items are stored as text resources inside the JAR, so the content can be reviewed without changing code. 
 
 \subsection{Key Interfaces}
-The trace layer is the only route from the interface to the domain. The interface never calls the BST directly. Each trace operation returns a list of \texttt{TraceStep} objects that the interface replays one at a time, so the step controls in FR7 only move an index through the list. The domain classes produce the same result whether or not a trace is requested, which means the trace cannot change the tree.
+The trace layer is the only way the interface learns what an operation would do. The interface asks it for the steps of an insertion, a search or a deletion, and it never changes the tree. The Build controls apply the changes themselves by calling the domain operations, and only those controls do so; a prediction only asks for a trace. Each trace operation returns a list of \texttt{TraceStep} objects that the interface replays one at a time, so the step controls in FR7 only move an index through the list. The domain classes produce the same result whether or not a trace is requested, which means the trace cannot change the tree.
+
+The interface keeps a history of the tree for Undo and Redo. Before each change it saves a copy of the tree (\texttt{BinarySearchTree.copy}), and it puts a copy back with \texttt{restoreFrom}, which replaces the contents of the tree in place so that every part of the interface keeps the same tree object. The number of saved states is one constant.
 
 The assessment layer receives a \texttt{TraceResult} or a student answer and returns a \texttt{Feedback} object with a message and, when the answer is wrong, the identifier of the lesson to route to. The router is a plain lookup from the misconception that the answer reveals to a lesson identifier, so the routing rules can be read and tested directly.
 
@@ -36,13 +37,54 @@ The assessment layer receives a \texttt{TraceResult} or a student answer and ret
 The component relationships are as follows.
 
 \begin{itemize}
-    \item \texttt{ui} depends on \texttt{trace} and \texttt{assess}.
+    \item \texttt{ui} depends on \texttt{trace}, \texttt{assess} and \texttt{bst}. It uses \texttt{bst} only to hold the tree, to apply the Build operations and to read the read-only node view for drawing.
     \item \texttt{trace} depends on \texttt{bst}.
     \item \texttt{assess} depends on \texttt{trace} for the results it scores, and on the lesson resources.
     \item \texttt{bst} depends on nothing in the application.
 \end{itemize}
 
-A diagram of these components will be inserted here for the presentation. \todo{insert component diagram}
+\subsection{Component Diagram}
+Figure~\ref{fig:components} shows the four packages and the files the app reads and writes. The dependencies are as follows.
+
+\begin{itemize}
+    \item \texttt{ui} depends on \texttt{trace}, \texttt{assess} and \texttt{bst}.
+    \item \texttt{trace} depends on \texttt{bst}.
+    \item \texttt{assess} depends on no other package. It reads and writes the progress file.
+    \item \texttt{bst} depends on nothing in the application.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    pkg/.style={draw, rounded corners=2pt, align=center, minimum width=4cm, minimum height=1.5cm, font=\small},
+    file/.style={draw, dashed, align=center, minimum width=3cm, minimum height=1cm, font=\footnotesize},
+    dep/.style={->, >=stealth, thick},
+    io/.style={->, >=stealth, dashed}]
+\node[pkg, minimum width=8.6cm] (ui) at (0,0)
+    {\texttt{cos212.ui}\\ \footnotesize Screens, tree canvas, settings, stylesheet,\\ \footnotesize lesson and question banks};
+\node[pkg] (trace) at (-2.3,-2.8)
+    {\texttt{cos212.trace}\\ \footnotesize \texttt{Traces}, \texttt{TraceStep}};
+\node[pkg] (assess) at (2.3,-2.8)
+    {\texttt{cos212.assess}\\ \footnotesize \texttt{Diagnostic}, \texttt{ProgressTracker},\\ \footnotesize \texttt{ProgressStore}};
+\node[pkg] (bst) at (-2.3,-5.6)
+    {\texttt{cos212.bst}\\ \footnotesize \texttt{BinarySearchTree}, \texttt{BSTNode}};
+\node[file] (styles) at (6.4,0)
+    {\texttt{app.css}\\ \texttt{settings.properties}};
+\node[file] (progress) at (6.4,-2.8)
+    {\texttt{progress.json}};
+
+\draw[dep] (ui.south -| trace.north) -- (trace.north);
+\draw[dep] (ui.south -| assess.north) -- (assess.north);
+\draw[dep] (trace.south) -- (bst.north);
+\draw[dep] (ui.west) -- ++(-0.5,0) |- (bst.west);
+\draw[io] (ui.east) -- (styles.west);
+\draw[io] (assess.east) -- (progress.west);
+\end{tikzpicture}
+\caption{Components of the app. A solid arrow means the package at its tail uses the package at its head. A dashed arrow is a file the package reads or writes.}
+\label{fig:components}
+\end{figure}
+
+
 
 \subsection{Quality Attributes}
-The architecture supports the non-functional requirements as follows. Correctness (NFR2) is supported because the ordering invariant lives in one class and is tested without the interface. Accessibility (NFR5) is supported because the interface is the only layer that presents colour, and it uses shape and text as well. Portability (NFR6) is supported by using only the JDK and the JavaFX runtime, with no native code. The main architectural risk is that a degenerate tree slows the trace; the trace layer records the depth of each step so that the interface can show when the tree has become a chain.
+The architecture supports the non-functional requirements as follows. Correctness (NFR2) is supported because the ordering invariant lives in one class and is tested without the interface, and because Undo restores a saved copy of a tree that was valid when it was saved, so it cannot break the invariant. Accessibility (NFR5) is supported because the interface is the only layer that presents colour, and it uses shape and text as well. Portability (NFR6) is supported by using only the JDK and the JavaFX runtime, with no native code. The main architectural risk is that a degenerate tree slows the trace; the trace layer records the depth of each step so that the interface can show when the tree has become a chain.

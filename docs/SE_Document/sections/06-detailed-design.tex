@@ -1,8 +1,7 @@
 \section{Detailed Design}\label{sec:design}
-\owner{Group}
-\pages{4}
 
-This section records the design of the domain classes and of the search and insertion operations, which are the parts of the app whose correctness is most important. The design follows the layering in Section~\ref{sec:architecture}, so every class here belongs to the domain layer or to the trace layer.
+
+This section records the design of the domain classes and of the search, insertion and deletion operations, which are the parts of the app whose correctness is most important. The design follows the layering in Section~\ref{sec:architecture}, so every class here belongs to the domain layer or to the trace layer.
 
 \subsection{Class Design}
 The domain layer has two classes. \texttt{BSTNode<T>} holds one value and two links. \texttt{BinarySearchTree<T>} holds the root and the number of values, and enforces the ordering invariant. The values are generic and must be comparable, so that the same classes can hold integers or strings.
@@ -26,18 +25,26 @@ public class BinarySearchTree<T extends Comparable<T>> {
 
     public boolean insert(T value) { ... }
     public boolean contains(T value) { ... }
+    public boolean deleteByCopying(T value) { ... }
+    public boolean deleteByMerging(T value) { ... }
     public List<T> inOrder() { ... }
+    public List<T> breadthFirst() { ... }
     public int size() { return size; }
     public int height() { ... }
+    public void clear() { ... }
+    public BinarySearchTree<T> copy() { ... }
+    public void restoreFrom(BinarySearchTree<T> other) { ... }
+    public NodeView<T> rootView() { ... }
+    public List<T> comparedPath(T value) { ... }
 }
 \end{lstlisting}
 
-The ordering invariant is not stored anywhere. It is maintained by \texttt{insert}, which is the only method that creates links, so every test of the invariant can be made against the public methods alone. The trace layer does not modify the tree; it reads the links through \texttt{contains} and returns a list of steps.
+The ordering invariant is not stored anywhere. It is maintained by \texttt{insert} and the two deletion methods, which are the only methods that change links one at a time, so every test of the invariant can be made against the public methods alone. \texttt{copy} and \texttt{restoreFrom} copy a whole tree that was valid, so they keep the invariant too. \texttt{NodeView} is a small read-only interface with the methods \texttt{value}, \texttt{left} and \texttt{right}. The interface uses it to draw the tree, and the trace layer uses it to follow the links, so neither can change the tree. The trace layer does not modify the tree; it reads the links through \texttt{comparedPath} and \texttt{NodeView} and returns a list of steps.
 
 \subsection{Insert Sequence}
 Insertion follows the search path from the root. At each node the new value is compared with the stored value. If the values are equal the value is already present and nothing changes. If the new value is smaller the search moves to the left child, and if it is larger it moves to the right child. When the search reaches a node whose child link is empty, a new node is attached there.
 
-Table~\ref{tab:insert4} shows the sequence for inserting 4 into an example tree. The root is 5, its left child is 3 with left child 1, and its right child is 7 with children 6 and 9. This is the tree in the lecture slides, and every value obeys the ordering rule.
+Table~\ref{tab:insert4} shows the sequence for inserting 4 into an example tree. The root is 5, its left child is 3 with the child 1, and its right child is 7 with the children 6 and 9.
 
 \begin{table}[H]
 \centering
@@ -93,14 +100,142 @@ public boolean insert(T value) {
 
 The trace layer uses the same comparisons. For each step it records the node visited, the comparison result, the direction taken and the depth of the node. The depth is what allows the interface to show when a search has become a long chain.
 
+\subsection{Deletion}
+Both deletion methods first search for the value, remembering the parent of each node on the way. If the search reaches an empty link, the method returns \texttt{false} and the tree is not changed. If the node has at most one child, the node is replaced under its parent by that child, or by nothing when it is a leaf. A node with two children is handled differently by the two methods, and both look in its left subtree.
+
+\textbf{Delete by copying.} The method walks to the largest value in the left subtree of the node, which is the node reached by going left once and then right until there is no right child. That value is copied into the node that is being deleted, and the node it came from, which has no right child, is replaced under its own parent by its left child. The tree never gets taller.
+
+\textbf{Delete by merging.} The method walks to the rightmost node of the left subtree and attaches the right subtree of the deleted node as the right child of that node. The left subtree then takes the place of the deleted node under its parent. The ordering rule holds because every value in the right subtree is larger than every value in the left subtree. The tree can get taller, because the whole right subtree is hung below the left subtree.
+
+Table~\ref{tab:delete7} shows both methods deleting 7 from the example tree used above. Node 7 has the two children 6 and 9. Both methods leave the tree with the root 5, the left child 3 with the child 1, and the right child 6 with the child 9. The two methods give different trees when the rightmost node of the left subtree is deeper, and the tests check both cases.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Steps for deleting 7 from the example tree by copying and by merging.}
+\label{tab:delete7}
+\begin{tabularx}{\textwidth}{p{1.2cm} p{2.4cm} X}
+\toprule
+Step & Method & Action \\
+\midrule
+1 & both & Compare 5 with 7: $7 > 5$, so go right to 7. \\
+2 & both & Compare 7 with 7: they are equal, so 7 is found. \\
+3 & both & 7 has two children, so a replacement is needed. \\
+4 & both & The largest value below 7 is in its left subtree, so go left to 6. \\
+5 & both & 6 has no right child, so the walk ends at 6. \\
+6 & copying & Copy 6 into the node that held 7. \\
+7 & copying & Remove the old node of 6, which is a leaf. \\
+6 & merging & Attach the right subtree of 7, rooted at 9, as the right child of 6. \\
+7 & merging & The left subtree, rooted at 6, takes the place of 7. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{lstlisting}[language=Java]
+public boolean deleteByCopying(T value) {
+    Objects.requireNonNull(value);
+    BSTNode<T> parent = null;
+    BSTNode<T> node = root;
+    while (node != null) {
+        int cmp = value.compareTo(node.value);
+        if (cmp == 0) {
+            break;
+        }
+        parent = node;
+        node = cmp < 0 ? node.left : node.right;
+    }
+    if (node == null) {
+        return false;
+    }
+    if (node.left != null && node.right != null) {
+        BSTNode<T> predecessorParent = node;
+        BSTNode<T> predecessor = node.left;
+        while (predecessor.right != null) {
+            predecessorParent = predecessor;
+            predecessor = predecessor.right;
+        }
+        node.value = predecessor.value;
+        replaceChild(predecessorParent, predecessor, predecessor.left);
+    } else {
+        replaceChild(parent, node, node.left != null ? node.left : node.right);
+    }
+    size--;
+    return true;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Java]
+public boolean deleteByMerging(T value) {
+    Objects.requireNonNull(value);
+    BSTNode<T> parent = null;
+    BSTNode<T> node = root;
+    while (node != null) {
+        int cmp = value.compareTo(node.value);
+        if (cmp == 0) {
+            break;
+        }
+        parent = node;
+        node = cmp < 0 ? node.left : node.right;
+    }
+    if (node == null) {
+        return false;
+    }
+    BSTNode<T> replacement;
+    if (node.left == null) {
+        replacement = node.right;
+    } else {
+        replacement = node.left;
+        BSTNode<T> rightmost = node.left;
+        while (rightmost.right != null) {
+            rightmost = rightmost.right;
+        }
+        rightmost.right = node.right;
+    }
+    replaceChild(parent, node, replacement);
+    size--;
+    return true;
+}
+\end{lstlisting}
+
+The private method \texttt{replaceChild} puts a replacement where a child hung under its parent, or at the root when the parent is \texttt{null}, so neither method needs a separate case for the root.
+
+\subsection{Breadth-First Traversal}
+\texttt{breadthFirst} lists the values level by level, from the root down and from left to right. It uses a queue: the root is added first, and each node that is removed adds its left child and then its right child. Every node is added and removed once, so the time is $O(n)$, and the queue holds at most one level of the tree at a time. For a tree where a deep branch comes before a shallow one, the result differs from the in-order result, which is why the tests use such a tree.
+
+\subsection{Trace Steps}
+A trace is a list of \texttt{TraceStep} records. Each step holds the value of the node the step is made at, the result of the comparison when there is one, the move, and one sentence of explanation. The rule that justifies a move is taken from the move itself, so every step of the same kind gives the same rule. Insertion and search use the moves \texttt{LEFT}, \texttt{RIGHT}, \texttt{FOUND}, \texttt{MISSING}, \texttt{DUPLICATE} and the three \texttt{ATTACH} moves. A deletion trace starts with the same \texttt{LEFT} and \texttt{RIGHT} steps and ends the search with \texttt{FOUND} or \texttt{MISSING}. When the node is found, the steps that follow depend on its children, as Table~\ref{tab:deletesteps} shows.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Steps of a deletion trace after the node is found.}
+\label{tab:deletesteps}
+\begin{tabularx}{\textwidth}{p{4.2cm} X}
+\toprule
+Node found & Steps after \texttt{FOUND} \\
+\midrule
+No children & \texttt{DELETE\_NODE} \\
+Only a left child & \texttt{MERGE\_REPLACE} (the left subtree takes its place) \\
+Only a right child & \texttt{RIGHT\_REPLACE} (the right subtree takes its place) \\
+Two children, copying & \texttt{FIND\_REPLACEMENT}, \texttt{SEEK\_LEFT}, \texttt{SEEK\_RIGHT} (one for each node on the walk that has a right child), \texttt{REPLACEMENT\_FOUND}, \texttt{COPY\_VALUE}, \texttt{REMOVE\_REPLACEMENT} \\
+Two children, merging & \texttt{FIND\_REPLACEMENT}, \texttt{SEEK\_LEFT}, \texttt{SEEK\_RIGHT} (as above), \texttt{REPLACEMENT\_FOUND}, \texttt{MERGE\_ATTACH}, \texttt{MERGE\_REPLACE} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The decision to look for a replacement and the decision to go left are separate steps, and both are made at the deleted node. Each \texttt{SEEK\_RIGHT} step and the \texttt{REPLACEMENT\_FOUND} step are made at the node where the decision is taken, in the same way as a comparison step, so the node that is highlighted is always the node the student is deciding at. A trace is built by reading the tree and never changes it, so the same trace can be requested for a real operation or for a prediction.
+
+\subsection{Copying a Tree for Undo}
+\texttt{copy} returns a tree with the same shape and size as the original that shares no node with it, so changing either tree never affects the other. It copies the nodes with an explicit stack and not with recursion, so a degenerate tree cannot exhaust the call stack. \texttt{restoreFrom} replaces the contents of a tree with a copy of another tree, in place. The interface holds one tree object for the whole life of the screen, so restoring in place means that nothing else has to be told that the tree has changed. The interface keeps a \texttt{TreeHistory}, which saves a copy of the tree before each change and puts it back on Undo. Redo keeps the tree as it was when Undo was used. The number of saved states is one constant in the interface, and the history drops the oldest state when the limit is exceeded.
+
 \subsection{Recursive versus Iterative Implementation}
-The lecture material presents both an iterative and a recursive search. The prototype uses the iterative form for insertion and search, for three reasons. The iterative form uses constant extra space, so a degenerate tree cannot exhaust the call stack during insertion or search. It also keeps the path easy to record for the trace. The recursive form is kept only for the in-order traversal, where it mirrors the lecture definition and reads more clearly. Its stack depth equals the tree height, and the limit of 100 nodes in NFR4 keeps that depth small. This is a known risk for very deep trees, and it is recorded in Section~\ref{sec:limitations}.
+The lecture material presents both an iterative and a recursive search. The prototype uses the iterative form for insertion, search and both deletion methods, for three reasons. The iterative form uses constant extra space, so a degenerate tree cannot exhaust the call stack during these operations. It also keeps the path easy to record for the trace. The recursive form is kept only for the in-order traversal, where it mirrors the lecture definition and reads more clearly. Its stack depth equals the tree height, and the limit of 100 nodes in NFR4 keeps that depth small. The drawing of the tree is also recursive, so it shares the risk. Breadth-first traversal uses a queue and copying uses a stack, both on the heap, so neither is limited by the call stack. This is a known risk for very deep trees, and it is recorded in Section~\ref{sec:limitations}.
 
 \subsection{Duplicate Handling}
-A value that is already in the tree is rejected. \texttt{insert} returns \texttt{false}, the tree is not changed, and the size is not incremented. The alternative of storing a count with each node was rejected because the lesson's ordering rule does not need counts, and FR2 requires the tree to reject a duplicate and report it. The interface shows the rejected value to the student so that the rule is visible.
+A value that is already in the tree is rejected. \texttt{insert} returns \texttt{false}, the tree is not changed, and the size is not incremented. The alternative of storing a count with each node was rejected because the lesson's ordering rule does not need counts, and FR2 requires the tree to reject a duplicate and report it. The interface shows the rejected value to the student so that the rule is visible. Deleting a value that is not in the tree is handled in the same way: both deletion methods return \texttt{false}, the tree is not changed, and the trace ends with a step that says the value was not found.
 
 \subsection{Null Values}
-A null value is not a BST value, because it cannot be compared. \texttt{insert} and \texttt{contains} throw a \texttt{NullPointerException} for null input. The interface never passes null, since it only forwards text the student has typed after validating it as an integer.
+A null value is not a BST value, because it cannot be compared. \texttt{insert}, \texttt{contains} and both deletion methods throw a \texttt{NullPointerException} for null input, and \texttt{restoreFrom} does the same for a null tree. The interface never passes null, since it only forwards text the student has typed after validating it as an integer.
 
 \subsection{Complexity Summary}
 Table~\ref{tab:complexity} summarises the time cost of each public operation in terms of the height $h$ of the tree and the number of values $n$.
@@ -115,8 +250,11 @@ Table~\ref{tab:complexity} summarises the time cost of each public operation in 
 Operation & Time & Note \\
 \midrule
 \texttt{insert}, \texttt{contains} & $O(h)$ & $O(\lg n)$ when balanced, $O(n)$ when degenerate \\
+\texttt{deleteByCopying}, \texttt{deleteByMerging} & $O(h)$ & one walk from the root to the node, then one walk down its left subtree, which together are at most one walk from the root to a leaf \\
 \texttt{size} & $O(1)$ & returns the stored count \\
 \texttt{inOrder} & $O(n)$ & visits every node once \\
+\texttt{breadthFirst} & $O(n)$ & visits every node once; the queue holds at most one level \\
+\texttt{copy}, \texttt{restoreFrom} & $O(n)$ & copies every node once; this is also the cost of each saved Undo state \\
 \texttt{height} & $O(n)$ & recursive, visits every node once \\
 \bottomrule
 \end{tabularx}

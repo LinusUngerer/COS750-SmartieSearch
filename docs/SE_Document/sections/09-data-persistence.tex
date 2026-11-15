@@ -1,6 +1,5 @@
 \section{Data and Persistence}\label{sec:data}
-\owner{Group}
-\pages{1}
+
 
 The app stores as little data as it needs to do its job, and keeps all of it on the student's own computer. There are no accounts, no student numbers and no network calls. This follows from the constraint in Section~\ref{sec:requirements} that the app is used without an instructor or an account, and it reflects the principle of data minimisation in the Protection of Personal Information Act (POPIA), since the app has no reason to hold personal information.
 
@@ -46,5 +45,11 @@ The app reads the progress file once at start-up and writes it after each answer
 \subsection{Resetting Progress}
 The progress screen has a control that clears all progress records after a confirmation message. Clearing progress deletes the file, and the next start-up begins from empty progress. The same control is the only way in the app to remove the data it holds, and it is shown in the screen description in Section~\ref{sec:ui}.
 
-\subsection{Usage Logs for Evaluation}
-The evaluation plan in the ID document includes usage logs. Those logs are not part of the app's normal behaviour. They are produced only by a separate evaluation build, which the participants opt into, and they record actions without any name or student number. \todo{confirm the evaluation logging approach and consent wording with the ethics requirements}
+\subsection{Usage Data for Evaluation}
+The app does not log usage. It writes two files, both in the \texttt{.smartiesearch} folder in the student's home folder: \texttt{progress.json}, which holds the progress record described above, and \texttt{settings.properties}, which holds the accessibility settings. Neither file holds a name or a student number, and nothing is sent anywhere.
+
+The evaluation in the ID document therefore draws on two sources. The first is the observer's notes from each session: which tasks were completed, how long they took, and where the participant stopped. The second is the progress record, which already holds the attempts, correct first answers and hints used for each objective. A participant can agree to share that file at the end of a session.
+
+Before a session starts, participants are told what will be recorded and that taking part is voluntary, and they can stop at any time. No names or student numbers are recorded, and notes and shared files are kept outside the repository. The participant information and consent sheet is planned as \texttt{evaluation/consent.md} and has not been written yet.
+
+A build that logs each action, as the evaluation plan in the ID document first proposed, was not built. It is listed as future work in Section~\ref{sec:limitations}.

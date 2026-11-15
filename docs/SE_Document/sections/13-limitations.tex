@@ -1,13 +1,10 @@
 \section{Limitations and Future Work}\label{sec:limitations}
-\owner{Group}
-\pages{1}
 
 This section states what the prototype does not do, why each limitation was accepted, and what would be needed to remove it. The limitations fall into three groups: those of the data structure, those of the software, and those of the educational evaluation.
 
 \subsection{Limitations of the Data Structure}
 \begin{itemize}
     \item \textbf{No self-balancing.} Values inserted in sorted order produce a chain, and search and insertion then take $O(n)$ time (decision D3 in Section~\ref{sec:decisions}). The app shows the depth of each step so that the chain is visible, and the 100-node limit in NFR4 keeps the cost small. The prototype cannot show a tree being restored to balance.
-    \item \textbf{No deletion.} Students cannot see the two-child case, which is the most involved part of the lecture material. This is a deliberate scope decision, not an oversight.
     \item \textbf{Integer values only.} The interface accepts integers, so the ordering rule is shown on numbers only. Strings and other comparable values are supported by the domain classes but are not offered in the interface.
 \end{itemize}
 
