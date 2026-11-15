@@ -42,14 +42,21 @@ final class TreeActivityScreen extends BorderPane {
     private final TextField insertField = new TextField();
     private final TextField searchField = new TextField();
     private final TextField deleteField = new TextField();
-    private final Button left = Ui.secondary("Left");
-    private final Button right = Ui.secondary("Right");
     private final Button hint = Ui.secondary("Hint (0 of 3)");
     private final Button previous = Ui.secondary("Previous");
     private final Button next = Ui.primary("Next");
     private final Button reset = Ui.secondary("Reset");
     private final Label hintText = Ui.note("");
     private final Label predictFeedback = Ui.note("");
+
+    private static final String PREDICTION_NOTE = "Prediction only: the tree was not changed. ";
+    private final TextField predictField = new TextField();
+    private List<TraceStep<Integer>> predictSteps;
+    private String predictCategory = "";
+    private final FlowPane answerBox = new FlowPane(8, 8);
+    private final Label predictPrompt = Ui.note("");
+    private List<TraceStep<Integer>> builtFor;
+    private int builtIndex = -2;
 
     private List<TraceStep<Integer>> steps = List.of();
     private int stepIndex = -1;
@@ -63,8 +70,6 @@ final class TreeActivityScreen extends BorderPane {
         setTop(heading());
         setCenter(mainArea());
         setBottom(bottomArea());
-        left.setOnAction(e -> predict(Move.LEFT));
-        right.setOnAction(e -> predict(Move.RIGHT));
         hint.setOnAction(e -> showHint());
         previous.setOnAction(e -> move(-1));
         next.setOnAction(e -> move(1));
@@ -187,14 +192,39 @@ final class TreeActivityScreen extends BorderPane {
                 Ui.note("Duplicates leave the tree unchanged."),
                 traversals, traverseResult);
 
-        HBox answers = new HBox(8, left, right, hint);
+        HBox answers = new HBox(8, answerBox);
         HBox stepButtons = new HBox(8, previous, next, reset);
         VBox predict = Ui.card(Ui.titleRow("Predict the next step"),
-                Ui.note("Which subtree next?"), answers, hintText, predictFeedback, stepButtons, stepCaption);
+                predictPrompt, answers, hintText, predictFeedback, stepButtons, stepCaption);
 
         controls.setMinWidth(Region.USE_PREF_SIZE);
         predict.setMinWidth(Region.USE_PREF_SIZE);
         predict.setMaxWidth(420);
+        predictField.setPromptText("Value");
+        predictField.setPrefWidth(110);
+        predictField.setMinWidth(60);
+        Button pInsert = Ui.secondary("Insert");
+        pInsert.setOnAction(e -> predictInsert());
+        pInsert.setAccessibleText("Predict insert");
+        Button pSearch = Ui.secondary("Search");
+        pSearch.setOnAction(e -> predictSearch());
+        pSearch.setAccessibleText("Predict search");
+        Button pDeleteCopy = Ui.secondary("Delete Copy");
+        pDeleteCopy.setOnAction(e -> predictDelete(true));
+        pDeleteCopy.setAccessibleText("Predict delete by copying");
+        Button pDeleteMerge = Ui.secondary("Delete Merge");
+        pDeleteMerge.setOnAction(e -> predictDelete(false));
+        pDeleteMerge.setAccessibleText("Predict delete by merging");
+        for (Button b : List.of(pInsert, pSearch, pDeleteCopy, pDeleteMerge)) {
+            b.setMinWidth(Region.USE_PREF_SIZE);
+        }
+        FlowPane predictOps = new FlowPane(8, 8, pInsert, pSearch, pDeleteCopy, pDeleteMerge);
+        predictOps.setPrefWrapLength(360);
+        predict.getChildren().addAll(1, List.of(
+                Ui.note("Value to predict (the tree is never changed here)"), predictField, predictOps));
+        answerBox.setPrefWrapLength(360);
+        HBox.setHgrow(answerBox, Priority.ALWAYS);
+
 
         FlowPane controlsRow = new FlowPane(12, 12, controls, predict);
         controlsRow.setPrefWrapLength(1000);
@@ -228,6 +258,111 @@ final class TreeActivityScreen extends BorderPane {
                 ? value + " found after " + comparisons() + " comparisons."
                 : value + " not found after " + comparisons() + " comparisons.", false);
         refresh();
+    }
+
+    private void startPredictTrace(List<TraceStep<Integer>> run, String category) {
+        startTrace(run, false);
+        predictSteps = run;
+        predictCategory = category;
+    }
+
+    private void predictInsert() {
+        Integer value = parseValue(predictField);
+        if (value == null) {
+            return;
+        }
+        startPredictTrace(Traces.insert(tree, value), "predict-insert");
+        setResult(PREDICTION_NOTE + (tree.contains(value)
+                ? "Inserting " + value + " would change nothing, because it is already in the tree."
+                : "Inserting " + value + " would add it after " + comparisons() + " comparisons."), false);
+        refresh();
+    }
+
+    private void predictSearch() {
+        Integer value = parseValue(predictField);
+        if (value == null) {
+            return;
+        }
+        startPredictTrace(Traces.search(tree, value), "predict-search");
+        setResult(PREDICTION_NOTE + (tree.contains(value)
+                ? "Searching for " + value + " would find it after " + comparisons() + " comparisons."
+                : "Searching for " + value + " would not find it after " + comparisons() + " comparisons."), false);
+        refresh();
+    }
+
+    private void predictDelete(boolean copying) {
+        Integer value = parseValue(predictField);
+        if (value == null) {
+            return;
+        }
+        startPredictTrace(copying ? Traces.deleteByCopying(tree, value) : Traces.deleteByMerging(tree, value),
+                copying ? "predict-delete-copy" : "predict-delete-merge");
+        String method = copying ? "copying" : "merging";
+        setResult(PREDICTION_NOTE + (tree.contains(value)
+                ? "Deleting " + value + " by " + method + " would remove it after " + comparisons() + " comparisons."
+                : value + " is not in the tree, so deleting it by " + method + " would change nothing."), false);
+        refresh();
+    }
+
+    /** The moves the student chooses between at a step. They depend on the step and what came before it. */
+    private List<Move> choicesFor(int index) {
+        TraceStep<Integer> step = steps.get(index);
+        if (index > 0 && steps.get(index - 1).move() == Move.FOUND) {
+            // Right after a delete finds its node: the same four options for every node shape.
+            return List.of(Move.DELETE_NODE, Move.FIND_REPLACEMENT, Move.MERGE_REPLACE, Move.RIGHT_REPLACE);
+        }
+        return switch (step.move()) {
+            case LEFT, RIGHT, FOUND, DUPLICATE ->
+                    List.of(Move.LEFT, Move.RIGHT, isInsertTrace() ? Move.DUPLICATE : Move.FOUND);
+            case ATTACH_LEFT, ATTACH_RIGHT, ATTACH_ROOT -> step.value() == null
+                    ? List.of(Move.ATTACH_ROOT, Move.ATTACH_LEFT, Move.ATTACH_RIGHT)
+                    : List.of(Move.ATTACH_LEFT, Move.ATTACH_RIGHT);
+            case MISSING -> List.of(Move.FOUND, Move.MISSING);
+            case SEEK_LEFT -> List.of(Move.SEEK_LEFT, Move.RIGHT);
+            case SEEK_RIGHT, REPLACEMENT_FOUND -> List.of(Move.SEEK_RIGHT, Move.REPLACEMENT_FOUND);
+            case COPY_VALUE, REMOVE_REPLACEMENT -> List.of(Move.COPY_VALUE, Move.REMOVE_REPLACEMENT);
+            case MERGE_ATTACH, MERGE_REPLACE -> List.of(Move.MERGE_ATTACH, Move.MERGE_REPLACE);
+            case DELETE_NODE, FIND_REPLACEMENT, RIGHT_REPLACE ->
+                    List.of(Move.DELETE_NODE, Move.FIND_REPLACEMENT, Move.MERGE_REPLACE, Move.RIGHT_REPLACE);
+        };
+    }
+
+    private boolean isInsertTrace() {
+        return steps.stream().anyMatch(s -> switch (s.move()) {
+            case ATTACH_LEFT, ATTACH_RIGHT, ATTACH_ROOT, DUPLICATE -> true;
+            default -> false;
+        });
+    }
+
+    private static String label(Move move) {
+        return switch (move) {
+            case LEFT, SEEK_LEFT -> "Left";
+            case RIGHT, SEEK_RIGHT -> "Right";
+            case FOUND -> "Found";
+            case MISSING -> "Not found";
+            case DUPLICATE -> "Duplicate";
+            case ATTACH_LEFT -> "Insert Left";
+            case ATTACH_RIGHT -> "Insert Right";
+            case ATTACH_ROOT -> "Insert Root";
+            case DELETE_NODE -> "Remove Node";
+            case FIND_REPLACEMENT -> "Find Replacement";
+            case RIGHT_REPLACE -> "Right Subtree Replaces";
+            case REPLACEMENT_FOUND -> "Replacement Found";
+            case COPY_VALUE -> "Copy Value";
+            case REMOVE_REPLACEMENT -> "Remove Replacement";
+            case MERGE_ATTACH -> "Attach Right Subtree";
+            case MERGE_REPLACE -> "Left Subtree Replaces";
+        };
+    }
+
+    /** A wrong option to rule out in hint 2. */
+    private Move wrongChoice(TraceStep<Integer> step) {
+        for (Move move : choicesFor(stepIndex)) {
+            if (move != step.move()) {
+                return move;
+            }
+        }
+        return step.move();
     }
 
     private void deleteByCopying() {
@@ -319,41 +454,40 @@ final class TreeActivityScreen extends BorderPane {
     /** Checks the student's choice of subtree for the current step and records the first answer. */
     private void predict(Move chosen) {
         TraceStep<Integer> step = currentStep();
-        if (!isSubtreeMove(step)) {
+        if (step == null) {
             return;
         }
         boolean correct = step.move() == chosen;
         if (answeredSteps.add(stepIndex)) {
-            tracker.record(lastWasInsert ? "trace-insert" : "trace-search", correct, hintsShown);
+            tracker.record(predictSteps == steps ? predictCategory
+                    : lastWasInsert ? "trace-insert" : "trace-search", correct, hintsShown);
         }
-        String direction = step.move() == Move.LEFT ? "left" : "right";
         predictFeedback.setText((correct ? "Correct. " : "Not quite. ")
-                + "The search goes " + direction + " because " + step.rule());
+                + "The answer is " + label(step.move()) + " because " + step.rule());
         refresh();
     }
 
     private void showHint() {
         TraceStep<Integer> step = currentStep();
-        if (!isSubtreeMove(step) || hintsShown >= HINT_LIMIT) {
+        if (step == null || hintsShown >= HINT_LIMIT) {
             return;
         }
         hintsShown++;
+        boolean ordered = step.comparison() == Comparison.LESS || step.comparison() == Comparison.GREATER;
         hintText.setText(switch (hintsShown) {
             case 1 -> "Hint 1: " + step.rule();
-            case 2 -> "Hint 2: the target is "
+            case 2 -> ordered
+                    ? "Hint 2: the target is "
                     + (step.comparison() == Comparison.LESS ? "smaller" : "larger")
-                    + " than " + step.value() + ".";
-            default -> "Hint 3: the answer is " + (step.move() == Move.LEFT ? "left" : "right") + ".";
+                    + " than " + step.value() + "."
+                    : "Hint 2: the answer is not " + label(wrongChoice(step)) + ".";
+            default -> "Hint 3: the answer is " + label(step.move()) + ".";
         });
         refresh();
     }
 
     private TraceStep<Integer> currentStep() {
         return stepIndex >= 0 && stepIndex < steps.size() ? steps.get(stepIndex) : null;
-    }
-
-    private static boolean isSubtreeMove(TraceStep<Integer> step) {
-        return step != null && (step.move() == Move.LEFT || step.move() == Move.RIGHT);
     }
 
     private Integer parseValue(TextField field) {
@@ -410,10 +544,27 @@ final class TreeActivityScreen extends BorderPane {
     }
 
     private void updateControls() {
-        boolean subtree = isSubtreeMove(currentStep());
-        left.setDisable(!subtree);
-        right.setDisable(!subtree);
-        hint.setDisable(!subtree || hintsShown >= HINT_LIMIT);
+        TraceStep<Integer> step = currentStep();
+        boolean answerable = step != null;
+        // Rebuild the answer buttons only when the step changes, so keyboard focus survives an answer.
+        if (builtFor != steps || builtIndex != stepIndex) {
+            answerBox.getChildren().clear();
+            if (answerable) {
+                for (Move choice : choicesFor(stepIndex)) {
+                    Button button = Ui.secondary(label(choice));
+                    button.setMinWidth(Region.USE_PREF_SIZE);
+                    button.setOnAction(e -> predict(choice));
+                    answerBox.getChildren().add(button);
+                }
+            }
+            answerBox.getChildren().add(hint);
+            builtFor = steps;
+            builtIndex = stepIndex;
+        }
+        predictPrompt.setText(answerable
+                ? "What happens at this step?"
+                : "Run an operation above, then pick what happens at each step.");
+        hint.setDisable(!answerable || hintsShown >= HINT_LIMIT);
         hint.setText("Hint (" + hintsShown + " of " + HINT_LIMIT + ")");
         previous.setDisable(stepIndex <= 0);
         next.setDisable(steps.isEmpty() || stepIndex >= steps.size() - 1);

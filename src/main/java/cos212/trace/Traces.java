@@ -141,21 +141,37 @@ public final class Traces {
         return steps;
     }
 
-    /** The steps after the node is found, for delete by copying. */
-    private static <T> void addCopyingSteps(List<TraceStep<T>> steps, NodeView<T> node) {
+    /** Handles a found node with at most one child, for both delete methods. Returns true if it did. */
+    private static <T> boolean addSimpleSteps(List<TraceStep<T>> steps, NodeView<T> node) {
         T value = node.value();
         NodeView<T> left = node.left();
         NodeView<T> right = node.right();
-        if (left == null || right == null) {
-            NodeView<T> child = left != null ? left : right;
-            steps.add(new TraceStep<>(value, null, Move.DELETE_NODE, child == null
-                    ? value + " has no children, so its node is simply removed."
-                    : value + " has only a " + (left != null ? "left" : "right") + " child, "
-                    + child.value() + ", which takes its place."));
+        if (left != null && right != null) {
+            return false;
+        }
+        if (left == null && right == null) {
+            steps.add(new TraceStep<>(value, null, Move.DELETE_NODE,
+                    value + " has no children, so its node is simply removed."));
+        } else if (right == null) {
+            steps.add(new TraceStep<>(value, null, Move.MERGE_REPLACE,
+                    value + " has only a left child, " + left.value()
+                            + ", so the left subtree takes the place of " + value + "."));
+        } else {
+            steps.add(new TraceStep<>(value, null, Move.RIGHT_REPLACE,
+                    value + " has only a right child, " + right.value()
+                            + ", so the right subtree takes the place of " + value + "."));
+        }
+        return true;
+    }
+
+    /** The steps after the node is found, for delete by copying. */
+    private static <T> void addCopyingSteps(List<TraceStep<T>> steps, NodeView<T> node) {
+        if (addSimpleSteps(steps, node)) {
             return;
         }
+        T value = node.value();
         NodeView<T> largest = seekRightmost(steps, node,
-                "Delete by copying needs the largest value in its left subtree");
+                "Delete by copying needs a replacement: the largest value in its left subtree");
         T replacement = largest.value();
         steps.add(new TraceStep<>(replacement, null, Move.REPLACEMENT_FOUND,
                 replacement + " has no right child, so it is the largest value in the left subtree"
@@ -170,24 +186,14 @@ public final class Traces {
 
     /** The steps after the node is found, for delete by merging. */
     private static <T> void addMergingSteps(List<TraceStep<T>> steps, NodeView<T> node) {
+        if (addSimpleSteps(steps, node)) {
+            return;
+        }
         T value = node.value();
         NodeView<T> left = node.left();
         NodeView<T> right = node.right();
-        if (left == null) {
-            steps.add(new TraceStep<>(value, null, Move.DELETE_NODE, right == null
-                    ? value + " has no children, so its node is simply removed."
-                    : value + " has no left subtree, so its right child, " + right.value()
-                    + ", takes its place."));
-            return;
-        }
-        if (right == null) {
-            steps.add(new TraceStep<>(left.value(), null, Move.MERGE_REPLACE,
-                    value + " has no right subtree, so there is nothing to merge and its left child, "
-                            + left.value() + ", takes its place."));
-            return;
-        }
         NodeView<T> rightmost = seekRightmost(steps, node,
-                "Delete by merging hangs the right subtree below the rightmost node of the left subtree");
+                "Delete by merging needs the rightmost node of its left subtree, so the right subtree can hang below it");
         T end = rightmost.value();
         steps.add(new TraceStep<>(end, null, Move.REPLACEMENT_FOUND,
                 end + " has no right child, so it is the rightmost node of the left subtree."));
@@ -198,15 +204,23 @@ public final class Traces {
                 "The left subtree, rooted at " + left.value() + ", takes the place of " + value + "."));
     }
 
-    /** Adds the walk to the rightmost node of the left subtree and returns that node. */
+    /**
+     * For a node with two children: the decision to find a replacement, the decision to go left,
+     * then the walk right to the rightmost node of the left subtree. Returns that node.
+     */
     private static <T> NodeView<T> seekRightmost(List<TraceStep<T>> steps, NodeView<T> node, String purpose) {
+        T value = node.value();
+        steps.add(new TraceStep<>(value, null, Move.FIND_REPLACEMENT,
+                value + " has two children, so it cannot simply be removed. " + purpose + "."));
         NodeView<T> current = node.left();
-        steps.add(new TraceStep<>(current.value(), null, Move.SEEK_LEFT,
-                node.value() + " has two children. " + purpose + ", so go left to " + current.value() + "."));
+        steps.add(new TraceStep<>(value, null, Move.SEEK_LEFT,
+                "The largest value smaller than " + value + " is in its left subtree, so go left to "
+                        + current.value() + "."));
         while (current.right() != null) {
-            current = current.right();
             steps.add(new TraceStep<>(current.value(), null, Move.SEEK_RIGHT,
-                    "Larger values are to the right, so go right to " + current.value() + "."));
+                    current.value() + " has a right child, " + current.right().value()
+                            + ", and larger values are to the right, so go right."));
+            current = current.right();
         }
         return current;
     }
