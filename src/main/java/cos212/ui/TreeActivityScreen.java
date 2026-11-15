@@ -21,6 +21,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Region;
+import javafx.scene.control.Tooltip;
 
 /**
  * The tree activity. The tree and trace share the main row; build, search, traversal,
@@ -57,6 +58,12 @@ final class TreeActivityScreen extends BorderPane {
     private final Label predictPrompt = Ui.note("");
     private List<TraceStep<Integer>> builtFor;
     private int builtIndex = -2;
+
+    /** How many earlier tree states Undo can step back through (the T-1 of the design). Raise it for more history. */
+    private static final int HISTORY_DEPTH = 1;
+    private final TreeHistory<Integer> history = new TreeHistory<>(HISTORY_DEPTH);
+    private final Button undoButton = Ui.secondary("Undo");
+    private final Button redoButton = Ui.secondary("Redo");
 
     private List<TraceStep<Integer>> steps = List.of();
     private int stepIndex = -1;
@@ -151,6 +158,13 @@ final class TreeActivityScreen extends BorderPane {
         VBox build = new VBox(8, Ui.note("Insert value"), buildInput, empty);
         build.setMinWidth(Region.USE_PREF_SIZE);
 
+        // Undo/Redo Buttons
+        undoButton.setOnAction(e -> undo());
+        redoButton.setOnAction(e -> redo());
+        undoButton.setMinWidth(Region.USE_PREF_SIZE);
+        redoButton.setMinWidth(Region.USE_PREF_SIZE);
+        build.getChildren().add(Ui.row(8, undoButton, redoButton));
+
         Button search = Ui.primary("Search");
         search.setOnAction(e -> search());
         search.setMinWidth(Region.USE_PREF_SIZE);
@@ -240,7 +254,12 @@ final class TreeActivityScreen extends BorderPane {
             return;
         }
         startTrace(Traces.insert(tree, value), true);
+
+        if (!tree.contains(value)) {
+            history.record(tree, "Insert " + value);
+        }
         boolean added = tree.insert(value);
+
         setResult(added
                 ? value + " added to the tree after " + comparisons() + " comparisons."
                 : value + " is already in the tree, so nothing changed.", false);
@@ -371,7 +390,12 @@ final class TreeActivityScreen extends BorderPane {
             return;
         }
         startTrace(Traces.deleteByCopying(tree, value), false);
+
+        if (tree.contains(value)) {
+            history.record(tree, "Delete Copy " + value);
+        }
         boolean removed = tree.deleteByCopying(value);
+
         setResult(removed
                 ? value + " deleted by copying after " + comparisons() + " comparisons."
                 : value + " not found after " + comparisons() + " comparisons, so nothing changed.", false);
@@ -385,7 +409,12 @@ final class TreeActivityScreen extends BorderPane {
             return;
         }
         startTrace(Traces.deleteByMerging(tree, value), false);
+
+        if (tree.contains(value)) {
+            history.record(tree, "Delete Merge " + value);
+        }
         boolean removed = tree.deleteByMerging(value);
+
         setResult(removed
                 ? value + " deleted by merging after " + comparisons() + " comparisons."
                 : value + " not found after " + comparisons() + " comparisons, so nothing changed.", false);
@@ -394,6 +423,9 @@ final class TreeActivityScreen extends BorderPane {
     }
 
     private void clearTree() {
+        if (tree.size() > 0) {
+            history.record(tree, "New tree");
+        }
         tree.clear();
         clearTrace();
         setResult("The tree is now empty.", false);
@@ -569,5 +601,41 @@ final class TreeActivityScreen extends BorderPane {
         previous.setDisable(stepIndex <= 0);
         next.setDisable(steps.isEmpty() || stepIndex >= steps.size() - 1);
         reset.setDisable(steps.isEmpty());
+        updateHistoryButtons();
     }
+
+    private void undo() {
+        if (!history.canUndo()) {
+            return;
+        }
+        afterHistoryChange("Undid " + history.undo(tree) + ". The tree is back to how it was before.");
+    }
+
+    private void redo() {
+        if (!history.canRedo()) {
+            return;
+        }
+        afterHistoryChange("Redid " + history.redo(tree) + ".");
+    }
+
+    /** The old trace described a different tree, so it is cleared along with the last traversal. */
+    private void afterHistoryChange(String message) {
+        clearTrace();
+        traverseResult.setText("");
+        setResult(message, false);
+        refresh();
+    }
+
+    /** Greys out Undo or Redo when there is nothing to step to. */
+    private void updateHistoryButtons() {
+        undoButton.setDisable(!history.canUndo());
+        redoButton.setDisable(!history.canRedo());
+        String undoText = history.canUndo() ? "Undo " + history.undoLabel() : null;
+        String redoText = history.canRedo() ? "Redo " + history.redoLabel() : null;
+        undoButton.setAccessibleText(undoText != null ? undoText : "Undo, nothing to undo");
+        redoButton.setAccessibleText(redoText != null ? redoText : "Redo, nothing to redo");
+        undoButton.setTooltip(undoText != null ? new Tooltip(undoText) : null);
+        redoButton.setTooltip(redoText != null ? new Tooltip(redoText) : null);
+    }
+
 }

@@ -305,4 +305,49 @@ public class BinarySearchTree<T extends Comparable<T>> {
         }
     }
 
+    /**
+     * @return an independent copy of this tree. Changing either tree never affects the other.
+     */
+    public BinarySearchTree<T> copy() {
+        BinarySearchTree<T> clone = new BinarySearchTree<>();
+        clone.size = size;
+        if (root == null) {
+            return clone;
+        }
+        Deque<BSTNode<T>> originals = new ArrayDeque<>();
+        Deque<BSTNode<T>> duplicates = new ArrayDeque<>();
+        clone.root = new BSTNode<>(root.value);
+        originals.push(root);
+        duplicates.push(clone.root);
+        while (!originals.isEmpty()) {
+            BSTNode<T> source = originals.pop();
+            BSTNode<T> target = duplicates.pop();
+            if (source.left != null) {
+                target.left = new BSTNode<>(source.left.value);
+                originals.push(source.left);
+                duplicates.push(target.left);
+            }
+            if (source.right != null) {
+                target.right = new BSTNode<>(source.right.value);
+                originals.push(source.right);
+                duplicates.push(target.right);
+            }
+        }
+        return clone;
+    }
+
+    /**
+     * Replaces this tree's contents with a copy of another tree's, in place. The other tree
+     * is not shared, so later changes to this tree never reach it.
+     *
+     * @param other the tree to copy from; must not be null
+     * @throws NullPointerException if {@code other} is null
+     */
+    public void restoreFrom(BinarySearchTree<T> other) {
+        Objects.requireNonNull(other, "other");
+        BinarySearchTree<T> snapshot = other.copy();
+        root = snapshot.root;
+        size = snapshot.size;
+    }
+
 }
