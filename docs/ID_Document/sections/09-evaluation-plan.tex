@@ -1,20 +1,23 @@
 \section{Evaluation Plan}\label{sec:id-evaluation}
-\owner{Group}
-\pages{2}
 
-The evaluation asks whether the app is usable by a student with no knowledge of trees, and whether a student who uses it does better on tracing tasks afterwards. It has three parts. The usability study is formative, and is run with peers before the presentation. The pre- and post-test and the questionnaire are summative, and are run with a small group of participants. The usage logs are part of the evaluation build only.
+
+The proposed evaluation asks whether the app is usable by a student with no knowledge of trees, and whether a student who uses it does better on tracing tasks afterwards. It includes a formative usability study and a proposed summative pre/post test and questionnaire. These activities have not been conducted, and the current app does not include evaluation logging.
+
+We use the module's terms. Formative evaluation happens during development, and our usability study is formative. Summative evaluation happens at the end, and our pre/post-test is summative. Following ADDIE's Implementation phase, the field test also checks that learners can use the tool without prior training.
 
 \subsection{Usability Study}
-Peers who have not studied trees complete the diagnostic gate and the first lesson without help. The group records whether each task is completed, how long it takes, and where the participant stops. A think-aloud protocol is used, and the participant is asked what they expected to happen whenever they stop. This is the study that tests NFR1 in the SE document.
+The proposed usability study asks peers who have not studied trees to complete the diagnostic gate and first lesson without help. The study would record task completion, time and points where a participant stops, using a think-aloud protocol. It has not yet been run, so there are no usability findings to report.
+
+\paragraph{Expert evaluation.} A proposed expert review would use the Boone and Higgins checklist~\cite{article}. In line with User-Sensitive Inclusive Design~\cite{Newell2011}, it should involve target users and, where possible, a participant with relevant needs or a disability consultation. No such review is reported as completed.
 
 \subsection{Pre- and Post-Test}
-Participants complete a tracing test before they use the app and again after they have finished the four lessons. The test asks them to trace a search and an insertion by hand, and to classify two trees against the ordering rule. The primary measure is the number of tasks answered correctly. The change between the two tests is reported descriptively, because the sample is too small for statistical inference.
+The proposed pre/post test would be administered before app use and after the participant completes the five lessons. It would ask participants to trace a search and insertion, classify two trees against the ordering rule, and trace the deletion of a two-child node by copying and by merging. The deletion tasks would evaluate tree-activity practice, since deletion is not taught in a lesson. The current repository contains no separate participant test instrument or results, so these tasks remain a proposed evaluation design and have not been administered. If run with a small sample, score changes would be reported descriptively rather than used for statistical inference.
 
 \subsection{Questionnaire}
-After the post-test, participants rate the app on a five-point Likert scale. The items cover how helpful each representation was, how clear the hints were, how easy the app was to use, and whether the student would use the app before a lecture. The questionnaire includes one open item on the feature that helped most, and the responses are summarised by theme.
+The proposed post-test questionnaire would ask participants to rate the helpfulness of the representations and hints, ease of use, and whether they would use the app before a lecture, using a five-point Likert scale and an open question about the most helpful feature. This questionnaire is not implemented in the app and no responses have been collected.
 
 \subsection{Usage Logs}
-The evaluation build records which lessons are opened, how many hints are used, and how long each trace takes. The logs carry no name or student number. Participants are told which data is recorded before they start, and they can stop at any time. \todo{confirm the consent wording and ethics approval for the logs}
+The current project has no evaluation-logging build: it does not record lesson opens or trace durations. Its normal local progress record stores objective answer counts and hint counts. The repository lists a consent sheet as a planned evaluation material but contains no completed consent form or documented ethics approval. These must be in place before collecting participant data.
 
 \subsection{Measures Summary}
 Table~\ref{tab:measures} summarises the measures and what each one is used to judge.
@@ -31,11 +34,13 @@ Measure & Used to judge \\
 Gate completion and time, first lesson completion & Whether the app can be used unaided (NFR1) \\
 Pre- and post-test scores & Whether tracing performance changed \\
 Questionnaire ratings & Whether students found the representations and hints helpful \\
-Hints used per objective & Whether the scaffolding is withdrawn as expected \\
+Objective answer and hint counts & Whether students use the practice and hints as expected \\
 Routing outcomes & Whether the diagnostic detects the misconceptions it was written for \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \subsection{Limits of the Evaluation}
-The sample is small, and the study covers one session per participant. The results can show whether the app is usable and whether it is worth testing with a full cohort. They cannot show that the app improves exam results, and they do not measure retention after a lecture. These limits are stated in the Limitations and Future Work section of the SE document.
+If carried out with a small sample and one session per participant, the study could indicate whether the app is usable and worth testing with a full cohort. It could not establish that the app improves exam results or measure retention after a lecture. These limits are also stated in the Limitations and Future Work section of the SE document.
+ 
+\paragraph{Feasibility.} The study has not been scheduled in the project materials. Dates, participant numbers, study leads and any required ethics approval must be established before recruitment.

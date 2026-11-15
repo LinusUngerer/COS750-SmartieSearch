@@ -1,11 +1,18 @@
 \section{Deployment}\label{sec:deployment}
-\owner{Group}
-\pages{1}
+
 
 The prototype is distributed as a single runnable JAR file, with the lesson content packaged inside it. The app is not hosted on a server, so there is nothing to deploy beyond the file itself, and it runs offline. This follows from decisions D5 and D8 in Section~\ref{sec:decisions}.
 
 \subsection{Packaging}
-Maven builds an executable JAR with the JavaFX runtime and the lesson resources included. The build produces one file, \texttt{cos212-app.jar}, which is the only artefact a student needs. The JDK 17 or later is the only installation requirement. The app is started with the following command.
+The prototype is distributed as source and is built and started with Maven. A student needs JDK 17 or later and Maven. The app is started from the repository folder with the following command.
+
+\begin{lstlisting}
+mvn javafx:run
+\end{lstlisting}
+
+On macOS, Linux and WSL the same step is available as \texttt{make run}. The first run downloads JavaFX 21.0.2 for the platform it runs on (Windows, macOS or Linux), so it needs an internet connection; later runs work offline.
+
+The command \texttt{mvn package} produces \texttt{target/cos212-app-0.1.0-SNAPSHOT.jar}, which holds the app's classes and stylesheet. This file cannot be started with \texttt{java -jar}: it does not include the JavaFX runtime and names no main class. A single file that a student can run without Maven was planned in increment I5 and has not been built. It is listed as future work in Section~\ref{sec:limitations}.
 
 \begin{lstlisting}
 java -jar cos212-app.jar
@@ -30,10 +37,21 @@ cos212-app/
 The layout follows the layers in Section~\ref{sec:architecture}, so that a reader can find the code for each requirement from its package. The \texttt{docs} folder holds the LaTeX sources of the two documents, so that the documents and the code are versioned together.
 
 \subsection{Build and Run Instructions}
-The README gives the steps a reader needs to build and run the app from source, in the following order: install the JDK, clone the repository, run the test suite, package the JAR, and start the app. It also states the commands for each step, so that the instructions can be followed without knowledge of Maven.
+The README gives the steps a reader needs to build and run the app from source. They need JDK 17 or later and Maven 3.9 or later, and no knowledge of Maven beyond the commands below.
+
+\begin{lstlisting}
+git clone https://github.com/LinusUngerer/COS750-SmartieSearch.git
+cd COS750-SmartieSearch
+mvn -B verify
+mvn javafx:run
+\end{lstlisting}
+
+The third command compiles the app and runs the test suite, and the fourth opens the app window. On macOS, Linux and WSL the Makefile gives the same steps as \texttt{make test} and \texttt{make run}.
 
 \subsection{Releases and Versioning}
-Each increment in Section~\ref{sec:process} that is reviewed and accepted is tagged, and the final prototype is published as a GitHub release with the JAR attached. Version numbers follow the pattern \texttt{major.minor.patch}. The final release for the presentation is version 1.0.0. \todo{confirm the release tag and the GitHub link for the submission}
+The source is hosted at \url{https://github.com/LinusUngerer/COS750-SmartieSearch}. Work is merged into the \texttt{dev} branch through pull requests that another member reviews, and each increment is listed with its pull request in Appendix~\ref{tab:screens}. The \texttt{main} branch holds the last reviewed baseline.
 
-\subsection{Verification of the Packaged Build}
-The packaged JAR is tested separately from the source build. The check runs the JAR on each target operating system and confirms that the first lesson loads, that a tree can be built and searched, and that the progress file is created in the expected folder. This is the manual start-up check listed for NFR6 in Table~\ref{tab:testmatrix}.
+No release has been published and no version has been tagged at the time of writing. The build is version \texttt{0.1.0-SNAPSHOT}, and the version shown at the presentation is identified by its commit on \texttt{dev}. Version numbers follow the pattern \texttt{major.minor.patch}, and the commit used for the presentation is to be tagged \texttt{v1.0.0}.
+
+\subsection{Verification of the Build}
+The build is checked in two ways. The test suite runs with \texttt{mvn -B verify}, and it passes on Windows with JDK 17. The app is then started with \texttt{mvn javafx:run}, and a manual check confirms that the lessons load, that a tree can be built and searched, and that the progress file is created in the \texttt{.smartiesearch} folder. This manual check has been done on Windows only. macOS and Linux have not been checked, which limits the evidence for NFR6.

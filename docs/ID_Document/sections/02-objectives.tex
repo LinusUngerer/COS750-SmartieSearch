@@ -1,8 +1,12 @@
 \section{Educational Objectives}\label{sec:id-objectives}
-\owner{Group}
-\pages{2}
 
-The app has five objectives. Each objective has a short identifier, which is also the key under which its progress is recorded (Section~\ref{sec:id-progress}). Each objective is tagged with a Bloom level \cite{Bloom1968}, and each is mapped to the lesson that teaches it and to the CS2023 knowledge unit \cite{Kumar2024}.
+The app has five progress-screen objectives, taught in lessons L0--L4. Each has a short identifier, which is also the key used for its objective-level progress record (Section~\ref{sec:id-progress}). Each objective is tagged with a level from the revised form of Bloom's
+taxonomy~\cite{Bloom1956,Anderson2001} and mapped to its lesson. All five
+objectives fall within the Algorithmic Foundations knowledge area of CS2023,
+which lists search trees among the foundational data
+structures~\cite{Kumar2024}. The tree activity also supports deletion by copying and merging, but these operations are not listed as progress-screen objectives.
+
+We state objectives using Bloom's taxonomy~\cite{Bloom1956}, which the Design phase of ADDIE uses for cognitive objectives. All of our objectives are cognitive. We did not write an affective objective such as ``the learner feels confident'', because attitudes are hard to assess directly with a short tool. Confidence is instead supported through the motivational design in Section~7.
 
 \begin{table}[H]
 \centering
@@ -13,7 +17,7 @@ The app has five objectives. Each objective has a short identifier, which is als
 \toprule
 Identifier & Bloom level & Objective: the student will be able to & Lesson \\
 \midrule
-\texttt{define-bst} & Remember & define a binary search tree and state its ordering invariant & L1 \\
+\texttt{define-bst} & Remember & define a binary search tree and state its ordering invariant & L0 \\
 \texttt{ordering-rule} & Understand & explain why values to the left of a node are smaller and values to the right are larger, and check a whole subtree against the rule, not only the children & L1 \\
 \texttt{trace-search} & Apply & trace a search for a value by hand, naming each node compared and the direction taken & L2 \\
 \texttt{trace-insert} & Apply & trace an insertion by hand, and state where the new value is attached and why & L3 \\
@@ -22,4 +26,4 @@ Identifier & Bloom level & Objective: the student will be able to & Lesson \\
 \end{tabularx}
 \end{table}
 
-The objectives are written so that each can be checked by a question the app asks. The first two are checked by the diagnostic gate and by the classification items. The next two are checked by the predicted-step questions during a trace. The last is checked by items that ask the student to compare a balanced tree with a chain. Traversal is taught as part of \texttt{ordering-rule}, because the in-order output is the visible proof that the rule holds across the whole tree.
+The lesson questions assess all five objectives. The diagnostic gate includes an item tagged \texttt{ordering-rule}, but does not separately tag an item as \texttt{define-bst}. Search, insertion and shape-cost are also represented in the diagnostic. In the tree activity, students can build and predict deletion-by-copying and deletion-by-merging traces. Those prediction answers are stored under operation-category keys, not as the five objective records shown on the progress screen. Traversal is taught as part of \texttt{ordering-rule}: in-order output visibly demonstrates the ordering, while breadth-first traversal is available for comparison and has no separate progress objective.

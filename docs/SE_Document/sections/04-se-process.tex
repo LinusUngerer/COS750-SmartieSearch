@@ -1,18 +1,29 @@
 \section{Software Engineering Process}\label{sec:process}
-\owner{Group}
-\pages{2}
+
 
 The prototype was developed with an iterative, incremental process. Each increment delivers a working part of the requirements in Section~\ref{sec:requirements}, is tested, and is then reviewed by the group before the next increment starts. The cycle is build, demonstrate and review. The build step produces an increment, the demonstrate step runs it for the group and for a peer, and the review step compares the result against the requirement identifiers and records any change. Requirements that the review shows to be incomplete or wrong are updated in this document before work on the affected increment continues.
 
 The process was chosen for three reasons. The BST is a small, well-defined structure, so the core can be completed and tested early. The educational features, namely the search trace, the diagnostic and the feedback, depend on the core working correctly, so they must come after it. The schedule is short, so each increment must end in something that can be demonstrated.
 
 \subsection{Roles and Responsibilities}
-Each group member is responsible for one area, and every member reviews changes made in other areas through a pull request. The areas are the BST domain classes, the search and insertion trace, the user interface, the assessment and routing, and the testing and documentation. Responsibility for the areas is recorded in the repository's contribution file. \todo{assign the five or seven group members to the five areas}
+Each group member is responsible for one area, and every member reviews changes made in other areas through a pull request. The areas are the BST domain classes, the search and insertion trace, the user interface, the assessment and routing, and the testing and documentation. Responsibility for the areas is recorded in the repository's contribution file. 
+
+
+The seven group members divide the five development and documentation areas as follows:
+\begin{itemize}
+    \item \textbf{Linus Ungerer (25744730):} BST domain classes (\texttt{cos212.bst}), search and insertion trace logic (\texttt{cos212.trace}), the Build and Predict controls of the tree activity (\texttt{cos212.ui}), assessment routing, and automated test suite.
+    \item \textbf{Keanu Ellary (22893459):} Documentation (mainly the Instructional Design Document), wireframes for the initial screen layout and design, user interface layout, user interface styling, accessibility controls, and lesson/diagnostic screen components (\texttt{cos212.ui}).
+    \item \textbf{Lyba Jean-Marie (26784760):} Integration processes for the user interface, step-by-step walkthrough guides, and guided interactive commands in the tree structure generator (\texttt{cos212.ui}).
+    \item \textbf{Ruan Esterhuizen (23532387)} COS212 course content research, Accessibility design and research, UX design (Wireframes). 
+    \item \textbf{Lukas Swanepoel (22578562)}: Saving progress to a local file, the lesson content for L0 to L4, the colour-blindness palettes and their reference images, and the styling of the Progress screen (\texttt{cos212.assess}, \texttt{cos212.ui}).
+    \item \textbf{Ruben Hannes Gadd (23633353)}: The tree activity: breadth-first traversal, deletion by copying and by merging, predictions that run without changing the tree, the history of tree states behind Undo and Redo, tailored trace logic for each operation with more in-depth answers for predictions (including wrong answers explicitly), toggleable UI panels, progress recording per operation, and the supporting tree-copy methods and automated tests for deletion, traces and history (\texttt{cos212.bst}, \texttt{cos212.trace}, \texttt{cos212.ui}).
+    \item \textbf{Ratjatji Malatji (25267869)}: The Settings screen and accessibility options, the lesson bank and the lesson and question screens, the diagnostic gate interface, and the accessibility study plan (\texttt{cos212.ui}, \texttt{evaluation/}).
+\end{itemize}
 
 \subsection{Tools and Infrastructure}
 \begin{itemize}
     \item \textbf{Language and runtime:} Java 17, with the JDK as the only installation requirement.
-    \item \textbf{Build tool:} Maven, which provides the dependency management and the test runner. \todo{confirm Maven or Gradle}
+    \item \textbf{Build tool:} Maven, which provides the dependency management and the test runner.
     \item \textbf{Testing:} JUnit 5 for unit tests, and a reference implementation of the BST operations used to check the results of the app's own operations.
     \item \textbf{Version control:} Git, hosted on GitHub. The main branch is protected, and changes are merged through pull requests that another member reviews.
     \item \textbf{Documentation:} this document and the ID document, written in LaTeX on Overleaf, with the Javadoc generated from the source.
@@ -35,11 +46,33 @@ I2 & Search and insertion trace, step controls, node highlighting & FR4, FR5, FR
 I3 & In-order traversal, diagnostic check and routing & FR6, FR8 & 12 Nov \\
 I4 & Feedback, progress tracking and the lesson content & FR9, FR10, NFR1 & 13 Nov \\
 I5 & Usability fixes, Javadoc, packaging as a runnable JAR & NFR3, NFR4, NFR6 & 14 Nov \\
+I6 & Deletion by copying and by merging with its trace, breadth-first traversal, the Predict card, Undo and Redo, and their tests & FR6, FR11, FR12, FR13, FR14 & 14 Nov \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 The schedule is compressed, so the increments are sized to be completed in a day each. If an increment is not complete by its target date, the group reviews whether the lowest-priority requirement in that increment can move to the final increment, and records the decision in Section~\ref{sec:decisions}. Freezing the code and starting the final documentation review is planned for 15 November.
 
+A sixth increment, I6, was added once the first five were complete and tested. It extends the tree activity with the features in Table~\ref{tab:changes}, and it follows the same cycle and the change control below.
+
 \subsection{Change Control}
 A change to a requirement after its increment has started is recorded as a change in this document, with its identifier, its reason and its effect on the other increments. A change to code that alters the behaviour of a BST operation must be accompanied by a test that fails before the change and passes after it. This rule protects the correctness requirement NFR2 from changes made late in the schedule.
+
+Table~\ref{tab:changes} records the changes made to the requirements after the first five increments.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Changes to the requirements after the first five increments.}
+\label{tab:changes}
+\begin{tabularx}{\textwidth}{p{1cm} p{4cm} p{4.4cm} X}
+\toprule
+ID & Change & Reason & Effect \\
+\midrule
+C1 & Deletion by copying and by merging added to the scope (FR11, FR12) & Students can compare the two methods on the same tree & New trace steps, answer options and tests. The diagnostic and the router do not yet cover deletion. \\
+C2 & Prediction changed to a theoretical run that never changes the tree (FR13) & Predicting from an executed operation forced a student to rebuild the tree to try another operation & The Predict card has its own operation buttons, and the answer buttons depend on the step. \\
+C3 & Undo and Redo added (FR14) & The same: a student needs the earlier tree back & Copying and restoring a tree in the domain layer, a history of states in the interface, and tests. \\
+C4 & Breadth-first traversal added (FR6 extended) & Shows the levels of the tree, which in-order traversal hides & One new domain operation and a button. \\
+\bottomrule
+\end{tabularx}
+\end{table}

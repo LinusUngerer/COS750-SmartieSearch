@@ -1,11 +1,10 @@
 \section{Assessment and Scaffolding}\label{sec:assessment}
-\owner{Group}
-\pages{2}
+
 
 The assessment serves two purposes. Before a student reaches the tree activities, a short diagnostic checks whether they understand the ordering rule, and routes them to the lesson that addresses any gap (FR8). During the activities, every question gives immediate feedback and, when the student struggles, graduated hints (FR9). Progress is recorded per objective so that the student can see what they have practised and how accurately (FR10). The design is implemented by the assessment layer described in Section~\ref{sec:architecture}: \texttt{DiagnosticItem}, \texttt{Router}, \texttt{Feedback} and \texttt{ProgressTracker}.
 
 \subsection{Diagnostic Gate}
-The diagnostic is a gate. A student must pass it before the search and insertion activities are unlocked. It contains five items, chosen to cover the ordering rule and the first step of search:
+The diagnostic is a gate. A student must pass it before the tree activities, which cover search, insertion and deletion, are unlocked. It contains five items, chosen to cover the ordering rule and the first step of search:
 \begin{enumerate}
     \item Classify a given tree as a valid or invalid BST, where the invalid tree breaks the rule only deep in the right subtree.
     \item Given a tree and a target, choose the first node the search compares.
@@ -39,15 +38,47 @@ M6 & The shape of the tree does not affect the cost of search. & L4: Shape and h
 
 A misconception that is detected more than once in a session routes the student to its lesson regardless of the other answers. This avoids a student passing the gate with a single lucky answer while still holding the misconception.
 
-\subsection{Formative Questions and Hints}
-During each trace the student is asked to predict the next step before the app shows it. For example, the app asks which node the search will compare next, and the student selects a node. A correct answer advances the trace and states the reason in one sentence. A wrong answer is not penalised in the trace itself; it triggers feedback and, if the student is still stuck, the next hint.
+The diagnostic items and the router cover only the ordering rule, search and insertion. A wrong answer on a deletion step gives feedback and hints but does not route to a lesson, because no deletion misconception or lesson has been defined yet.
 
-Hints are graduated in three levels. The first restates the ordering rule that applies to the current node. The second states the comparison result for the current node, without naming the next node. The third names the next node and the direction. Each hint used is recorded, so that the progress record can distinguish a correct answer from a correct answer after a hint.
+\subsection{Formative Questions and Hints}
+During a trace the student is asked what happens at the current step before reading the app's explanation, by choosing one of several answer buttons. The buttons depend on the step. At a comparison they are Left, Right and Found, with Duplicate in place of Found when the operation is an insertion. At an empty link they are Found and Not found for a search or a deletion, and Insert Left and Insert Right for an insertion (with Insert Root added for an empty tree). Right after a deletion finds its node, they are Remove Node, Find Replacement, Left Subtree Replaces and Right Subtree Replaces, whatever the shape of the node, so that the set of options does not reveal the answer. The later steps of a deletion ask which subtree to search for the replacement (Left or Right), whether to keep going right or stop (Right or Replacement Found), and which of the two final steps of the method comes next. Some of the answers offered are always wrong, so the student has to decide and not only confirm.
+
+The student can predict the steps of an operation on the current tree without carrying it out. In the Predict card the student chooses an insertion, a search or a deletion by copying or by merging, and the app builds the trace of that operation without changing the tree. The result line says that the run is a prediction only. The same answer buttons also work on the trace left by an operation in the Build card.
+
+Whether an answer is right or wrong, the feedback names the right answer and states the rule behind it in one sentence. A wrong answer is not penalised in the trace itself. The student moves on with the Next control, and only the first answer to each step is recorded.
+
+Hints are graduated in three levels. The first states the rule that applies at the current step. The second states the comparison result for the current node when the step is a comparison, without naming the move, and rules out one wrong answer for every other kind of step. The third gives the answer. Each hint used is recorded, so that the progress record can distinguish a correct answer from a correct answer after a hint.
 
 \subsection{Feedback}
-Every item returns a \texttt{Feedback} object containing a message, a flag for correctness, the misconception identifier when the answer is wrong, and the lesson identifier to route to. The message is written to explain the rule that was applied, not only to state that the answer was wrong. The feedback text is held in the lesson resources described in Section~\ref{sec:architecture}, so it can be reviewed and revised without changing code.
+Every item returns a \texttt{Feedback} object containing a message, a flag for correctness, the misconception identifier when the answer is wrong, and the lesson identifier to route to. The message is written to explain the rule that was applied, not only to state that the answer was wrong. The feedback text is held in the lesson resources described in Section~\ref{sec:architecture}, so it can be reviewed and revised without changing code. In the tree activity, the explanation and the rule shown for a step are taken from the trace step itself, so the feedback cannot disagree with the trace.
 
 \subsection{Progress Tracking}
-The \texttt{ProgressTracker} records, for each objective in the ID document, the number of attempts, the number of correct first answers and the number of hints used. An objective is shown as practised once the student has answered at least five items on it, and as secure when at least 80\% of the last five first answers were correct without a hint. \todo{confirm the mastery thresholds with the ID document}
+The \texttt{ProgressTracker} records, for each category of answer, the number of attempts, the number of correct first answers and the number of hints used. A category is shown as \emph{started} after its first answer and as \emph{practised} once the student has answered at least five items in it. It is shown as \emph{secure} when at least four of the last five first answers were correct and none of those five used a hint. These thresholds are constants in \texttt{ProgressTracker}, and they match the mastery standard in the ID document.
+
+Table~\ref{tab:progress-categories} shows the category under which each kind of answer is recorded. Only the first answer to a question or a step is recorded.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Where each answer is recorded.}
+\label{tab:progress-categories}
+\begin{tabularx}{\textwidth}{p{4.4cm} X p{2.6cm}}
+\toprule
+Source of the answer & Category & On the Progress screen \\
+\midrule
+Diagnostic gate item & The objective of the item: \texttt{define-bst}, \texttt{ordering-rule}, \texttt{trace-search}, \texttt{trace-insert} or \texttt{shape-cost} & Yes \\
+Lesson question & The objective of the lesson page, from the same five & Yes \\
+Step of an insertion run in the Build card & \texttt{trace-insert} & Yes \\
+Step of any other operation run in the Build card & \texttt{trace-search} & Yes \\
+Step of a prediction in the Predict card & \texttt{predict-insert}, \texttt{predict-search}, \texttt{predict-delete-copy} or \texttt{predict-delete-merge} & No \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The Progress screen shows one bar for each of the five objectives in the ID document. The four prediction categories are recorded and saved with the rest, but they are not among those objectives, so they are not shown to the student and do not count towards practised or secure. A step of a deletion run in the Build card is recorded under \texttt{trace-search}, because no objective for deletion has been defined. Both points are limitations of the prototype, and they are listed in Section~\ref{sec:limitations}.
+
+Progress records are stored locally, as described in Section~\ref{sec:data}, and are not sent anywhere.
+
+An answer in the tree activity is recorded under the category of the operation. A prediction made in the Predict card is recorded as \texttt{predict-insert}, \texttt{predict-search}, \texttt{predict-delete-copy} or \texttt{predict-delete-merge}. An answer on a trace left by an operation in the Build card is recorded as \texttt{trace-insert} for an insertion and \texttt{trace-search} for any other operation.
 
 Progress is shown to the student as one bar per objective, as specified in the ID document. Progress records are stored locally, as described in Section~\ref{sec:data}, and are not sent anywhere.

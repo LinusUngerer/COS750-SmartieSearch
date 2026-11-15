@@ -1,6 +1,5 @@
 \section{Testing and Verification}\label{sec:testing}
-\owner{Group}
-\pages{2}
+
 
 Testing covers three things: that the BST operations are correct, that the trace and assessment layers report what the tree actually did, and that students can use the app. The first two are automated and run on every change. The third is a usability study with peers who have not seen trees before. Table~\ref{tab:testmatrix} maps each requirement to the test that checks it.
 
@@ -13,12 +12,13 @@ Testing covers three things: that the BST operations are correct, that the trace
 \toprule
 Requirement & Verification & Test type \\
 \midrule
-FR1, FR2, FR3, NFR2 & Insert and search results, duplicate rejection, and the ordering invariant after every insertion & Unit and property tests \\
-FR4, FR5, FR7 & Each trace step matches the comparison the tree actually made & Unit tests on the trace layer \\
-FR6 & In-order output is sorted and contains every stored value once & Unit and property tests \\
-FR8, FR9, FR10 & Routing from each misconception, feedback text, and progress counts & Unit tests on the assessment layer \\
+FR1, FR2, FR3, NFR2 & Insert, search and delete results, duplicate rejection, and the ordering invariant after every insertion and deletion & Unit and property tests \\
+FR4, FR5, FR7 & Each trace step, including those of a deletion, matches what the tree actually did; building a trace never changes the tree; and the Predict answer buttons always include the correct answer & Unit tests on the trace layer, and a walkthrough of every Predict step \\
+FR6 & In-order output is sorted and contains every stored value once, and breadth-first output contains every stored value once & Unit and property tests \\
+FR8, FR9, FR10 & Routing from each misconception, feedback text, progress counts, and the recording of the first answer to each Predict step & Unit tests on the assessment layer \\
+Not yet assigned & Undo and Redo restore exactly the earlier and later trees, a copy of a tree is independent of its original, and a change that does nothing saves no state & Unit and property tests, and a walkthrough of the tree activity \\
 NFR1 & Peers complete the first lesson unaided & Usability study \\
-NFR4 & A 100-node search and insertion complete within one second & Timed test \\
+NFR4 & A 100-node search, insertion, deletion and Undo complete within one second & Timed test \\
 NFR5 & Every control reachable by keyboard, and the current node identifiable without colour & Keyboard walkthrough and a greyscale check \\
 NFR6 & The app starts from the packaged JAR on each target operating system & Manual start-up check \\
 \bottomrule
@@ -26,34 +26,55 @@ NFR6 & The app starts from the packaged JAR on each target operating system & Ma
 \end{table}
 
 \subsection{Unit Tests}
-The unit tests use JUnit 5. Each public method of \texttt{BinarySearchTree} has tests for the normal case and the boundary cases. The ordering invariant is checked by a helper that walks the tree and confirms that every value lies strictly between the bounds inherited from its ancestors. The helper is called after every insertion in the tests, so a broken insertion is detected at the step that caused it rather than later.
+The unit tests use JUnit 5. Each public method of \texttt{BinarySearchTree} has tests for the normal case and the boundary cases. The ordering invariant is checked by a helper that walks the tree and confirms that every value lies strictly between the bounds inherited from its ancestors. The helper is called after every insertion and every deletion in the tests, so a broken insertion or deletion is detected at the step that caused it rather than later.
 
 \subsection{Property Tests against a Reference}
-Hand-written cases cannot cover every shape a tree can take, so the tests also generate random sequences of values and compare the results with \texttt{java.util.TreeSet}, which is a well-tested sorted set. For each sequence the tests check that:
+Hand-written cases cannot cover every shape a tree can take, so the tests also generate random sequences of insertions and deletions and compare the results with \texttt{java.util.TreeSet}, which is a well-tested sorted set. For each sequence the tests check that:
 \begin{itemize}
     \item every insertion returns the same result as \texttt{TreeSet.add};
+    \item every deletion, by copying and by merging, returns the same result as \texttt{TreeSet.remove};
     \item every search returns the same result as \texttt{TreeSet.contains};
-    \item the in-order output equals the sorted contents of \texttt{TreeSet}; and
+    \item the in-order output equals the sorted contents of \texttt{TreeSet};
+    \item the breadth-first output holds the same values as \texttt{TreeSet}, each exactly once;
+    \item the size equals the size of \texttt{TreeSet}; and
     \item the ordering invariant holds at the end of the sequence.
 \end{itemize}
-The random sequences use a fixed seed, so that a failing case can be reproduced exactly. The seed is printed with each failure.
+Each deletion is applied by both methods to separate copies of the tree. The two trees may differ in shape, but they must hold the same values. The random sequences use a fixed seed, so that a failing case can be reproduced exactly. The seed is printed with each failure.
 
 \subsection{Edge Cases}
 The following cases are tested explicitly, because they are where tree code most often fails.
 \begin{itemize}
-    \item An empty tree: search returns false, in-order returns an empty list, and size is zero.
+    \item An empty tree: search returns false, in-order and breadth-first return an empty list, and size is zero.
     \item A single node: insertion of a smaller and a larger value attaches each to the correct side.
     \item A duplicate of the root and a duplicate of a deep node: both are rejected and the size is unchanged.
     \item Sorted input, which must produce a degenerate tree of height $n$. The test confirms that the tree is still valid and the results are still correct, even though the cost is $O(n)$.
     \item Extreme values, including \texttt{Integer.MIN\_VALUE} and \texttt{Integer.MAX\_VALUE}.
-    \item A null value, which must throw \texttt{NullPointerException} for insert and search.
+    \item A null value, which must throw \texttt{NullPointerException} for insert, search and both deletions.
+    \item Deleting from an empty tree and deleting a value that is not present: both return false and leave the tree unchanged.
+    \item Deleting a leaf, a node with only a left child, a node with only a right child, a node with two children, and the root in each of these cases, with each deletion method.
+    \item Delete by copying when the replacement is the left child itself, and when it is deeper and has a left child of its own. Delete by merging when the rightmost node of the left subtree is the left child itself, and when it is deeper.
+    \item Deleting every value in turn, which must leave an empty tree of size zero.
+    \item Delete by merging on a tree where it makes the tree taller: the test confirms that the tree is still valid and holds the correct values.
+    \item Breadth-first output on a tree where a deep branch comes before a shallow one (inserting \texttt{50, 30, 70, 40} must give \texttt{50, 30, 70, 40}), so the output is checked to be in level order and not in sorted order.
 \end{itemize}
 
+\subsection{Accessibility and Settings Tests}
+Three test classes cover the accessibility work. \texttt{PaletteTest} checks every palette in Settings: text must meet the WCAG AA contrast ratio of 4.5:1, the colours for correct and wrong answers must stay distinct under each simulated deficiency, the grayscale palette must keep the brightness of each colour, and the standard palette must leave every colour unchanged. \texttt{SettingsTest} checks that settings survive a restart, that unknown or damaged values fall back to the defaults, that the stylesheet scales fonts and maps colours, that the strong focus outline is added only when it is switched on, and that a tree description names the root, the children, and the current and visited nodes. \texttt{DiagnosticBankTest} checks that every diagnostic question is tagged with its tree and text representations.
+
 \subsection{Trace and Assessment Tests}
-A trace is correct only if it describes what the tree did. For each random sequence the tests check that the final step of a search trace names the node where the search ended, and that the direction recorded at each step matches the comparison result. The assessment tests check that each wrong answer in Table~\ref{tab:routing} routes to the expected lesson, and that a misconception detected twice routes the student to its lesson regardless of the other answers.
+A trace is correct only if it describes what the tree did. For each random sequence the tests check that the final step of a search trace names the node where the search ended, and that the direction recorded at each step matches the comparison result. For a deletion trace the tests also check that it reports found or not found as the tree did, and that the replacement it names is the node the deletion actually used: the largest value in the left subtree for delete by copying, and the rightmost node of the left subtree for delete by merging. Because a prediction must never change the tree, the tests check that building any trace leaves the tree exactly as it was.
+
+The Predict answer buttons depend on the step, so they are checked for every operation shape: a search that finds and one that does not, an insertion at the root, on the left, on the right and of a duplicate, and a deletion of a node with no children, one child and two children with each method. For every step of each, the correct answer must be among the buttons offered, and a wrong answer must be offered too. Right after a deletion finds its node, the same four answers must be offered whatever the shape of the node, so that the options do not give the answer away.
+
+The assessment tests check that each wrong answer in Table~\ref{tab:routing} routes to the expected lesson, and that a misconception detected twice routes the student to its lesson regardless of the other answers. They also check that only the first answer to each Predict step is recorded, under the category of the operation that was predicted.
+
+\subsection{Undo and Redo Tests}
+The history of tree states is tested directly, because the history class contains no JavaFX code. The tests check that a copy of a tree has the same structure and size as the original but shares no nodes with it, so that changing either one never affects the other. After a random sequence of changes, Undo must restore a tree with exactly the earlier structure and Redo the later one, compared through the read-only node view. A new change must clear the redo state, and no more earlier states may be kept than the history depth allows, with the oldest dropped first. With the depth at its current value of one, Undo is possible once and then not again until a new change is made or Redo is used, which is when the Undo button must be greyed out. The rule that a change that does nothing saves no state (a duplicate insert, a delete of a value that is not present, or New tree on an empty tree) is part of the tree activity screen, so it is checked in the walkthrough of that screen.
 
 \subsection{Usability Testing}
-The usability study is the only test of NFR1, and it is run with peers who have not studied trees. Each participant completes the diagnostic gate and the first lesson without help. The group records whether each task is completed, how long it takes and where the participant stops. A participant who stops at a task is asked what they expected to happen. \todo{confirm the number of participants and the ethics approval for the study}
+The usability study is the only test of NFR1. It is planned with five peer participants, which is enough for a formative study whose purpose is to find the places where a student gets stuck, not to measure learning across a cohort. The study has not been run at the time of writing.
+
+Each participant works alone and completes three tasks without help: the diagnostic gate, the first lesson, and one search and one insertion in the tree activity. The observer records whether each task is completed, how long it takes and where the participant stops. A participant who stops at a task is asked what they expected to happen. No names or student numbers are recorded, and each session is identified by a code.
 
 \subsection{Coverage and Test Discipline}
 Line coverage of the domain layer is a target of at least 90\%, measured with JaCoCo. Coverage is a check on the tests, not a measure of correctness, so the group relies on the property tests and the reference comparison for correctness. A change to the behaviour of a BST operation follows the rule in Section~\ref{sec:process}: a test that fails before the change and passes after it is added first.

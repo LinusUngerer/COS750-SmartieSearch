@@ -1,11 +1,44 @@
 % The template's own entry (key kept as supplied).
 @book{09OLI00,
-	author = {Olivier, Martin S.},
-	title = {{Information Technology Research: A practical guide for Computer Science and Informatics}},
-	edition = {3},
-	year = {2009},
-	publisher = {Van Schaik Publishers},
-	address = {Pretoria, RSA},
+  author    = {Olivier, Martin S.},
+  title     = {{Information Technology Research: A practical guide for Computer Science and Informatics}},
+  edition   = {3},
+  year      = {2009},
+  publisher = {Van Schaik Publishers},
+  address   = {Pretoria, RSA},
+}
+
+% =====================================================================
+% 01-introduction
+% =====================================================================
+
+% A policy, not a technical report. Its scope is schools (Grades R--12).
+@misc{DBE2014,
+  author       = {{Department of Basic Education}},
+  title        = {{Policy on Screening, Identification, Assessment and Support}},
+  howpublished = {Department of Basic Education, Pretoria, South Africa},
+  year         = {2014}
+}
+
+% =====================================================================
+% 02-objectives
+% =====================================================================
+
+@book{Bloom1956,
+  author    = {Bloom, Benjamin S. and Engelhart, Max D. and Furst, Edward J. and Hill, Walker H. and Krathwohl, David R.},
+  title     = {Taxonomy of Educational Objectives: The Classification of Educational Goals. Handbook I: Cognitive Domain},
+  publisher = {David McKay},
+  address   = {New York, NY, USA},
+  year      = {1956}
+}
+
+% NEW. Source of the level names used in Table 1 (Remember, Understand, Apply, Analyse).
+@book{Anderson2001,
+  editor    = {Anderson, Lorin W. and Krathwohl, David R.},
+  title     = {A Taxonomy for Learning, Teaching, and Assessing: A Revision of {Bloom's} Taxonomy of Educational Objectives},
+  publisher = {Longman},
+  address   = {New York, NY, USA},
+  year      = {2001}
 }
 
 @book{Kumar2024,
@@ -14,90 +47,350 @@
   publisher = {Association for Computing Machinery},
   address   = {New York, NY, USA},
   year      = {2024},
-  isbn      = {9798400710339}
+  isbn      = {9798400710339},
+  doi       = {10.1145/3664191}
 }
 
-@article{Bloom1968,
-  author  = {Bloom, Benjamin S.},
-  title   = {Learning for Mastery},
-  journal = {Evaluation Comment},
-  volume  = {1},
-  number  = {2},
-  year    = {1968},
-  publisher = {UCLA Center for the Study of Evaluation}
+% =====================================================================
+% 03-learning-theories
+% =====================================================================
+
+% NEW. Source of the module's grouping of learning theories.
+@misc{Marshall2026LearningTheories,
+  author       = {Marshall, Linda},
+  title        = {{L01: Educational Concepts: (Teaching and) Learning Theories}},
+  howpublished = {COS~750 lecture slides, University of Pretoria},
+  year         = {2026},
+  note         = {Accessed via ClickUP}
+}
+
+% Edition and place added; the module slides cite the sixth edition.
+@book{schunk2012learning,
+  author    = {Schunk, Dale H.},
+  title     = {Learning Theories: An Educational Perspective},
+  edition   = {6},
+  publisher = {Pearson},
+  address   = {Boston, MA, USA},
+  year      = {2012},
+  isbn      = {9780137071951}
 }
 
 @article{Sweller1988,
   author  = {Sweller, John},
-  title   = {Cognitive Load during Problem Solving: Effects on Learning},
+  title   = {Cognitive load during problem solving: Effects on learning},
   journal = {Cognitive Science},
   volume  = {12},
   number  = {2},
   pages   = {257--285},
-  year    = {1988}
+  year    = {1988},
+  doi     = {10.1207/s15516709cog1202_4}
+}
+
+% NEW. General statement of cognitive load theory.
+@article{Sweller1998,
+  author  = {Sweller, John and van Merri{\"e}nboer, Jeroen J. G. and Paas, Fred G. W. C.},
+  title   = {Cognitive architecture and instructional design},
+  journal = {Educational Psychology Review},
+  volume  = {10},
+  number  = {3},
+  pages   = {251--296},
+  year    = {1998}
 }
 
 @article{Wood1976,
   author  = {Wood, David and Bruner, Jerome S. and Ross, Gail},
-  title   = {The Role of Tutoring in Problem Solving},
+  title   = {The role of tutoring in problem solving},
   journal = {Journal of Child Psychology and Psychiatry},
   volume  = {17},
   number  = {2},
   pages   = {89--100},
-  year    = {1976}
+  year    = {1976},
+  doi     = {10.1111/j.1469-7610.1976.tb00381.x}
 }
 
-@book{Vygotsky1978,
+% NEW. Withdrawal (fading) of scaffolding.
+@article{VanDePol2010,
+  author  = {van de Pol, Janneke and Volman, Monique and Beishuizen, Jos},
+  title   = {Scaffolding in teacher--student interaction: A decade of research},
+  journal = {Educational Psychology Review},
+  volume  = {22},
+  number  = {3},
+  pages   = {271--296},
+  year    = {2010}
+}
+
+% Cole is an editor, not a co-author; "The" restored in the title.
+@book{vygotsky1978mind,
   author    = {Vygotsky, Lev S.},
   title     = {Mind in Society: The Development of Higher Psychological Processes},
   publisher = {Harvard University Press},
-  address   = {Cambridge, MA},
-  year      = {1978}
+  address   = {Cambridge, MA, USA},
+  year      = {1978},
+  note      = {Edited by M. Cole, V. John-Steiner, S. Scribner and E. Souberman},
+  isbn      = {9780674576292}
 }
 
+% Author suffix added.
 @article{Roediger2006,
-  author  = {Roediger, Henry L. and Karpicke, Jeffrey D.},
-  title   = {Test-Enhanced Learning: Taking Memory Tests Improves Long-Term Retention},
+  author  = {Roediger, III, Henry L. and Karpicke, Jeffrey D.},
+  title   = {Test-enhanced learning: Taking memory tests improves long-term retention},
   journal = {Psychological Science},
   volume  = {17},
   number  = {3},
   pages   = {249--255},
-  year    = {2006}
+  year    = {2006},
+  doi     = {10.1111/j.1467-9280.2006.01693.x}
 }
+
+% Was a techreport that printed "Evaluation Comment 2 ... Vol. 1, No. 2".
+@article{Bloom1968,
+  author  = {Bloom, Benjamin S.},
+  title   = {Learning for mastery},
+  journal = {Evaluation Comment},
+  volume  = {1},
+  number  = {2},
+  pages   = {1--12},
+  year    = {1968},
+  note    = {UCLA Center for the Study of Evaluation of Instructional Programs}
+}
+
+@article{Bandura1977,
+  author  = {Bandura, Albert},
+  title   = {Self-efficacy: Toward a unifying theory of behavioral change},
+  journal = {Psychological Review},
+  volume  = {84},
+  number  = {2},
+  pages   = {191--215},
+  year    = {1977},
+  doi     = {10.1037/0033-295X.84.2.191}
+}
+
+% NEW. Modelling, and the name "social cognitive theory".
+@book{Bandura1986,
+  author    = {Bandura, Albert},
+  title     = {Social Foundations of Thought and Action: A Social Cognitive Theory},
+  publisher = {Prentice-Hall},
+  address   = {Englewood Cliffs, NJ, USA},
+  year      = {1986}
+}
+
+@book{Mezirow1991,
+  author    = {Mezirow, Jack},
+  title     = {Transformative Dimensions of Adult Learning},
+  publisher = {Jossey-Bass},
+  address   = {San Francisco, CA, USA},
+  year      = {1991}
+}
+
+% NEW. Source of the term "frame of reference".
+@article{Mezirow1997,
+  author  = {Mezirow, Jack},
+  title   = {Transformative learning: Theory to practice},
+  journal = {New Directions for Adult and Continuing Education},
+  number  = {74},
+  pages   = {5--12},
+  year    = {1997}
+}
+
+% =====================================================================
+% 04-multimodal-design
+% =====================================================================
 
 @article{Pashler2008,
   author  = {Pashler, Harold and McDaniel, Mark and Rohrer, Doug and Bjork, Robert},
-  title   = {Learning Styles: Concepts and Evidence},
+  title   = {Learning styles: Concepts and evidence},
   journal = {Psychological Science in the Public Interest},
   volume  = {9},
   number  = {3},
   pages   = {105--119},
-  year    = {2008}
+  year    = {2008},
+  doi     = {10.1111/j.1539-6053.2009.01038.x}
 }
 
-@book{Mayer2009,
+@article{Fleming1992,
+  author  = {Fleming, Neil D. and Mills, Colleen},
+  title   = {Not another inventory, rather a catalyst for reflection},
+  journal = {To Improve the Academy},
+  volume  = {11},
+  pages   = {137--155},
+  year    = {1992}
+}
+
+@book{Kolb1984,
+  author    = {Kolb, David A.},
+  title     = {Experiential Learning: Experience as the Source of Learning and Development},
+  publisher = {Prentice-Hall},
+  address   = {Englewood Cliffs, NJ, USA},
+  year      = {1984}
+}
+
+@book{Honey1992,
+  author    = {Honey, Peter and Mumford, Alan},
+  title     = {The Manual of Learning Styles},
+  edition   = {3},
+  publisher = {Peter Honey Publications},
+  address   = {Maidenhead, UK},
+  year      = {1992}
+}
+
+@techreport{Coffield2004,
+  author      = {Coffield, Frank and Moseley, David and Hall, Elaine and Ecclestone, Kathryn},
+  title       = {Learning Styles and Pedagogy in Post-16 Learning: A Systematic and Critical Review},
+  institution = {Learning and Skills Research Centre},
+  address     = {London, UK},
+  year        = {2004},
+  isbn        = {1853389188}
+}
+
+% "place" is not a BibTeX field; changed to "address".
+@book{Mayer_2020,
   author    = {Mayer, Richard E.},
   title     = {Multimedia Learning},
-  edition   = {2},
+  edition   = {3},
   publisher = {Cambridge University Press},
-  address   = {New York},
-  year      = {2009}
+  address   = {Cambridge, UK},
+  year      = {2020},
+  doi       = {10.1017/9781316941355}
+}
+
+% The old URL now opens version 3.0; this points at the archived 2.2 text.
+@misc{CAST2018,
+  author       = {{CAST}},
+  title        = {{Universal Design for Learning Guidelines Version 2.2}},
+  howpublished = {\url{https://udlguidelines.cast.org/static/udlg2.2-text-a11y.pdf}},
+  year         = {2018},
+  note         = {Archived version; superseded by version 3.0 in July 2024}
+}
+
+% Title protected so the style does not lower-case "Act", "Section" and "U.S.C.".
+@misc{Sec508,
+  author       = {{United States Congress}},
+  title        = {{Rehabilitation Act of 1973, Section 508 (29 U.S.C. 794d)}},
+  year         = {1998},
+  howpublished = {Amended by the Workforce Investment Act of 1998}
+}
+
+@article{Newell2011,
+  author  = {Newell, Alan F. and Gregor, Peter and Morgan, Maggie and Pullin, Graham and Macaulay, Catriona},
+  title   = {User-sensitive inclusive design},
+  journal = {Universal Access in the Information Society},
+  volume  = {10},
+  number  = {3},
+  pages   = {235--243},
+  year    = {2011},
+  doi     = {10.1007/s10209-010-0203-y}
+}
+
+% =====================================================================
+% 05-content-design, 10-reflection
+% =====================================================================
+
+@article{Merrill2002,
+  author  = {Merrill, M. David},
+  title   = {First principles of instruction},
+  journal = {Educational Technology Research and Development},
+  volume  = {50},
+  number  = {3},
+  pages   = {43--59},
+  year    = {2002},
+  doi     = {10.1007/BF02505024}
+}
+
+% Edition and place added.
+@book{gagné1985conditions,
+  author    = {Gagn{\'e}, Robert M.},
+  title     = {The Conditions of Learning and Theory of Instruction},
+  edition   = {4},
+  publisher = {Holt, Rinehart and Winston},
+  address   = {New York, NY, USA},
+  year      = {1985},
+  isbn      = {9780030636882}
+}
+
+% =====================================================================
+% 06-assessment-design, 09-evaluation-plan
+% =====================================================================
+
+% Key kept as "article" so the existing \cite{article} still resolves.
+% Month removed (it printed as "03 2012"); issue number added; "List" protected.
+@article{article,
+  author  = {Boone, Randall and Higgins, Kyle},
+  title   = {{The Software {$\surd$}-List}: Evaluating educational software for use by students with disabilities},
+  journal = {Journal of Special Education Technology},
+  volume  = {27},
+  number  = {1},
+  pages   = {50--63},
+  year    = {2012},
+  doi     = {10.1177/016264341202700105}
+}
+
+% =====================================================================
+% 07-motivation
+% =====================================================================
+
+@incollection{Malone1987,
+  author    = {Malone, Thomas W. and Lepper, Mark R.},
+  title     = {Making learning fun: A taxonomy of intrinsic motivations for learning},
+  booktitle = {Aptitude, Learning, and Instruction, Volume 3: Conative and Affective Process Analyses},
+  editor    = {Snow, Richard E. and Farr, Marshall J.},
+  publisher = {Lawrence Erlbaum Associates},
+  address   = {Hillsdale, NJ, USA},
+  pages     = {223--253},
+  year      = {1987}
 }
 
 @book{Keller2010,
   author    = {Keller, John M.},
   title     = {Motivational Design for Learning and Performance: The {ARCS} Model Approach},
   publisher = {Springer},
-  address   = {New York},
-  year      = {2010}
+  address   = {New York, NY, USA},
+  year      = {2010},
+  doi       = {10.1007/978-1-4419-1250-3}
 }
 
 @article{Deci2000,
   author  = {Deci, Edward L. and Ryan, Richard M.},
-  title   = {The ``What'' and ``Why'' of Goal Pursuits: Human Needs and the Self-Determination of Behavior},
+  title   = {The ``what'' and ``why'' of goal pursuits: Human needs and the self-determination of behavior},
   journal = {Psychological Inquiry},
   volume  = {11},
   number  = {4},
   pages   = {227--268},
-  year    = {2000}
+  year    = {2000},
+  doi     = {10.1207/S15327965PLI1104_01}
+}
+
+% Title protected so the style does not lower-case the name.
+@misc{Marshall2026Motivation,
+  author       = {Marshall, Linda},
+  title        = {{L05: Motivation (based on slides by Katherine Malan)}},
+  howpublished = {COS~750 lecture slides, University of Pretoria},
+  year         = {2026},
+  note         = {Accessed via ClickUP}
+}
+
+@book{McClelland1961,
+  author    = {McClelland, David C.},
+  title     = {The Achieving Society},
+  publisher = {Van Nostrand},
+  address   = {Princeton, NJ, USA},
+  year      = {1961}
+}
+
+% NEW. Source of the need to avoid failure.
+@article{Atkinson1957,
+  author  = {Atkinson, John W.},
+  title   = {Motivational determinants of risk-taking behavior},
+  journal = {Psychological Review},
+  volume  = {64},
+  number  = {6},
+  pages   = {359--372},
+  year    = {1957}
+}
+
+@book{Csikszentmihalyi1990,
+  author    = {Csikszentmihalyi, Mihaly},
+  title     = {Flow: The Psychology of Optimal Experience},
+  publisher = {Harper \& Row},
+  address   = {New York, NY, USA},
+  year      = {1990}
 }

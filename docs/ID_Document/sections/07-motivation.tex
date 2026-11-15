@@ -1,21 +1,80 @@
 \section{Motivation}\label{sec:id-motivation}
-\owner{Group}
-\pages{1}
 
-Students are more likely to persist with a task they find relevant, that they believe they can complete, and that gives them some control. The app draws on two frameworks to support this: the ARCS model \cite{Keller2010} and self-determination theory \cite{Deci2000}.
+Students are more likely to persist with a task they find relevant, that they believe they can complete, and that gives them some control. The main framework for the motivational design of the app is the taxonomy of intrinsic motivations of Malone and Lepper \cite{Malone1987}, which was developed for computer-based learning environments and was provided in this module. The ARCS model \cite{Keller2010} and self-determination theory \cite{Deci2000} are used as cross-checks in Section~\ref{sec:id-arcs-sdt}.
 
-\subsection{ARCS Model}
+\subsection{Intrinsic and Extrinsic Motivation}
+Malone and Lepper call learning intrinsically motivated when the most narrowly defined activity from which the learning comes would be done without any external reward or punishment \cite[p.~229]{Malone1987}. A student who opens the app only because the module expects it is extrinsically motivated overall, but the activities inside the app, such as predicting where a value belongs and then watching the trace confirm it, can still be rewarding in themselves.
+
+This distinction matters because of what the motivation lecture \cite{Marshall2026Motivation} shows with the soccer boys. Paying the boys to play changed their reason for playing from the love of the game to earning money, and when the payment was reduced they stopped coming. External rewards can motivate, but their effect usually fades sooner than that of intrinsic rewards, and the deciding factor is the learner's sense of control over their own actions (locus of control). The app therefore relies mainly on intrinsic motivators and uses external rewards sparingly (Section~\ref{sec:id-gamification}).
+
+\subsection{The Learner: Need for Achievement and Fear of Failure}
+The lecture describes two motivational profiles. Students with a high need for achievement (N-Ach) \cite{McClelland1961} thrive on challenge and enjoy assessment. Students with a high need to avoid failure (NAF) avoid challenge\cite{Atkinson1957}., work slowly and dislike being assessed. A COS~212 class will contain both, and the app contains assessment in the form of the diagnostic gate. The design therefore tries to stop the gate from feeling like a formal test: it has no timer, and a failed attempt names lessons to review. The diagnostic displays a score and records answers, but does not contribute to a formal course grade. It can be retried without limit; once passed, the tree activities remain unlocked. The lecture also advises beginning with smaller, easier tasks, valuing success, and internalising motivation through repeated success. The lessons begin with short questions, and students can pursue challenge in the Predict cards and by working towards secure status in the progress record.
+
+\subsection{Malone and Lepper's Taxonomy}
+Malone and Lepper group intrinsic motivations into four individual factors (challenge, curiosity, control and fantasy) and three interpersonal factors (cooperation, competition and recognition) \cite{Malone1987}. They offer their summary table of heuristics as a checklist to guide design, not as a recipe (pp.~247--249).
+
+One distinction decides how much challenge the app should add. Malone and Lepper separate \emph{toys}, which are used for their own sake and can be made difficult on purpose, from \emph{tools}, which serve a goal the user already has and should be as efficient as possible, because unnecessary difficulty is frustrating \cite[pp.~234--235]{Malone1987}. The COS212 app is a tool: students use it to prepare for a lecture. The challenge therefore comes from the content and from graded steps, not from artificial obstacles, and relevance is stated as \emph{instrumental relevance}, the link between this lesson and what the student needs next \cite[p.~233]{Malone1987}. Table~\ref{tab:malone-lepper} shows how the individual factors that the app uses are applied.
+
+\begin{table}[htbp]
+\centering
+\caption{Application of individual motivational factors based on Malone and Lepper’s taxonomy and the motivation lecture \cite{Malone1987,Marshall2026Motivation}.}
+\label{tab:malone-lepper}
+\small
+\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\textwidth}{@{}p{2.5cm}X@{}}
+\toprule
+\textbf{Factor} & \textbf{Application in the app} \\
+\midrule
+
+\textbf{Challenge: goals} &
+The lesson list presents objective descriptions, and immediate feedback supports short-term goals, while progress bars and secure objective statuses provide longer-term goals (Section~\ref{sec:id-progress}). \\
+
+\addlinespace[3pt]
+\textbf{Challenge: uncertainty} &
+Predict-before-reveal introduces hidden information. The diagnostic result identifies lessons to review, and optional hints provide help; neither changes the difficulty of the fixed, pre-authored questions. \\
+
+\addlinespace[3pt]
+\textbf{Challenge: feedback} &
+Each response receives immediate, explanatory feedback (FR9). Predictions do not alter the tree, and Undo can restore the most recent tree change. \\
+
+\addlinespace[3pt]
+\textbf{Curiosity} &
+Diagnostic questions expose incomplete knowledge, while deliberately constructed incorrect trees challenge existing assumptions. Worked examples establish the ordering rule as a unifying explanation. Node highlighting (FR4) and interactive predictions provide sensory engagement. \\
+
+\addlinespace[3pt]
+\textbf{Control} &
+Diagnostic responses determine which lesson names are suggested for review and which feedback is shown. Students control operations, values, hints and navigation (FR7), while visible tree changes demonstrate the consequences of their actions. \\
+
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Fantasy.} The app deliberately uses no fantasy. Malone and Lepper distinguish \emph{endogenous} fantasy, in which the story and the skill depend on each other, from \emph{exogenous} fantasy, which only reacts to right and wrong answers, such as a spaceship that advances with each correct answer \cite[p.~240]{Malone1987}. They expect the endogenous kind to be more interesting and more educational, and they note that people differ widely in the fantasies they enjoy: in their own survey no game received more than 17\% of first-place rankings (p.~241). An exogenous theme would add little to a tutor about one data structure, and an endogenous one would have to suit a whole class. The lecture adds that educational fantasy should be accurate, a simulation and not an imitation, which the tree diagram, as an accurate model of the structure, already provides.
+
+\paragraph{Interpersonal motivations.} Cooperation, competition and recognition are also not used. Competition based on scores is exogenous, and although it can raise interest during an activity it appears to reduce later intrinsic motivation \cite[p.~244]{Malone1987}. It can also raise interest for confident, high-ability students while lowering it for students low in ability and self-esteem (pp.~246--247), which is a poor fit for the NAF students described above. Recognition requires that results are visible to other people (p.~244), so the progress record is visible only to the student. The cost of these choices is recorded as a limitation at the end of this section.
+
+\subsection{Flow}
+The lecture describes flow as an optimal state of intrinsic motivation in which the person is fully immersed in the activity \cite{Csikszentmihalyi1990}. It names three conditions that the app aims to support. First, clear goals and progress: lesson objectives and per-objective progress bars. Second, clear and immediate feedback: FR9 and the step-by-step trace. Third, a balance between challenge and perceived skill: optional hints and diagnostic guidance offer support. Hint availability does not change as competence grows.
+
+\subsection{ARCS and Self-Determination Theory}\label{sec:id-arcs-sdt}
 The ARCS model names four conditions for motivated learning: attention, relevance, confidence and satisfaction \cite{Keller2010}. The app addresses each one as follows.
 
 \begin{description}
-    \item[Attention.] The predicted-step questions ask the student to commit to an answer before the explanation, which makes each step a small question rather than a passive read.
-    \item[Relevance.] The introduction to each lesson states how the lesson connects to the lecture and to the search performance that the student will meet in later modules.
-    \item[Confidence.] Success criteria are stated at the start of each lesson, and the graduated hints let a student succeed with help before attempting without it.
-    \item[Satisfaction.] Each completed objective is marked in the progress record, so the student sees the result of their work.
+    \item[Attention.] A welcome banner on the lessons screen highlights Lesson L0 for first-time users, and the predicted-step questions ask the student to commit to an answer before seeing the explanation.
+    \item[Relevance.] Lesson titles and descriptions name the BST skill being practised. The app does not adapt lesson content to a student's lecture history or future course performance.
+    \item[Confidence.] A two-step prompt (\texttt{New tree} followed by \texttt{Insert}) guides the learner through creating their first node. Optional hints and explanatory feedback support question attempts. Undo restores only the most recent tree state, while a prediction does not change the tree.
+    \item[Satisfaction.] The progress record displays attempts, first-time correct answers, hints used and a mastery status for each of the five tracked objectives; it reflects question answers rather than lesson-completion badges.
 \end{description}
 
-\subsection{Self-Determination Theory}
-Self-determination theory identifies three basic psychological needs: autonomy, competence and relatedness \cite{Deci2000}. The app addresses two of them directly. Autonomy is supported because the student controls the pace of every trace and can repeat any lesson. Competence is supported because progress is shown as an accurate record of what the student has practised, and because the hints are visibly withdrawn as competence grows. Relatedness is not addressed by the prototype. The app is used alone, and the group has not designed any social feature. This is recorded as a limitation in the SE document.
+These conditions line up with the taxonomy above: attention with curiosity, relevance with instrumental relevance, and confidence and satisfaction with challenge and self-esteem. We also cross-map ARCS to the engagement checkpoints of Universal Design for Learning~\cite{CAST2018}(version 2.2 numbering).: autonomy (7.1) and relevance (7.2) support Attention and Relevance; minimising threats and distractions (7.3) supports our decision to use no timers; salience of goals (8.1) and mastery-oriented feedback (8.4) support Confidence and Satisfaction; and self-assessment (9.3) is delivered by the progress screen.
 
-\subsection{Gamification}
-The app uses only visible progress as a game element. It has no points, no leaderboard and no timed challenge. Timed challenges can reward speed over understanding, and a student who is anxious about a timer may stop trying. Progress bars were chosen because they reflect the mastery standard in Section~\ref{sec:id-progress} and say nothing about how other students are doing.
+Self-determination theory identifies three basic psychological needs: autonomy, competence and relatedness \cite{Deci2000}. Its account of how external rewards affect intrinsic motivation, which the lecture lists as Cognitive Evaluation Theory, is the theory behind the soccer boys example. The app supports autonomy by letting students control their pace, revisit lessons, choose the Predict-card operation and value, and hide the tree key or trace panel. The progress screen and explanatory feedback are intended to support competence. Hint availability is not adjusted according to mastery, and relatedness is not addressed by the prototype, as explained under the limitation below.
+
+\paragraph{Confidence and self-efficacy.} Confidence in ARCS corresponds to self-efficacy in social cognitive theory~\cite{Bandura1977,Bandura1986} and to the self-esteem component of challenge in the taxonomy \cite[pp.~232--233]{Malone1987}. Small steps, mastery-oriented feedback and visible success build the belief that the learner can handle the next step.
+
+\subsection{Gamification}\label{sec:id-gamification}
+The app uses only visible progress as a game element. It has no points, no leaderboard and no timed challenge. Timed challenges can reward speed over understanding, and a student who is anxious about a timer may stop trying. The soccer boys example from the lecture is a further reason for restraint, because an added reward can replace the enjoyment it was meant to support. Progress bars were chosen because they reflect the mastery standard in Section~\ref{sec:id-progress} and say nothing about how other students are doing.
+
+The progress record is the one external reward in the app. The lecture advises students to accept external rewards and to internalise the motivation through repeated success, and the record is meant to do this by making success visible so that the student comes to value the understanding itself. Malone and Lepper also warn that more features are not always better, and that a collection of motivational features that ignores how they interact can be incoherent and unappealing \cite[pp.~247--248]{Malone1987}. They separate attracting interest from maintaining it, and observe that novel gimmicks often lose their appeal with repeated use \cite[p.~247]{Malone1987}. Because the app is meant for a short session before a lecture, clear goals and feedback matter more than novelty.
+
+\paragraph{Limitation.} The app is solitary. It does not support collaboration (UDL 8.3) or relatedness, which the lecture also lists as a need in ERG theory, so learners who prefer social learning get no peer support. We accept this as a limitation of a pre-lecture, individual tool. Malone and Lepper describe how cooperation can be built into an activity by splitting a task into dependent parts, for example one player making the estimate and the other typing it in, or the jigsaw procedure \cite[p.~243]{Malone1987}, which is the teaching strategy used in the learning theories lecture of this module. A later version could use the same idea, with one student making the prediction and a partner entering it.

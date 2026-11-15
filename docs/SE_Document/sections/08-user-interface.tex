@@ -1,11 +1,10 @@
 \section{User Interface Design}\label{sec:ui}
-\owner{Group}
-\pages{2}
+
 
 The interface is built in JavaFX, as set out in Section~\ref{sec:architecture}. It is designed for a student who has never seen a tree, working alone before a lecture. Every screen shows one thing to do next, every term is defined where it first appears, and nothing on screen depends on colour alone.
 
 \subsection{Screens}
-The app has four screens. Table~\ref{tab:screens} lists them and the requirements each one serves.
+The app has five screens, reached from the navigation column on the left. Table~\ref{tab:screens} lists them and the requirements each one serves.
 
 \begin{table}[H]
 \centering
@@ -16,10 +15,11 @@ The app has four screens. Table~\ref{tab:screens} lists them and the requirement
 \toprule
 Screen & Purpose and contents & Requirements \\
 \midrule
-Lesson list & Shows the four lessons in order, with the progress bar for each objective. Opens the diagnostic gate first, and locks the tree activities until it is passed. & FR8, FR10 \\
-Diagnostic gate & One question at a time, with the answer choices and a single submit button. Shows the routing result when the gate is failed. & FR8, FR9 \\
-Tree activity & The main working screen, described below. Used for building a tree, searching it, inserting values and traversing it. & FR1 to FR7 \\
+Lesson list & Shows the five lessons (L0 to L4) in order, with the progress bar for each objective. Displays a first-time welcome spotlight on Lesson L0 (\texttt{Open lesson}), and opens each lesson page by page, with its questions. The lessons are open from the start; only the tree activities wait for the diagnostic gate. & FR8, FR10 \\
+Diagnostic gate & One question at a time, with the answer choices and a single submit button. Shows the routing result when the gate is failed, and unlocks the tree activities when it is passed. & FR8, FR9 \\
+Tree activity & The main working screen, described below. Used for building a tree, searching it, inserting values, deleting values (by copying or by merging), traversing it, predicting each step of an operation, and undoing or redoing changes to the tree. & FR1 to FR7, FR11 to FR14 \\
 Progress & One bar per objective, showing practised and secure status, with the number of hints used. & FR10 \\
+Settings & The accessibility options: text size, colour palette, text descriptions of trees, the strong focus outline and the list of keyboard shortcuts. Every change applies at once and is saved (Section~\ref{sec:settings}). & NFR5 \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -28,12 +28,25 @@ Progress & One bar per objective, showing practised and secure status, with the 
 The tree activity screen is divided into three areas.
 
 \begin{itemize}
-    \item \textbf{Tree canvas (left, most of the width):} draws the tree with each node as a labelled circle and each link as a line. The node that is being compared is outlined with a thick border and the label ``current'', so that the highlight is visible without colour. Nodes already passed in the search are marked with a dashed outline.
-    \item \textbf{Trace panel (right):} lists each step of the search or insertion in order, with the comparison and the direction taken. The current step is shown in bold. Each step has a one-sentence explanation of the rule applied, which is the explanation required by FR4 and FR5.
-    \item \textbf{Control bar (bottom):} the value field, the Insert, Search and In-order buttons, and the step controls Previous, Next and Reset required by FR7. Previous and Next move through the recorded trace; they do not change the tree.
+    \item \textbf{Tree canvas (left, most of the width):} draws the tree with each node as a labelled circle and each link as a line. The node that is being compared is outlined with a thick border and the label ``current'', so that the highlight is visible without colour. Nodes already passed in the search are marked with a dashed outline. A key in the top left corner explains each mark, and the \textbf{Hide Key} button above the canvas removes it to free space (the button then reads \textbf{Show Key}). The canvas always shows the tree as it currently is, and a prediction never changes it.
+    \item \textbf{Trace panel (right):} lists each step of the search, insertion or deletion in order, with the comparison and the direction taken. The current step is shown in bold. Each step has a one-sentence explanation of the rule applied, which is the explanation required by FR4 and FR5. A deletion trace also states whether the value was found and, when the node has two children, lists the steps that find its replacement. The \textbf{Hide Trace} button removes the panel so that the canvas can use its width, and the button then reads \textbf{Show Trace}.
+    \item \textbf{Control bar (bottom):} a result line and two cards. The result line states what the last operation did, for example how many comparisons it took, and explains an invalid value in words. The two cards sit side by side and wrap onto separate rows when the window is narrow.
+    \begin{itemize}
+        \item \textbf{Build, search and traverse} is the only card whose buttons change the tree. It holds a value field with the \textbf{Insert} button and a \textbf{New tree} button, a value field with the \textbf{Search} button, a value field shared by \textbf{Delete Copy} and \textbf{Delete Merge}, the traversal buttons \textbf{Depth First} (in-order, which lists the values in sorted order) and \textbf{Breadth First} (level by level), and the \textbf{Undo} and \textbf{Redo} buttons.
+        \item \textbf{Predict the next step} holds one value field shared by \textbf{Insert}, \textbf{Search}, \textbf{Delete Copy} and \textbf{Delete Merge} buttons that run the operation as a prediction only, the answer buttons for the current step, a Hint button, and the step controls Previous, Next and Reset required by FR7. Previous and Next move through the recorded trace; they do not change the tree.
+    \end{itemize}
 \end{itemize}
 
-The value field accepts integers only. A value that is not an integer is rejected with a message that says which values are allowed, and the tree is not changed.
+To help first-time learners start without confusion, each main screen includes an optional walkthrough banner that dims inactive cards while explaining the controls. On the tree activity screen, students can launch an animated demo on a sample tree (\texttt{50, 30, 70, 40}) that steps through a search for \texttt{40} and highlights the trace buttons in sequence. When the guide is closed, a two-step prompt highlights \texttt{New tree} first and then the \texttt{Insert} field and button so the student builds their own tree.
+
+Each value field (Insert, Search, Delete and Predict) accepts integers only. A value that is not an integer is rejected with a message that says which values are allowed, and the tree is not changed.
+
+\subsection{Delete, Predict and Undo}
+\textbf{Deletion.} Both delete buttons first search for the value, and the trace states whether it was found. A node with no children is removed, and a node with one child is replaced by that child's subtree. For a node with two children, \textbf{Delete Copy} finds the largest value in its left subtree, copies it into the node, and then removes the replacement's old node. \textbf{Delete Merge} hangs the node's right subtree below the rightmost node of its left subtree, and the left subtree takes the node's place. In both methods the student must decide to search the left subtree for the replacement, and then to keep going right until there is no right child.
+
+\textbf{Predict.} In the Predict card the student chooses an operation and a value, and the app builds the trace of that operation on the current tree without changing it. The result line says that the run is a prediction only. At each step the student picks what happens from a set of answer buttons that depends on the step: for example Left, Right and Found while searching, Insert Left and Insert Right at an empty link, and Remove Node, Find Replacement, Left Subtree Replaces and Right Subtree Replaces right after a delete finds its node. Some of the offered answers are always wrong, so the student has to decide, not just confirm. The feedback says whether the answer was correct, names the right answer and gives the rule behind it. The Hint button offers up to three hints, from the rule to the answer itself. Only the first answer to each step is recorded, with the number of hints used. The same answer buttons also work on the trace left by an operation in the Build card, so a student can replay a real operation as an exercise.
+
+\textbf{Undo and Redo.} Before each change to the tree (Insert, Delete Copy, Delete Merge and New tree) the app saves a copy of the tree. \textbf{Undo} puts the saved copy back, so a student can try Delete Copy on a tree, undo it, and try Delete Merge on the same tree without rebuilding it. \textbf{Redo} re-applies the change that was undone. An operation that changes nothing, such as a duplicate insert or a delete of a value that is not in the tree, saves nothing, and predictions never save anything. The number of saved states is set by a single constant, currently one, so it can be raised later without other changes. Undo and Redo are greyed out when there is nothing to step to, and both clear the trace, because it described the change that was undone.
 
 \subsection{Interaction Flow}
 Table~\ref{tab:flow} shows the main interactions and the result of each.
@@ -47,46 +60,111 @@ Table~\ref{tab:flow} shows the main interactions and the result of each.
 \toprule
 Student action & Result shown \\
 \midrule
+Opens Lessons, Diagnostic Gate, or Tree Activity for the first time & A walkthrough banner appears at the top while background cards are dimmed so the student can read the tips before starting. \\
+Selects \textbf{Watch animated demo} & Builds a sample tree (\texttt{50, 30, 70, 40}) and steps through a search for \texttt{40}, highlighting each compared node and flashing the trace controls in order. \\
+Dismisses the demo guide (\textbf{Hide guide}) & Prompts the student in two steps: first to click \textbf{New tree} to clear the sample nodes, and then to type an integer and click \textbf{Insert} to build their own tree. \\
 Enters a value and selects Insert & The trace panel lists each comparison, and the new node appears at the end of the path. A duplicate shows the message that the value is already present, and the tree is unchanged. \\
 Enters a value and selects Search & The trace highlights each compared node and states whether the value was found. \\
-Selects Next during a trace & The next step is highlighted and its explanation is shown. \\
-Selects Reset & The trace is cleared and the tree is shown in its state before the trace. \\
-Selects In-order & The values are listed in sorted order, with the node visits shown in the trace panel. \\
+Enters a value and selects \textbf{Delete Copy} or \textbf{Delete Merge} & The trace states whether the value was found. If it was, the trace lists the steps that remove it, including the search for a replacement when the node has two children, and the node is removed from the tree. A value that is not in the tree leaves it unchanged. \\
+Selects \textbf{New tree} & The tree and the trace are cleared. \\
+Selects an operation in the Predict card & A trace of that operation starts on the current tree, which is not changed, and the answer buttons for the first step appear. \\
+Selects an answer button & The feedback says whether the answer was correct, names the right answer and gives the rule. Only the first answer to a step is recorded. \\
+Selects Hint & A hint is shown, and each of the three hints gives more help than the one before. \\
+Selects Next during a trace & The next step is highlighted, its explanation is shown, and the answer buttons for that step appear. \\
+Selects Reset & The trace is cleared. The tree is not changed. \\
+Selects \textbf{Depth First} or \textbf{Breadth First} & The values are listed in the traversal result line: in sorted order for Depth First (in-order), and level by level for Breadth First. \\
+Selects \textbf{Undo} or \textbf{Redo} & The tree returns to the state before the last change, or the change is applied again. The trace is cleared, and the result line says which change was undone or redone. The button is greyed out when there is nothing to step to. \\
+Selects \textbf{Hide Key} or \textbf{Hide Trace} & The key or the trace panel is removed, and the button changes to Show Key or Show Trace. \\
 Answers a formative question wrongly & The feedback message appears beside the question, and the first hint is offered. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \subsection{Accessibility and Keyboard Use}
-Every control can be reached with the Tab key and activated with Enter or Space, which meets the keyboard requirement in NFR5. The Next and Previous steps are also bound to the arrow keys, and the Reset step to Escape. Text and shape carry all information that colour carries, so the interface remains usable for a student with colour-vision deficiency. Text size is set in the stylesheet so that it can be increased for every label at once. The minimum window size is 1024 by 680 pixels, and the trace panel collapses below that width so that the canvas remains usable. \todo{confirm minimum window size with usability testing}
+Every control can be reached with the Tab key and activated with Enter or Space, which meets the keyboard requirement in NFR5. Table~\ref{tab:shortcuts} lists the other shortcuts, which the Settings screen also shows to the student. The Predict buttons have spoken names such as ``Predict insert'', so that a screen reader can tell them apart from the matching Build buttons, and the spoken names of Undo and Redo say which change they would undo or redo. Text and shape carry all information that colour carries: correct and wrong answers carry a tick or cross and a word, and the current node has a thick outline and the word ``current''. The text size, the colour palette, tree descriptions and the focus outline are set on the Settings screen (Section~\ref{sec:settings}). The app has not yet been tested with a screen reader, and the Settings screen says so.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Keyboard shortcuts.}
+\label{tab:shortcuts}
+\begin{tabularx}{\textwidth}{p{4.2cm} X}
+\toprule
+Keys & Action \\
+\midrule
+Tab, Shift+Tab & Move to the next or previous control \\
+Space or Enter & Press the focused button or choose the focused answer \\
+A, B, C, D & Choose an answer on a question \\
+Ctrl+1 to Ctrl+5 & Open Lessons, Diagnostic Gate, Tree Activity, My Progress or Settings \\
+Left and Right arrows & Previous or next step of a trace in the tree activity \\
+Esc & Reset the trace in the tree activity \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The window opens at up to $1366 \times 768$ pixels (scaled to $98\% \times 96\%$ of the primary display) with a minimum size of $980 \times 620$ pixels, and wraps the active screen in a width-fitted scroll pane so controls remain accessible on smaller screens.
+\subsection{Settings Screen}\label{sec:settings}
+The Settings screen holds the accessibility options. Every change applies at once to every screen, and is saved to \texttt{.smartiesearch/settings.properties} in the student's home folder, so the choices are still set the next time the app starts. A missing or damaged settings file gives the defaults, and the \textbf{Reset to defaults} button puts every option back.
+
+\begin{itemize}
+    \item \textbf{Text size:} a slider with six stops, from Small to Extra large. The choice scales every font in the app, and a preview line shows the result before the student leaves the screen.
+    \item \textbf{Colour palette:} the student picks one of the six palettes in Table~\ref{tab:palettes}. Students choose from this fixed set and cannot enter their own colours, so every palette can be checked in advance.
+    \item \textbf{Describe trees in text:} adds a text description under every tree drawing, which names the root, the children, and the current and visited nodes, for students who use a screen reader.
+    \item \textbf{Strong focus outline:} marks the control that has keyboard focus with a thick outline. It is on by default.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Colour palettes offered in Settings.}
+\label{tab:palettes}
+\begin{tabularx}{\textwidth}{p{4.6cm} X}
+\toprule
+Palette & Purpose \\
+\midrule
+Standard colours & The SmartieSearch colours. \\
+High contrast & For low vision: white background, black text, dark borders and strong status colours. \\
+Grayscale & For students with no colour vision. Every colour becomes a grey of the same brightness, so the app relies on ticks, crosses, words and outlines. \\
+Red-green (red weak, protanopia) & A simulation of protanopia, which shows how the app looks with that deficiency. \\
+Red-green (green weak, deuteranopia) & A simulation of deuteranopia. \\
+Blue-yellow (tritanopia) & A simulation of tritanopia. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The three colour-blindness palettes are simulations, not corrections. They show the whole app as a person with that deficiency sees it, so that the group and the markers can check that nothing depends on colour alone. They are fitted to the reference palettes in \texttt{docs/ColourPalettes/}. The stylesheet is rebuilt from the chosen text size and palette, so one setting changes every screen at once.
+
+
 
 \subsection{Wireframes}
-The team's wireframes for the four screens are shown in Figures~\ref{fig:wf-lessons}, \ref{fig:wf-gate}, \ref{fig:wf-tree} and \ref{fig:wf-progress}. They are the team's latest HTML mock-ups, drawn at 1100 by 680 pixels with the navy top bar that the window uses, and they follow the layout in Table~\ref{tab:screens}. The lesson list, the diagnostic gate, the tree activity and the progress screen each have their own figure, and the captions name the requirements each one serves.
+Figures~\ref{fig:wf-lessons}, \ref{fig:wf-gate}, \ref{fig:wf-tree} and \ref{fig:wf-progress} show the wireframes the interface was designed from. They were drawn before the app was built, at 1100 by 680 pixels, and each one marks the requirements its parts serve with red tags.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{wireframe-lessons.png}
-\caption{Lesson list. The lessons unlock only after the diagnostic gate is passed (FR8), and the progress bars show each objective (FR10).}
+\caption{Wireframe of the lesson list, with the diagnostic check above the lessons and a progress bar for each objective (FR8, FR10).}
 \label{fig:wf-lessons}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{wireframe-diagnostic-gate.png}
-\caption{Diagnostic gate. One question at a time, with the answer choices, a submit button and feedback that names the rule (FR8, FR9).}
+\caption{Wireframe of the diagnostic gate: one question at a time, feedback after each answer, and the routing result when the gate is failed (FR8, FR9).}
 \label{fig:wf-gate}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{wireframe-tree-activity.png}
-\caption{Tree activity. Build, Search and Traverse on the left, the canvas with the current and visited nodes marked, the trace and the next-step panel on the right, and the result along the bottom (FR1 to FR7).}
+\caption{Wireframe of the tree activity: the controls on the left, the canvas with the current and visited nodes marked, and the trace and step controls on the right (FR1 to FR7).}
 \label{fig:wf-tree}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{wireframe-progress.png}
-\caption{Progress screen. Each objective shows its mastery status, attempts, first-time correct answers and hints used (FR10).}
+\caption{Wireframe of the progress screen: one bar per objective, with its status, attempts, correct first answers and hints used (FR10).}
 \label{fig:wf-progress}
 \end{figure}
+
+The built app follows these wireframes in its content but departs from them in four ways. The navigation moved from a top bar to a column on the left. A fifth lesson, L0, was added, and the lessons are open from the start, where the wireframe locks them until the diagnostic is passed. The tree activity gained deletion, the Predict card, breadth-first traversal, and Undo and Redo, and its controls moved below the canvas. The Settings screen (Section~\ref{sec:settings}) was added after the wireframes were drawn, so it has no wireframe.
