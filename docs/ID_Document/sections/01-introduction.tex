@@ -1,11 +1,25 @@
 \section{Introduction}\label{sec:id-intro}
-\owner{Group}
-\pages{2}
 
-The COS212 app is a prototype tutor for the binary search tree (BST). It is designed for COS212 students to use before the lecture in which trees are taught. Its job is to let a student meet the ordering rule, practise search and insertion by hand, and receive support when they struggle, all without an instructor and without any prior knowledge of trees.
+The COS212 app is a prototype tutor for the binary search tree (BST). It is designed for COS212 students to use before the lecture in which trees are taught. Its job is to let a student meet the ordering rule, practise search, insertion and deletion by hand, and receive support when they struggle, all without an instructor and without any prior knowledge of trees.
 
 This document explains the instructional choices behind the app. It sets out the learning objectives, the learning theories applied, how the content and assessment are designed, how the app keeps students motivated and tracks their progress, and how the app will be evaluated. It also reflects on the choices the group made and records the use of generative AI, as the examination specification requires. The software engineering decisions that make these choices possible are documented separately in the companion SE document.
 
 Two features of the target learners shape every choice in this document. The first is that they are meeting trees for the first time, so the app cannot assume any vocabulary or any sense of why the ordering rule matters. The second is that they are studying before a lecture, so the app must work as a self-contained learning experience, with no instructor available to explain a mistake. The design therefore puts explanation, feedback and practice inside the app itself.
 
-The scope matches the SE document. The app teaches the ordering rule, the search and insertion operations, and in-order traversal. Deletion and self-balancing trees are not taught, and the reasons are given in Section~\ref{sec:id-reflection}.
+The scope matches the SE document. The app teaches the ordering rule, the search and insertion operations, and in-order traversal. It also lets the student practise deletion by copying and by merging, breadth-first traversal, and predicting the steps of any operation without changing the tree, all in the tree activity. Deletion is practised there but is not yet taught by a lesson, and self-balancing trees are not taught at all. The reasons are given in Section~\ref{sec:id-reflection}.
+
+\subsection{Instructional Design Model}
+We follow the ADDIE model (Analysis, Design, Development, Implementation, Evaluation) as presented in the module. ADDIE gives the document a clear structure: Analysis is covered in this section (learners, environment and content), Design in Sections~2--8 (objectives, strategies, interface and assessment), Development in the app itself and the accompanying software engineering document, Implementation in how learners meet the tool before the lecture, and Evaluation in Section~9.
+ 
+\subsection{Type of Educational Software}
+Educational software is software that aims to make some part of education more effective and efficient. Using the module's classification, our app is mainly a \emph{tutorial}: it presents a concept, lets the learner try it and gives feedback. It adds a tree visualisation, step-by-step feedback and a diagnostic result that identifies lessons associated with wrong answers for the learner to review. The result does not automatically redirect the learner. This is a fixed, rule-based form of support, without runtime adaptation by a generative model.
+ 
+\subsection{Learning Environment and Content}
+The app runs locally and is used before the lecture, without an instructor present. Learners therefore cannot ask for help in the moment, and all explanation has to be built into the feedback and hints. The content is organised into five lessons (L0--L4), each focusing on one or more BST concepts and addressing the misconceptions M1--M6 identified in the instructional design. These misconception labels describe the intended learning content; the app does not store them as separate data fields. Deletion is the exception: it can be practised in the tree activity but has no lesson of its own (Section~\ref{sec:id-content}).
+ 
+\subsection{Inclusive Access}
+South African education policy advocates inclusive education. The Screening,
+Identification, Assessment and Support policy sets out how schools identify
+and support learners who experience barriers to learning~\cite{DBE2014}. The
+policy applies to schools and not to universities, but we take its principle
+as a design requirement:: the app should be usable by learners with a range of needs, as discussed in Section~4.

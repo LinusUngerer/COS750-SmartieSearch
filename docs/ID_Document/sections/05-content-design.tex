@@ -1,38 +1,57 @@
 \section{Content Design}\label{sec:id-content}
-\owner{Group}
-\pages{3}
 
-The content is organised as four lessons, each teaching one or two objectives in Table~\ref{tab:objectives}. The order is fixed, because each lesson depends on the one before it. Each lesson follows the same four-part structure, so that a student learns how the app works once and can then focus on the content.
+The content is organised as five lessons, L0--L4, that cover the objectives in Table~\ref{tab:objectives}. They are presented in that order, with a next-lesson action, but learners can open lessons from the lesson list rather than being forced through a prerequisite lock. Each lesson uses the same four stages.
 
 \begin{enumerate}
-    \item \textbf{Predict:} the student is shown a small tree and a question, and must answer before any explanation is given.
-    \item \textbf{Show:} a worked example demonstrates the answer step by step, using the representations in Section~\ref{sec:id-multimodal}.
-    \item \textbf{Try:} the student works a similar example with the steps predicted one at a time, and the support is faded across the lesson.
-    \item \textbf{Check:} a short set of formative questions tests the objectives of the lesson, and the result is recorded in the progress record. Some Check questions use fill-in-the-blank responses, asking learners to write the comparison or direction rather than select a prepared answer.
+    \item \textbf{Predict:} the student sees a fixed question and answers before the explanation.
+    \item \textbf{Show:} a worked example uses a tree diagram and explanatory text.
+    \item \textbf{Try:} the student answers a related question and can request one hint on Try questions.
+    \item \textbf{Check:} multiple-choice or fill-in questions test the lesson objectives, and answers are recorded in the progress record.
 \end{enumerate}
+
+Predict/Show/Try/Check has similarities to Merrill's activation, demonstration and application principles~\cite{Merrill2002}, followed by an assessment. The app does not include a separate integration activity in which learners explain the concept in their own words or apply it to a new context. The sequence also draws broadly on Gagné's events of instruction~\cite{gagné1985conditions}, including attention, recall, practice, feedback and assessment.
 
 \subsection{Sequence of Lessons}
 \begin{description}
-    \item[L1: The ordering rule.] What a BST is, the rule that left is smaller and right is larger, and checking a whole subtree. This lesson covers \texttt{define-bst} and \texttt{ordering-rule}.
-    \item[L2: Searching.] How a search uses the rule to choose a subtree at each node, and how the search ends. This lesson covers \texttt{trace-search}.
-    \item[L3: Inserting.] How insertion follows the search path and attaches a new leaf, and why a duplicate is rejected. This lesson covers \texttt{trace-insert}.
-    \item[L4: Shape and height.] Why the order in which values arrive changes the shape of the tree, and why a chain costs as much as a linked list. This lesson covers \texttt{shape-cost}, and it is the last lesson because it draws on all the others.
+    \item[L0: What is a BST?] Defines a binary search tree and states its ordering invariant in plain words (\texttt{define-bst}). The lessons screen highlights L0 for first-time learners.
+    \item[L1: The ordering rule.] Explains why values to the left are smaller and values to the right are larger, and how to check a whole subtree (\texttt{ordering-rule}).
+    \item[L2: Searching.] Shows how a search uses the rule to choose a subtree at each node and how the search ends (\texttt{trace-search}).
+    \item[L3: Inserting.] Shows how insertion follows the search path, attaches a new leaf, and rejects duplicates (\texttt{trace-insert}).
+    \item[L4: Shape and height.] Explains why insertion order changes tree shape and why a chain costs as much as a linked list (\texttt{shape-cost}).
 \end{description}
 
+\paragraph{Practice beyond the lessons.} The tree activity provides additional practice beyond the fixed lesson questions. The Build controls insert, search, delete by copying or merging, and display depth-first (in-order) or breadth-first traversal. Undo and Redo retain only the most recent prior tree state. The separate Predict card lets the learner choose an operation and value, then step through a trace without changing the tree. Deletion is available there but has no dedicated lesson or diagnostic item and is not one of the progress-screen objectives; breadth-first traversal is available alongside in-order traversal but has no separate objective.
+
+\paragraph{Prerequisites and prior knowledge.} Each unit begins by activating what the learner already knows, in line with constructivism. L0 assumes no prior knowledge of trees; L1 builds on L0; L2 and L3 build on L1's ordering rule; and L4 draws on L1--L3 together.
+
 \subsection{Misconceptions the Content Addresses}
-Each lesson is built around the misconceptions that students most often hold. The assessment detects them (Section~\ref{sec:id-assessment}), and the lessons are written to correct them. The six misconceptions are the same as those in the SE document.
+Each lesson is built around misconceptions that students may hold. Lesson examples and questions are intended to address them (Section~\ref{sec:id-assessment}); the diagnostic samples some of these ideas but does not store explicit misconception identifiers or detect all six separately. The six labels describe the instructional content.
 
 \begin{itemize}
-    \item \textbf{M1:} any binary tree is a BST. L1 shows a tree that has two children at every node and still breaks the rule.
-    \item \textbf{M2:} only the immediate children need to be checked. L1 shows a violation that appears only deeper in the right subtree.
+    \item \textbf{M1:} any binary tree is a BST. L0 shows that a binary tree can still violate the ordering rule.
+    \item \textbf{M2:} only the immediate children need to be checked. L1 shows violations deeper in a subtree, where a value fits its parent but not an earlier ancestor.
     \item \textbf{M3:} search moves the wrong way. L2 pairs each direction with the comparison that produces it.
     \item \textbf{M4:} insertion replaces a node. L3 shows the new value added as a leaf, with the old node still in place.
     \item \textbf{M5:} a duplicate is stored again. L3 explains the rejection, and why the tree is unchanged.
     \item \textbf{M6:} the shape of the tree does not affect search cost. L4 compares the comparisons needed for a balanced tree and for a chain of the same size.
 \end{itemize}
 
+The design of the deletion trace also anticipates a further error that is not among M1--M6 and that the diagnostic does not yet detect: that the replacement for a node with two children may come from either subtree, or that the right subtree can simply replace the node. The trace therefore asks which subtree to search for the replacement, and it offers the wrong subtree as an answer. Whether students hold this error has not been tested.
+
 \subsection{Visualisations}
-Each trace is drawn with the same layout, so that a student who has learned one trace can read the next. The current node is outlined, the nodes already passed are marked with a dashed outline, and the trace panel lists each step with the rule applied. The visualisation in L4 also shows the depth of each node, so that the chain is visible as a single long path.
+Each trace is drawn with the same layout, so that a student who has learned one trace can read the next. The current node is outlined, the nodes already passed are marked with a dashed outline, and the trace panel lists each step with the rule applied. The visualisation in L4 also shows the depth of each node, so that the chain is visible as a single long path. In a deletion trace the highlighted node is the node at which the student is making the decision, so the highlight always shows where to look. A prediction leaves the tree unchanged, so the student predicts from the tree as it is on screen.
 
 \subsection{Worked Example Design}
-Worked examples are chosen so that each one teaches a single contrast. In L1 the two trees differ only in one deep value, so the student can see that the rule applies to the whole subtree. In L2 the target is chosen so that the search goes left at the root and right at the next node, so that both directions are shown in one example. In L4 the same ten values are inserted in sorted and in random order, so that the only difference is the shape.
+Worked examples are chosen to make a single contrast clear. L1 contrasts valid trees with examples that violate the ordering rule deeper in a subtree, showing that values must satisfy every ancestor constraint. In L2 the search example goes left at the root and right at the next node, showing both directions. In L4 the same seven values are shown in ascending order, which produces a chain, and in a balanced insertion order, which produces a shorter tree. Undo can restore the state immediately before the most recent deletion, allowing the learner to try the other method on the same tree if no other tree-changing operation intervenes.
+ 
+\paragraph{Design checklist.} The content uses Predict/Show/Try/Check; directions appear in walkthrough banners and on-screen captions; question and trace feedback explains the BST rule; and content is organised into five lessons (L0--L4). Learners can work at their own pace, review lessons and use optional hints. A failed diagnostic identifies lessons to review, while spotlight dimming, keyboard controls and non-colour node markers support use of the interface. These design features do not constitute user-testing evidence.
+ 
+\paragraph{Storyboard.} The storyboard is a key step of ADDIE's Design phase. Figure~\ref{fig:storyboard} shows the guided flow across the lessons, diagnostic gate, and tree activity screens.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.48\textwidth]{sections/L0.png}\hfill
+    \includegraphics[width=0.48\textwidth]{sections/tree_demo.png}
+    \caption{Annotated walkthrough screens: first-time welcome spotlight on L0 (left) and guided tree activity flow (right).}
+    \label{fig:storyboard}
+\end{figure}

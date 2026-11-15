@@ -1,22 +1,27 @@
 \section{Multimodal Design and Learning Styles}\label{sec:id-multimodal}
-\owner{Group}
-\pages{2}
 
-Learners are often described as having a preferred learning style, such as visual or verbal, and the advice that follows is to teach each student in their style. The evidence for this advice is weak. Controlled studies have not shown that matching instruction to a stated style improves learning \cite{Pashler2008}. The app therefore does not sort students into styles or change the content for them. Instead it presents each idea in more than one form, because a representation that is shown alongside another tends to help more than either one alone.
+Learners are often described as having a preferred learning style, such as visual or verbal, and the advice that follows is to teach each student in their style. The evidence for this advice is weak. Controlled studies have not shown that matching instruction to a stated style improves learning \cite{Pashler2008}. The app therefore does not sort students into styles or change the content for them. Instead it presents each idea as a diagram together with text, because
+people learn better from words and pictures than from words
+alone~\cite{Mayer_2020}.
 
-For coverage checks, diagnostic items and lesson pages are tagged with the representations they use. These tags describe the content only; they do not select or change what a learner sees.
+The module presents several learning-style models, including VARK~\cite{Fleming1992}, Kolb's experiential cycle~\cite{Kolb1984} and Honey and Mumford's styles~\cite{Honey1992}. Evidence for matching instruction to a learner's preferred style is weak~\cite{Pashler2008}, and a critical review of the main models reaches a similar conclusion~\cite{Coffield2004}. The module's own conclusion is that multiple styles should be supported and learning environments made adaptable. Our stance is therefore multimodal rather than matched: every learner receives all representations.
 
 \subsection{The Representations Used}
-Each concept is shown in up to three forms.
+The implemented lessons and tree activity combine two main forms:
 
 \begin{itemize}
-    \item \textbf{Diagram:} the tree itself, drawn with each node as a labelled circle and the current node marked, so that the position of a value is visible.
-    \item \textbf{Analogy:} a number line with the current range shaded. Each comparison halves the shaded range, which makes the $O(\lg n)$ idea concrete without introducing the notation first.
-    \item \textbf{Text and code:} the rule stated in a sentence, and the Java for the same step, shown after the student has seen the diagram. The code is shown as a fragment of one method, so the student can connect the steps they traced to the code that performs them.
+    \item \textbf{Diagram:} the tree, drawn with labelled nodes. The current node and already-visited nodes are marked so that the position and path are visible.
+    \item \textbf{Text and interaction:} explanations, trace steps, answer choices and hints state the rule and ask the learner to choose the next action. The app does not display a number-line analogy or Java code as lesson representations.
 \end{itemize}
 
+\paragraph{VARK.} The tree diagram supplies a visual representation, while the explanatory text and answer choices support reading and writing. There is no narration. The learner interacts by choosing answers and using the tree controls; this is an interaction design choice, not a claim that the app identifies or matches a VARK learning style.
+ 
+\paragraph{Kolb's cycle.} Predict/Show/Try/Check has some similarities to experiential learning~\cite{Kolb1984}: learners make an initial prediction, see an example and explanation, try a question, and check their understanding. It is not a complete Kolb cycle, and the app does not assess or assign learners to Kolb styles.
+
 \subsection{Applying Multimedia Principles}
-The representations follow four principles from multimedia learning research \cite{Mayer2009}. The \emph{coherence} principle is applied by leaving out decoration that does not help the lesson. The \emph{signalling} principle is applied by highlighting the node being compared and the rule being applied. The \emph{contiguity} principle is applied by placing the explanation beside the step it explains, rather than on another screen. The \emph{segmenting} principle is applied by showing each comparison as a separate step that the student controls.
+The representations follow four principles from multimedia learning research \cite{Mayer_2020}. The \emph{coherence} principle is applied by leaving out decoration that does not help the lesson. The signalling principle is applied by highlighting the node being compared, showing the rule being applied, and dimming inactive cards during walkthroughs while highlighting the next button to click (\texttt{Open lesson}, \texttt{New tree}, or \texttt{Insert}). The \emph{contiguity} principle is applied by placing the explanation beside the step it explains, rather than on another screen. The \emph{segmenting} principle is applied by showing each comparison as a separate step that the student controls. The key that explains the marks and the trace panel can each be hidden, which lets a student who no longer needs them remove them (coherence). Both are shown by default, so that a first-time student has the explanation beside the step (contiguity).
 
 \subsection{Accessibility of the Representations}
-The representations do not depend on colour. The current node is marked by a thick outline and the word ``current'', and the value on each node is always shown as text. This means the same information reaches a student who cannot distinguish the colours, and it is consistent with NFR5 in the SE document.
+The representations do not depend on colour. The current node is marked by a thick outline and a ``current'' label, and each node's value is text. Hiding the key does not remove the note above the tree that describes the marks. Tree diagrams expose a text description to assistive technology, and the Predict, Undo and Redo controls have accessible names. Settings also provide text-size and colour-palette options. These features are implemented, but they have not yet been verified through screen-reader testing.
+ 
+\paragraph{Accessibility.} The design draws on Universal Design for Learning~\cite{CAST2018} by combining visual trees, concise explanatory text, optional hints and interactive responses. The interface supports keyboard use, text-size changes, colour palettes, non-colour tree markers and text descriptions of trees. The project has not established Section~508 conformance~\cite{Sec508} or completed testing with target users, a disability expert or a screen reader; these are evaluation tasks, not verified outcomes. Text and numeric keys are presented together in the lesson tree and its explanations.

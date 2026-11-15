@@ -1,17 +1,18 @@
 \section{GenAI Acknowledgement}\label{sec:id-genai}
-\owner{Group}
-\pages{1}
+
 
 The examination specification requires the group to acknowledge any use of generative AI, and to include the prompts and the tool used in this document. This section does both.
 
 \subsection{Tool Used}
-Claude, a large language model made by Anthropic, was used through the Claude Code command-line tool and the claude.ai interface. The tool was used to draft the text of the two documents, to suggest the structure of the lessons and assessment, to draft the Java listings in the SE document, and to generate the LaTeX source for the document layout.
+Claude, a large language model made by Anthropic, was used through the Claude Code command-line tool and the claude.ai interface. The tool was used to draft the text of the two documents, to suggest the structure of the lessons and assessment, to draft the Java listings in the SE document, and to generate the LaTeX source for the document layout. Gemini (by Google) was also used to help debug JavaFX scroll layout sizing issues, structure the walkthrough banners and animated search demo, and verify Git branching and pull request commands.
 
 \subsection{What Was Generated and How It Was Checked}
-Every generated item was checked by the group before it was accepted. The check was against three sources: the BST lecture slides for the content of the lessons and the definitions, CS2023 for the curriculum mapping \cite{Kumar2024}, and the code in the repository for the Java listings. The Java listings were not compiled as part of the drafting, so they are treated as drafts until the group builds and tests them. The learning-theory references were drafted with the tool and must be checked by the group against the original sources before submission.
+Every generated item was checked by the group before it was accepted. The check was against three sources: the BST lecture slides for the content of the lessons and the definitions, CS2023 for the curriculum mapping \cite{Kumar2024}, and the code in the repository for the Java listings. The Java listings were not compiled as part of the drafting, so they are treated as drafts until the group builds and tests them. The reference list was checked with the tool's help: the details of each
+entry against publisher records, and each citing sentence against what the
+source says. Entries and sentences that did not match were corrected.
 
 \subsection{Prompts}
-The prompts used are listed in Table~\ref{tab:prompts}. \todo{paste the exact prompts and dates from the chat history before submission}
+The prompts used are listed in Table~\ref{tab:prompts}. 
 
 \begin{table}[H]
 \centering
@@ -24,10 +25,10 @@ Section & Prompt summary \\
 \midrule
 Introduction and problem domain & Requests for an introduction and problem description drawn from the BST slides and the examination specification \\
 Requirements and SE process & Requests for requirements with identifiers, and for an increment plan with change control \\
-System architecture and design & Requests for a layered architecture and for a Java BST design with an insertion listing \\
+System architecture and design & Requests for a layered architecture and for a Java BST design with an insertion listing \\ UI walkthroughs (\texttt{cos212.ui}) & Requests to add first-time welcome and walkthrough banners, fix JavaFX scroll layout collapse, build an animated BST search demo with a two-step \texttt{New tree} to \texttt{Insert} prompt, and create a pull request into \texttt{dev} \\
 Assessment, UI and data & Requests for a diagnostic gate, misconception routing, a screen layout and a local progress format \\
 Testing, decisions, deployment and limitations & Requests for a requirements-to-tests matrix, a decision log, a packaging approach and a limitations section \\
-ID document & Requests for learning objectives, learning-theory applications, a motivation design and an evaluation plan \\
+ID document & Requests for learning objectives, learning-theory applications, a motivation design and an evaluation plan. Requests to fix the formatting for the tables and references \\
 \bottomrule
 \end{tabularx}
 \end{table}

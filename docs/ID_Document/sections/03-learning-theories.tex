@@ -1,17 +1,50 @@
 \section{Learning Theories}\label{sec:id-theories}
-\owner{Group}
-\pages{2}
 
-Four learning theories shape the app. Each one is applied to a specific design decision, so that the link between theory and design can be checked.
+The module groups learning theories into behaviourism, cognitivism (social
+cognitive and information processing), constructivism and transformative
+learning~\cite{Marshall2026LearningTheories}. The first three families follow
+Schunk~\cite{schunk2012learning}; transformative learning follows
+Mezirow~\cite{Mezirow1991}.
+ 
+\begin{table}[htbp]
+\centering
+\small
+\caption{How the design theories map onto the module's learning-theory families.}
+\label{tab:theorymap}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.2cm} >{\raggedright\arraybackslash}p{4.4cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+Our theory & Module family & App feature \\
+\midrule
+Cognitive load, retrieval practice & Cognitivism (information processing) & Current trace step highlighted; predict-first \\
+Scaffolding and the zone of proximal development & Constructivism & Graded hints; failed-gate lesson guidance \\
+Mastery learning & Behaviourism-adjacent (feedback and reinforcement) & Per-objective progress statuses and a recommended next lesson \\
+Self-efficacy & Cognitivism (social cognitive) & Confidence design; worked-example demonstration \\
+Mental-model revision & Transformative learning & M1--M6 revise an existing mental model \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The following sections discuss the learning theories and related design decisions that inform the app.
 
 \subsection{Cognitive Load Theory}
-Cognitive load theory holds that working memory has a small capacity, and that instruction fails when a learner must hold too many new ideas at once \cite{Sweller1988}. A BST lesson can overload a novice quickly, because the ordering rule, the comparison, the choice of subtree and the position of the node all need to be tracked together. The app applies the theory in three ways. Each trace shows one comparison at a time, the step controls let the student pause on any step, and the explanation for each step names one rule rather than several. The worked-example effect \cite{Sweller1988} is applied in the first lesson, where a fully worked search is shown before the student attempts one.
+Cognitive load theory holds that working memory has a small capacity, and that instruction fails when a learner must hold too many new ideas at once \cite{Sweller1988,Sweller1998}. A BST lesson can overload a novice quickly, because the ordering rule, the comparison, the choice of subtree and the position of the node all need to be tracked together. The app highlights the current node and step, provides Previous and Next controls, and gives a short explanation for each trace step. The trace panel displays the full sequence at once, however, so a learner can read ahead. Deletion traces separate finding the node, deciding whether a replacement is needed, finding that replacement, and applying it into distinct steps. Worked examples appear in the lessons; the tree-activity demo separately shows a search trace.
 
 \subsection{Scaffolding and the Zone of Proximal Development}
-Scaffolding is support that is given while a learner works on a task they cannot yet complete alone, and that is withdrawn as competence grows \cite{Wood1976}. The idea is related to Vygotsky's zone of proximal development \cite{Vygotsky1978}, which describes the range of tasks a learner can do with help but not yet alone. The app applies scaffolding in two places. The diagnostic gate routes a student to the lesson that matches a specific misconception, rather than to all the material. Inside a trace, the three hint levels give progressively more help, and a student who answers correctly without a hint moves on with less support.
+Scaffolding is support that lets a learner complete a task that would be
+beyond their unassisted efforts~\cite{Wood1976}. Later work adds that the
+support is withdrawn as competence grows~\cite{VanDePol2010}. The idea is related to Vygotsky's zone of proximal development \cite{vygotsky1978mind}, which describes the range of tasks a learner can do with help but not yet alone. A failed diagnostic result names the lessons associated with the student's wrong answers so the student can choose what to review; it does not automatically redirect them. Tree-activity traces offer up to three hints, while a lesson Try question offers one optional hint. These hints are available by step or question and are not adaptively withdrawn based on mastery. The tree activity also guides the student's first interaction after the animated demo: it highlights \textbf{New tree}, then the \textbf{Insert} field and button, before releasing the other controls.
 
 \subsection{Retrieval Practice}
-Retrieving information from memory strengthens later recall more than rereading the same material does \cite{Roediger2006}. The app uses retrieval in two ways. The diagnostic asks the student to classify and predict before any explanation is given. During a trace the student predicts the next step before the app shows it. In both cases the student must produce an answer, and the feedback follows the attempt rather than preceding it.
+Retrieving information from memory strengthens later recall more than rereading the same material does \cite{Roediger2006}. Fixed diagnostic and lesson questions ask students to answer before seeing feedback. The tree activity's Predict card lets a student choose an insertion, search, deletion method and value, then predict the steps on the current tree without changing it. Each step offers the correct action alongside distractors, followed by feedback. The separate Build controls apply operations to the tree directly; prediction is not required before those operations.
+
+\paragraph{Worked examples and predict-first.} Lesson pages include worked examples as well as Predict questions. Separately, the tree activity offers an optional animated search demo (\texttt{Watch animated demo}) before the learner builds a tree. The Predict card asks for a prediction before revealing the step feedback; running an operation from the Build controls does not require a prior prediction.
 
 \subsection{Mastery Learning}
-Mastery learning holds that most students can reach a defined standard when they are given the time and feedback they need \cite{Bloom1968}. The app applies this by treating each objective as a standard to be reached, not as a single score to be passed once. A student who has not reached the standard for an objective is routed back to the lesson for it, and the progress record shows the objective as practised or secure, as set out in Section~\ref{sec:id-progress}.
+Mastery learning holds that most students can reach a defined standard when they are given the time and feedback they need \cite{Bloom1968}. The progress screen shows each of the five tracked objectives as untried, started, practised or secure and recommends a lesson to continue. This is a progress aid rather than an enforced mastery gate: lessons remain open, and the app does not automatically route a student back or require an objective to be secure before they continue. The diagnostic gate is the only feature that locks access to the tree activity.
+
+\subsection{Social cognitive theory.} The worked-example demonstration acts as modelling: the learner watches an expert-like solution before producing their own. The confidence design supports self-efficacy~\cite{Bandura1977}, since learners who see themselves succeed on small steps are more likely to persist. The animated search demo in the tree activity acts as modelling: the student watches a complete search for \texttt{40} step by step and sees which trace buttons to use before building their own tree.
+ 
+\subsection{Transformative learning.} Transformative learning concerns revising an existing frame of reference when new experience does not fit it~\cite{Mezirow1991}. Learners may arrive with an incomplete mental model of how the structure works. Lesson questions and feedback are designed to surface and correct the six stated misconceptions, M1--M6. In the tree activity, Undo and Redo operate on the most recent tree change (one prior state is retained), which can let a student restore a tree after a deletion and try the other deletion method. Deletion is not taught in a lesson or assessed by the diagnostic, so the activity should be understood as practice rather than a complete instructional sequence.
+
+\subsection{Issues in the study of learning.} The module lists memory, motivation, transfer, self-regulation and relearning as recurring issues. Retrieval practice addresses memory, Section~7 addresses motivation, and Section~8 addresses self-regulation. The progress screen recommends a lesson for further practice but does not enforce relearning. Transfer is the weakest area: the app does not test whether learners apply their understanding to other kinds of trees, and we list this as a limitation.

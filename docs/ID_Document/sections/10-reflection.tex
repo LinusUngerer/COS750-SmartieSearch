@@ -1,23 +1,37 @@
 \section{Reflection on Instructional Choices}\label{sec:id-reflection}
-\owner{Group}
-\pages{1}
+
 
 This section records the choices the group is least sure of, and what would change them. The reflection is written before the evaluation, so it states the expectations the group has now and will check against the results.
 
+\subsection{Choice of ID model.} We chose ADDIE because its phases match the structure of this document. Its linear order is a trade-off: SAM would suit iteration better, and our software engineering increments were iterative, so in practice the phases overlapped.
+ 
+\subsection{Gagné and Merrill.} Gagné gives a detailed sequence of nine events~\cite{gagné1985conditions}, while Merrill offers five principles: a real-world task at the centre, and
+four phases around it (activation, demonstration, application and
+integration)~\cite{Merrill2002} We found Merrill easier to apply to a short tool, and Gagné more useful as a checklist.
+ 
+\subsection{Are software engineering and ID so different?} Both disciplines follow a structured cycle of analysing user needs, designing architecture or instruction before building, and testing with real users. They differ primarily in what counts as success: software engineering verifies functional correctness and responsiveness, whereas instructional design measures whether the learner overcomes misconceptions and retains the concept.
+
 \subsection{The Pass Mark for the Gate}
-The four-out-of-five pass mark is a judgement. It may be too lenient, if a student can pass the gate while still holding M2, or too strict, if a student who understands the rule is routed to a lesson because of one slip. The usability study will show which of these happens, and the item set will be revised if needed.
+The four-out-of-five pass mark is a judgement. It may be too lenient, if a student can pass the gate while still holding M2, or too strict, if a student who understands the rule is directed to review a lesson because of one slip. The proposed usability study could provide evidence about this; since it has not yet been run, the pass mark has not been evaluated with participants.
 
 \subsection{Hints and Productive Struggle}
 The hints reduce the difficulty of each step, and that is useful for a novice. There is a risk that a student who receives the third hint learns the answer without doing the reasoning. The mastery standard counts hints against a student's record for this reason. Whether the standard is strict enough is a question for the evaluation.
 
+\subsection{Predicting and Reading Ahead}
+The trace panel lists every step of an operation, including the steps the student has not yet predicted. A student can therefore read the answer to a step before choosing it, which weakens the retrieval practice that the Predict card is meant to provide. Showing only the steps up to the current one would remove this, but it would also hide the whole path from a student who wants to see it. The group has left this open (it is recorded among the open decisions in the SE document) and will decide it after the evaluation.
+
 \subsection{Learning Styles}
-The app does not adapt to learning styles. This was a deliberate choice, based on the evidence in Section~\ref{sec:id-multimodal}. The group recognises that some students will prefer one representation, and the app's use of three representations for each idea is intended to serve them without sorting them.
+The app does not adapt to learning styles. This was a deliberate choice, based on the evidence in Section~\ref{sec:id-multimodal}. The group recognises that some students will prefer one representation, and the app's combination of a tree diagram, explanatory text and interactive questions is intended to support different ways of engaging without sorting learners into styles.
+
+There is a tension between the popularity of learning styles and the weak evidence for matching. We resolved it by supporting several modes for everyone.
 
 \subsection{Relatedness and Motivation}
 The app does not support relatedness, which is one of the basic needs in self-determination theory. The app is used alone, and the group did not add a social feature because it would have added a shared record that is outside the scope of the prototype. This is the clearest gap in the motivational design.
 
 \subsection{Scope}
-The group chose to leave out deletion and self-balancing trees. The choice keeps the first exposure to trees focused on one rule, but it means the app does not teach the two-child case that is in the lecture. The choice is recorded in the SE document as decision D3, and the group would revisit it if the lecture plan changed.
+The group first left out deletion and self-balancing trees, to keep the first exposure to trees focused on one rule. Deletion was added later, because it is in the lecture and because its two-child case lets a student compare two methods, deletion by copying and deletion by merging, on the same tree. Deletion is practised in the tree activity but not taught by a lesson, and it has no diagnostic item or routed misconception, so the app now lets a student practise the two-child case without first teaching it. Self-balancing trees remain out of scope. The choices are recorded in the SE document as decisions D3 and D12, and the group would revisit them if the lecture plan changed.
+
+\paragraph{Why no runtime GenAI adaptation.} We did not use a generative model to adapt at run time. It would add unpredictability to feedback, make misconceptions harder to check, and was beyond the scope of the project.
 
 \subsection{What the Group Would Change}
-Two things would change first in a second version. The first is a larger item bank with items generated from the tree structure, so that the diagnostic cannot be memorised. The second is a check on whether the lesson order matches the lecture order, since the app's sequence was chosen by the group and not by the lecturer. \todo{add the group's findings from the usability study once it is run}
+Four things would change first in a second version. The first is a larger item bank with items generated from the tree structure, so that the diagnostic cannot be memorised. The second is a check on whether the lesson order matches the lecture order, since the app's sequence was chosen by the group and not by the lecturer. The third is a lesson, diagnostic items and routing for deletion, so that deletion is taught and not only practised. The fourth is to hide the steps of a trace that the student has not reached while they are predicting, if evaluation shows that students read ahead. The usability study has not yet been run, so there are no findings to report.

@@ -1,24 +1,53 @@
 \section{Assessment Design}\label{sec:id-assessment}
-\owner{Group}
-\pages{2}
 
-The assessment has three parts: a diagnostic gate before the tree activities, formative questions during each trace, and the progress record that combines their results. The design follows the principle that feedback should explain the rule behind an answer, not only say whether it was right. The implementation is described in the Assessment and Scaffolding section of the SE document.
+The assessment has three parts: a diagnostic gate before the tree activities, questions in the lessons and tree-activity predictions, and the progress record for the five lesson objectives. Feedback is intended to explain the rule behind an answer, not only say whether it was right.
 
 \subsection{Diagnostic Gate}
-The gate has five items, and a student must answer at least four correctly to unlock the tree activities. The items cover the ordering rule and the first step of search. One item asks the student to classify a tree in which the rule breaks only deep in the right subtree. This is the item that detects M2, because a student who checks only the children passes every shallow test and fails this one.
+The gate has five items, and a student must answer at least four correctly to unlock the tree activities. They sample BST validity, search, insertion and the effect of tree shape on search cost. One item asks the student to classify a tree in which the rule breaks only deep in the right subtree. This is the item that detects M2, because a student who checks only the children passes every shallow test and fails this one.
 
-The gate is a diagnostic rather than a judgement. A student who does not pass is not blocked from the content. They are routed to the lessons for the misconceptions their wrong answers reveal, and they return to the gate after those lessons. The pass mark of four out of five allows for one slip, but a student who misses two items is shown that the rule is not yet secure.
+The gate is a diagnostic rather than a judgement. A student who does not pass can still access the lessons; the result names the lessons associated with wrong answers and invites the student to review them before retrying. This is guidance, not an automatic route. The pass mark of four out of five allows for one slip, but a student who misses two items is shown that the rule is not yet secure.
 
 \subsection{Formative Questions}
-During a trace, the student predicts the next node before it is shown. A correct prediction is followed by a one-sentence reason. A wrong prediction is not penalised in the trace itself. The app offers the first hint, and if the student is still stuck it offers the second and then the third.
+During a trace, the student predicts the current step by choosing from step-specific answer buttons. At a comparison the buttons are Left, Right and Found, with Duplicate replacing Found for an insertion. At a missing link, the choices are Found and Not found for search or deletion; insertion choices include Insert Left and Insert Right, and an empty tree also offers Insert Root. After a deletion finds its node, the choices are Remove Node, Find Replacement, Left Subtree Replaces and Right Subtree Replaces. Later steps ask about moving through the left subtree to its rightmost node and identifying the replacement. Some options are distractors, so the student must decide rather than only confirm. Every answer receives feedback naming the correct action and its reason. A wrong prediction is not penalised in the trace itself. The tree-activity trace offers up to three hints.
 
-The three hint levels are graduated. The first restates the ordering rule for the current node. The second states the comparison result for the current node. The third names the next node and the direction. The hints are designed to give the least help that moves the student on, so that the student does the reasoning wherever they can.
+The student can make these predictions on the current tree without carrying the operation out. In the Predict card the student chooses an insertion, a search, a deletion by copying or a deletion by merging, and a value, and the app builds the trace without changing the tree. The result line says that the run is a prediction only. The same buttons also work on the trace left by an operation in the Build card. Only the first answer to each step is recorded.
+
+The three tree-activity hint levels are graduated. The first states the rule that applies at the current step. The second states the comparison result for the current node when the step is a comparison, and rules out one wrong answer for any other step. The third gives the answer. Lesson Try questions instead provide one optional hint.
 
 \subsection{Feedback Principles}
-Feedback is written to name the rule that applies and to show the comparison that follows from it. For example, a wrong answer on a search step does not say only that the choice is incorrect. It says that the target is smaller than the current node, so the search must go left, and it highlights the left subtree. Feedback is held in the lesson resources, so it can be reviewed and revised by the group.
+Feedback is written in the lesson and diagnostic banks or generated as part of the tree trace, and explains the rule or action for the step. For example, a search-step response identifies that a smaller target goes left. The tree-activity trace panel displays all steps, including steps not yet answered, so students can read ahead.
+
+Our assessment design was guided by the kind of criteria in the Boone and
+Higgins checklist for evaluating educational software for students with
+disabilities~\cite{article}: errors are explained in explicit feedback,
+there are no time limits, the response format is simple, and help is
+available.
 
 \subsection{Routing}
-Each wrong answer maps to one misconception, and each misconception maps to one lesson. A misconception detected more than once in a session routes the student to its lesson regardless of other answers. This prevents a student passing the gate with one lucky answer while still holding a misconception.
+Each diagnostic item is associated in the item bank with a lesson and an objective. The diagnostic records the distinct lessons associated with wrong answers and names them on the result screen. It does not record explicit misconception identifiers, count repeated misconceptions, or automatically route the learner. Deletion is not part of the diagnostic or lesson routing. A wrong deletion prediction receives feedback and hints, but is not routed to a deletion lesson.
 
 \subsection{Item Bank}
-The diagnostic and the formative questions are drawn from a fixed item bank. Each item is tagged with the objective it assesses and the misconception it detects, so that the assessment can be checked against Table~\ref{tab:objectives} and Section~\ref{sec:id-content}. \todo{record the final item count per objective after the content is written}
+The diagnostic and lesson questions are drawn from fixed item banks. Table~\ref{tab:itembank} groups them by the objective they assess and summarises the intended misconception or misconceptions addressed by each objective. The code stores lesson and objective tags, not explicit misconception identifiers. The Bloom levels are those assigned to the objectives in Table~\ref{tab:objectives}. Counts include all five diagnostic items and the lesson Predict, Try and Check questions; worked examples and generated tree-activity predictions are not counted.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Item bank, by objective.}
+\label{tab:itembank}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{1.9cm} >{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}X r@{}}
+\toprule
+Objective & Bloom level & Item type & Misconception detected & Items \\
+\midrule
+\texttt{define-bst} & Remember & Multiple choice; fill-in & M1: any binary tree is a BST. & 7 \\
+\texttt{ordering-rule} & Understand & Multiple choice & M2: only the immediate children need to be checked. & 7 \\
+\texttt{trace-search} & Apply & Multiple choice; fill-in & M3: search moves the wrong way. & 9 \\
+\texttt{trace-insert} & Apply & Multiple choice; fill-in & M4: insertion replaces a node.\newline M5: a duplicate is stored again. & 8 \\
+\texttt{shape-cost} & Analyse & Multiple choice & M6: the shape of the tree does not affect search cost. & 7 \\
+\midrule
+\multicolumn{4}{@{}r}{\textbf{Total}} & \textbf{38} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+We do not administer a learning-style questionnaire. The evaluation questionnaire in Section~\ref{sec:id-evaluation} asks participants about the helpfulness of representations and hints and the app's usability; it does not classify learners by style or tailor instruction. Although learning-style questionnaires are among the assessment methods covered in the module, matching instruction to a stated style lacks supporting evidence (Section~\ref{sec:id-multimodal}).
