@@ -20,6 +20,21 @@ final class Ui {
         return node;
     }
 
+    /** Style class that outlines a card the guided tour is pointing at. */
+    static final String SPOTLIGHT = "spotlight";
+    /** Style class that makes a button glow while the guided tour asks the student to press it. */
+    static final String FLASH = "flash";
+    /** Style class that does the same for a text field. */
+    static final String FLASH_FIELD = "flash-field";
+
+    /** Adds or removes a style class, so a highlight is a class and never an inline style. */
+    static void toggle(Node node, String styleClass, boolean on) {
+        node.getStyleClass().remove(styleClass);
+        if (on) {
+            node.getStyleClass().add(styleClass);
+        }
+    }
+
     static Label pageTitle(String text) {
         return css(new Label(text), "page-title");
     }

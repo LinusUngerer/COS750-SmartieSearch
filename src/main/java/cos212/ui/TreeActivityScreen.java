@@ -55,13 +55,6 @@ final class TreeActivityScreen extends BorderPane {
             "Use 'Depth First' or 'Breadth First' to view traversal orders, and toggle 'Hide Key' or 'Hide Trace' anytime."
     };
 
-    private static final String SPOTLIGHT_STYLE = "-fx-border-color: #003380; -fx-border-width: 2.5; -fx-border-radius: 14; -fx-background-radius: 14;"
-            + "-fx-effect: dropshadow(three-pass-box, rgba(0, 51, 128, 0.28), 16, 0.2, 0, 2);";
-
-    private static final String FLASH_BTN_STYLE = "-fx-background-color: #FEF3C7; -fx-border-color: #D97706; -fx-border-width: 2.5;"
-            + "-fx-text-fill: #78350F; -fx-font-weight: bold;"
-            + "-fx-effect: dropshadow(three-pass-box, rgba(245, 158, 11, 0.65), 10, 0.25, 0, 0);";
-
     private enum FocusMode {
         NONE,
         GUIDE,
@@ -216,7 +209,7 @@ final class TreeActivityScreen extends BorderPane {
                 Ui.row(10, guideStepChip, guideTitle),
                 guideBody,
                 Ui.row(8, watchDemo, guidePrevBtn, guideNextBtn, dismissGuide));
-        guideBanner.setStyle(SPOTLIGHT_STYLE);
+        Ui.toggle(guideBanner, Ui.SPOTLIGHT, true);
         updateGuideText();
 
         VBox top = new VBox(10, headerCard, guideBanner);
@@ -253,11 +246,11 @@ final class TreeActivityScreen extends BorderPane {
             historyRow.setOpacity(1.0);
         }
         insertField.setDisable(false);
-        insertField.setStyle("");
+        Ui.toggle(insertField, Ui.FLASH_FIELD, false);
         insertBtn.setDisable(false);
-        insertBtn.setStyle("");
+        Ui.toggle(insertBtn, Ui.FLASH, false);
         emptyTreeBtn.setDisable(false);
-        emptyTreeBtn.setStyle("");
+        Ui.toggle(emptyTreeBtn, Ui.FLASH, false);
         yourTurnBanner.setVisible(false);
         yourTurnBanner.setManaged(false);
         clearButtonFlashes();
@@ -311,7 +304,7 @@ final class TreeActivityScreen extends BorderPane {
                     traversalsRow.setDisable(true);
                     traversalsRow.setOpacity(0.35);
                 }
-                emptyTreeBtn.setStyle(FLASH_BTN_STYLE);
+                Ui.toggle(emptyTreeBtn, Ui.FLASH, true);
 
                 yourTurnChip.setText("Your turn • 1 / 2");
                 yourTurnText.setText("First, click 'New tree' to clear the sample nodes.");
@@ -343,9 +336,9 @@ final class TreeActivityScreen extends BorderPane {
                     traversalsRow.setOpacity(0.35);
                 }
                 insertField.setDisable(false);
-                insertField.setStyle("-fx-border-color: #D97706; -fx-border-width: 2; -fx-border-radius: 6;");
+                Ui.toggle(insertField, Ui.FLASH_FIELD, true);
                 insertBtn.setDisable(false);
-                insertBtn.setStyle(FLASH_BTN_STYLE);
+                Ui.toggle(insertBtn, Ui.FLASH, true);
                 insertField.requestFocus();
 
                 yourTurnChip.setText("Your turn • 2 / 2");
@@ -364,7 +357,7 @@ final class TreeActivityScreen extends BorderPane {
         }
         card.setDisable(dimmed);
         card.setOpacity(dimmed ? 0.32 : 1.0);
-        card.setStyle(spotlight ? SPOTLIGHT_STYLE : "");
+        Ui.toggle(card, Ui.SPOTLIGHT, spotlight);
     }
 
     /**
@@ -416,18 +409,18 @@ final class TreeActivityScreen extends BorderPane {
         }
         int first = (currentIdx * 2) % sequence.size();
         int second = (currentIdx * 2 + 1) % sequence.size();
-        sequence.get(first).setStyle(FLASH_BTN_STYLE);
-        sequence.get(second).setStyle(FLASH_BTN_STYLE);
+        Ui.toggle(sequence.get(first), Ui.FLASH, true);
+        Ui.toggle(sequence.get(second), Ui.FLASH, true);
     }
 
     private void clearButtonFlashes() {
         for (Node n : answerBox.getChildren()) {
             if (n instanceof Button b) {
-                b.setStyle("");
+                Ui.toggle(b, Ui.FLASH, false);
             }
         }
         for (Button b : new Button[] { hint, previous, next, reset }) {
-            b.setStyle("");
+            Ui.toggle(b, Ui.FLASH, false);
         }
     }
 
@@ -558,8 +551,7 @@ final class TreeActivityScreen extends BorderPane {
         yourTurnBanner.getChildren().setAll(yourTurnChip, yourTurnText);
         yourTurnBanner.setAlignment(Pos.CENTER_LEFT);
         yourTurnBanner.setPadding(new Insets(8, 10, 8, 10));
-        yourTurnBanner.setStyle(
-                "-fx-background-color: #FEF3C7; -fx-border-color: #F59E0B; -fx-border-radius: 8; -fx-background-radius: 8;");
+        yourTurnBanner.getStyleClass().add("your-turn-banner");
         yourTurnBanner.setVisible(false);
         yourTurnBanner.setManaged(false);
 

@@ -814,3 +814,32 @@
     -fx-text-fill: #1D1A2B;
     -fx-padding: 9 4 9 4;
 }
+
+/* Guided tour highlights: spotlight outline, flashing button, flashing field, "your turn" banner */
+.spotlight {
+    -fx-border-color: #021B6E;
+    -fx-border-width: 2.5;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(2, 27, 110, 0.28), 16, 0.2, 0, 2);
+}
+.flash,
+.flash:hover {
+    -fx-background-color: #FFF1C2;
+    -fx-border-color: #C77B2D;
+    -fx-border-width: 2.5;
+    -fx-text-fill: #683519;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(255, 176, 0, 0.65), 10, 0.25, 0, 0);
+}
+.flash-field {
+    -fx-border-color: #C77B2D;
+    -fx-border-width: 2;
+}
+.your-turn-banner {
+    -fx-background-color: #FFF1C2;
+    -fx-background-radius: 10;
+    -fx-border-color: #FFB000;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+}
