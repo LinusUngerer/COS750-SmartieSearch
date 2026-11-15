@@ -96,8 +96,12 @@ enum Palette {
      * The colour-blindness simulations. Each matrix works on linear RGB and keeps white and black
      * unchanged (every row sums to one). The matrices were fitted to the reference palettes
      * (Protan.png, Deutan.png, Tritan.png). The pinned maps hold the exact reference value of each
-     * of the five core colours in the default palette. They live in a nested class because enum
-     * constants are built before the enum's own static fields.
+     * of the five core colours in the default palette. Protanopia also pins the two strong
+     * feedback colours (correct green and wrong red): the plain matrix turns them into an olive
+     * and a brown that are barely apart (colour difference 14.8) and too light for a white tick
+     * (contrast 4.4:1), so each is darkened a little to keep ticks readable (4.5:1) and the
+     * two apart (16 or more). They live in a nested class because enum constants are built
+     * before the enum's own static fields.
      */
     private static final class Simulations {
         static final double[][] PROTAN = {
@@ -115,6 +119,7 @@ enum Palette {
 
         // Default palette: Midnight Blue, Fresh Sky, Scarlet Rush, Dark Walnut, Soft Apricot.
         static final Map<String, String> PROTAN_PINNED = pinned(
+                Map.of("#17805A", "#7C7557", "#C8323D", "#574E39"),
                 "#00216F", "#84A8EC", "#62593D", "#453C18", "#D7C99F");
         static final Map<String, String> DEUTAN_PINNED = pinned(
                 "#00296E", "#73A0ED", "#8E7C31", "#504414", "#DCCD9E");
@@ -122,8 +127,12 @@ enum Palette {
                 "#002F40", "#00B2D8", "#D92950", "#693038", "#F0C0C5");
 
         private static Map<String, String> pinned(String... simulated) {
+            return pinned(Map.of(), simulated);
+        }
+
+        private static Map<String, String> pinned(Map<String, String> extra, String... simulated) {
             String[] core = {"#021B6E", "#00AEEE", "#D92F3D", "#683519", "#EBC69F"};
-            Map<String, String> map = new HashMap<>();
+            Map<String, String> map = new HashMap<>(extra);
             for (int i = 0; i < core.length; i++) {
                 map.put(core[i], simulated[i]);
             }
