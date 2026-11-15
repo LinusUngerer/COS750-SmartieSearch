@@ -4,7 +4,12 @@ import cos212.bst.BinarySearchTree.NodeView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
+import java.util.TreeSet;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.geometry.VPos;
+import javafx.scene.AccessibleRole;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -16,6 +21,11 @@ import javafx.scene.text.TextAlignment;
  * a thick outline and the word "current" above it, and nodes already passed have a dashed
  * outline. The key in the top left explains the marks, so no mark depends on colour alone
  * (NFR5). The key can be turned off for the diagnostic, where the question has its own text.
+ *
+ * <p>The drawing follows the text size and colour palette in Settings. Because a screen
+ * reader cannot read a drawing, the canvas also keeps a plain-text description of the tree
+ * (root, each node's children, the current node and the nodes already passed). It is the
+ * canvas's accessible text, and Settings can show it as visible text under the tree.
  */
 final class TreeCanvas extends Canvas {
 
@@ -23,17 +33,150 @@ final class TreeCanvas extends Canvas {
     private static final double RADIUS = 20;
     private static final double TOP = 140;
     private static final double TOP_WITHOUT_KEY = 40;
-    private static final Color HIGHLIGHT = Color.web("#1d4ed8");
+    private static final String HIGHLIGHT = "#021B6E";
+    private static final String LINE = "#5B5366";
 
-    private final boolean showKey;
+    private boolean showKey;
+    private boolean keyVisible = true;
+    private boolean showDepth;
     private NodeView<Integer> root;
     private Integer current;
     private Set<Integer> visited = Set.of();
+    private final ReadOnlyStringWrapper description = new ReadOnlyStringWrapper("The tree is empty.");
 
     TreeCanvas(boolean showKey) {
         this.showKey = showKey;
         widthProperty().addListener((obs, oldValue, newValue) -> paint());
         heightProperty().addListener((obs, oldValue, newValue) -> paint());
+        Settings settings = Settings.current();
+        settings.textSizeProperty().addListener((obs, oldValue, newValue) -> paint());
+        settings.paletteProperty().addListener((obs, oldValue, newValue) -> paint());
+        setAccessibleRole(AccessibleRole.IMAGE_VIEW);
+        setAccessibleRoleDescription("tree diagram");
+        accessibleTextProperty().bind(description.getReadOnlyProperty());
+    }
+
+    /** @return a plain-text description of the tree shown, for screen readers and low vision */
+    ReadOnlyStringProperty descriptionProperty() {
+        return description.getReadOnlyProperty();
+    }
+
+    /**
+     * Describes a tree in words: its size and root, the children of each node, the node being
+     * compared and the nodes already passed.
+     */
+    static String describe(NodeView<Integer> root, Integer current, Set<Integer> visited) {
+        if (root == null) {
+            return "The tree is empty.";
+        }
+        List<NodeView<Integer>> nodes = new ArrayList<>();
+        List<NodeView<Integer>> queue = new ArrayList<>(List.of(root));
+        while (!queue.isEmpty()) {
+            NodeView<Integer> node = queue.remove(0);
+            nodes.add(node);
+            if (node.left() != null) {
+                queue.add(node.left());
+            }
+            if (node.right() != null) {
+                queue.add(node.right());
+            }
+        }
+        StringBuilder out = new StringBuilder("Tree with " + nodes.size() + (nodes.size() == 1 ? " node" : " nodes")
+                + ". The root is " + root.value() + ".");
+        for (NodeView<Integer> node : nodes) {
+            if (node.left() == null && node.right() == null) {
+                continue;
+            }
+            out.append(' ').append(node.value()).append(" has ");
+            if (node.left() != null && node.right() != null) {
+                out.append("left child ").append(node.left().value())
+                        .append(" and right child ").append(node.right().value());
+            } else if (node.left() != null) {
+                out.append("only a left child, ").append(node.left().value());
+            } else {
+                out.append("only a right child, ").append(node.right().value());
+            }
+            out.append('.');
+        }
+        if (current != null) {
+            out.append(" Current node: ").append(current).append('.');
+        }
+        if (!visited.isEmpty()) {
+            StringJoiner passed = new StringJoiner(", ");
+            new TreeSet<>(visited).forEach(value -> passed.add(String.valueOf(value)));
+            out.append(" Already passed: ").append(passed).append('.');
+        }
+        return out.toString();
+    }
+
+    private static Color colour(String hex) {
+        return Color.web(Settings.current().palette().map(hex));
+    }
+
+    private static Font font(double size) {
+        return Font.font(size * Settings.current().textSize().scale);
+    }
+
+    private static double keyScale() {
+        return Settings.current().textSize().scale;
+    }
+
+    // A plain Canvas has a fixed size, so a parent can grow it but never shrink it. These
+    // overrides let the parent layout size the canvas both ways, and the drawing follows.
+
+    @Override
+    public boolean isResizable() {
+        return true;
+    }
+
+    @Override
+    public double minWidth(double height) {
+        return 120;
+    }
+
+    @Override
+    public double minHeight(double width) {
+        return 120;
+    }
+
+    @Override
+    public double prefWidth(double height) {
+        return 400;
+    }
+
+    @Override
+    public double prefHeight(double width) {
+        return 280;
+    }
+
+    @Override
+    public double maxWidth(double height) {
+        return Double.MAX_VALUE;
+    }
+
+    @Override
+    public double maxHeight(double width) {
+        return Double.MAX_VALUE;
+    }
+
+    @Override
+    public void resize(double width, double height) {
+        setWidth(width);
+        setHeight(height);
+    }
+
+    boolean isKeyShown() {
+        return showKey;
+    }
+
+    void setKeyShown(boolean shown) {
+        this.showKey = shown;
+        paint();
+    }
+
+    void setDepthShown(boolean shown) {
+        this.showDepth = shown;
+        paint();
     }
 
     /**
@@ -47,6 +190,7 @@ final class TreeCanvas extends Canvas {
         this.root = root;
         this.current = current;
         this.visited = visited;
+        description.set(describe(root, current, visited));
         paint();
     }
 
@@ -54,14 +198,14 @@ final class TreeCanvas extends Canvas {
         GraphicsContext g = getGraphicsContext2D();
         double width = getWidth();
         double height = getHeight();
-        double top = showKey ? TOP : TOP_WITHOUT_KEY;
+        double top = showKey ? 16 + (TOP - 16) * keyScale() : TOP_WITHOUT_KEY;
         g.clearRect(0, 0, width, height);
-        g.setFont(Font.font(14));
+        g.setFont(font(14));
         g.setTextAlign(TextAlignment.CENTER);
         g.setTextBaseline(VPos.CENTER);
 
         if (root == null) {
-            g.setFill(Color.GRAY);
+            g.setFill(colour(LINE));
             g.setTextAlign(TextAlignment.LEFT);
             g.fillText("The tree is empty. Insert a value to start.", MARGIN, top);
         } else {
@@ -82,12 +226,32 @@ final class TreeCanvas extends Canvas {
         for (Placed p : placed) {
             maxDepth = Math.max(maxDepth, p.depth);
         }
+        double margin = Math.min(MARGIN, Math.max(12, width * 0.05));
+        double depthLabelsWidth = showDepth ? 48 : 0;
+        double column = (width - 2 * margin - depthLabelsWidth) / count;
+        double row = (height - top - margin) / (maxDepth + 1);
+        // Shrink the nodes when the canvas is small, so they never overlap.
+        double radius = Math.max(9, Math.min(RADIUS, Math.min(column * 0.45, row * 0.32)));
+        double scale = radius / RADIUS;
         for (Placed p : placed) {
-            p.x = MARGIN + (p.rank + 0.5) * (width - 2 * MARGIN) / count;
-            p.y = top + (p.depth + 0.5) * (height - top - MARGIN) / (maxDepth + 1);
+            p.x = margin + depthLabelsWidth + (p.rank + 0.5) * column;
+            p.y = top + (p.depth + 0.5) * row;
+        }
+        g.setFont(font(Math.max(9, 14 * scale)));
+
+        if (showDepth) {
+            g.setFill(colour(LINE));
+            g.setFont(font(Math.max(8, 10 * scale)));
+            g.setTextAlign(TextAlignment.LEFT);
+            for (int depth = 0; depth <= maxDepth; depth++) {
+                double y = top + (depth + 0.5) * row;
+                g.fillText("Depth " + depth, margin, y);
+            }
+            g.setTextAlign(TextAlignment.CENTER);
+            g.setFont(font(Math.max(9, 14 * scale)));
         }
 
-        g.setStroke(Color.GRAY);
+        g.setStroke(colour(LINE));
         g.setLineWidth(1);
         for (int[] edge : edges) {
             Placed from = placed.get(edge[0]);
@@ -99,13 +263,13 @@ final class TreeCanvas extends Canvas {
             boolean isCurrent = current != null && current.equals(p.value);
             boolean isVisited = visited.contains(p.value);
             g.setFill(Color.WHITE);
-            g.fillOval(p.x - RADIUS, p.y - RADIUS, 2 * RADIUS, 2 * RADIUS);
+            g.fillOval(p.x - radius, p.y - radius, 2 * radius, 2 * radius);
             if (isCurrent) {
-                g.setStroke(HIGHLIGHT);
+                g.setStroke(colour(HIGHLIGHT));
                 g.setLineWidth(4);
                 g.setLineDashes();
             } else {
-                g.setStroke(Color.GRAY);
+                g.setStroke(colour(LINE));
                 g.setLineWidth(1);
                 if (isVisited) {
                     g.setLineDashes(5, 4);
@@ -113,13 +277,13 @@ final class TreeCanvas extends Canvas {
                     g.setLineDashes();
                 }
             }
-            g.strokeOval(p.x - RADIUS, p.y - RADIUS, 2 * RADIUS, 2 * RADIUS);
+            g.strokeOval(p.x - radius, p.y - radius, 2 * radius, 2 * radius);
             g.setLineDashes();
             g.setFill(Color.BLACK);
             g.fillText(String.valueOf(p.value), p.x, p.y);
             if (isCurrent) {
-                g.setFill(HIGHLIGHT);
-                g.fillText("current", p.x, p.y - RADIUS - 12);
+                g.setFill(colour(HIGHLIGHT));
+                g.fillText("current", p.x, p.y - radius - 12 * scale);
             }
         }
     }
@@ -128,11 +292,12 @@ final class TreeCanvas extends Canvas {
     private static void drawKey(GraphicsContext g) {
         double x = 16;
         double y = 16;
-        double w = 230;
-        double h = 118;
-        g.setFill(Color.WHITE);
+        double k = keyScale();
+        double w = 230 * k;
+        double h = 118 * k;
+        g.setFill(colour("#FCF5EE"));
         g.fillRect(x, y, w, h);
-        g.setStroke(Color.GRAY);
+        g.setStroke(colour("#D8C7B1"));
         g.setLineWidth(1);
         g.strokeRect(x, y, w, h);
 
@@ -142,23 +307,23 @@ final class TreeCanvas extends Canvas {
             "Visited: already passed",
             "Link: parent to child"
         };
-        g.setFont(Font.font(12));
+        g.setFont(font(12));
         g.setTextAlign(TextAlignment.LEFT);
         g.setTextBaseline(VPos.CENTER);
         for (int i = 0; i < labels.length; i++) {
-            double cy = y + 22 + i * 24;
-            double cx = x + 20;
+            double cy = y + (22 + i * 24) * k;
+            double cx = x + 20 * k;
             g.setFill(Color.WHITE);
             if (i == 1) {
-                g.setStroke(HIGHLIGHT);
+                g.setStroke(colour(HIGHLIGHT));
                 g.setLineWidth(3);
                 g.setLineDashes();
             } else if (i == 2) {
-                g.setStroke(Color.GRAY);
+                g.setStroke(colour(LINE));
                 g.setLineWidth(1);
                 g.setLineDashes(4, 3);
             } else {
-                g.setStroke(Color.GRAY);
+                g.setStroke(colour(LINE));
                 g.setLineWidth(1);
                 g.setLineDashes();
             }
@@ -170,7 +335,7 @@ final class TreeCanvas extends Canvas {
             }
             g.setLineDashes();
             g.setFill(Color.BLACK);
-            g.fillText(labels[i], x + 38, cy);
+            g.fillText(labels[i], x + 38 * k, cy);
         }
         g.setTextAlign(TextAlignment.CENTER);
     }

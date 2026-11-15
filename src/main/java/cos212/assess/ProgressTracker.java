@@ -1,8 +1,10 @@
 package cos212.assess;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.ToIntFunction;
@@ -39,6 +41,16 @@ public final class ProgressTracker {
     }
 
     private final Map<String, Record> records = new LinkedHashMap<>();
+    private final List<Runnable> listeners = new ArrayList<>();
+
+    /**
+     * Registers a callback that runs after every recorded answer, so the answers can be saved.
+     *
+     * @param listener the callback to run
+     */
+    public void addChangeListener(Runnable listener) {
+        listeners.add(Objects.requireNonNull(listener, "listener"));
+    }
 
     /**
      * Records one answer.
@@ -62,6 +74,62 @@ public final class ProgressTracker {
         while (r.recent.size() > SECURE_WINDOW) {
             r.recent.removeFirst();
         }
+        listeners.forEach(Runnable::run);
+    }
+
+    /**
+     * @return the recorded answers as plain maps and lists, ready to be written as JSON
+     */
+    Map<String, Object> snapshot() {
+        Map<String, Object> out = new LinkedHashMap<>();
+        for (Map.Entry<String, Record> entry : records.entrySet()) {
+            Record r = entry.getValue();
+            List<Object> recent = new ArrayList<>();
+            for (Answer answer : r.recent) {
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("firstCorrect", answer.firstCorrect());
+                item.put("hints", answer.hints());
+                recent.add(item);
+            }
+            Map<String, Object> record = new LinkedHashMap<>();
+            record.put("attempts", r.attempts);
+            record.put("correctFirst", r.correctFirst);
+            record.put("hints", r.hints);
+            record.put("recent", recent);
+            out.put(entry.getKey(), record);
+        }
+        return out;
+    }
+
+    /**
+     * Replaces every recorded answer with the saved ones. Nothing changes if the data is
+     * invalid. An empty map clears the tracker.
+     *
+     * @param data a map in the form {@link #snapshot()} produces
+     * @throws IllegalArgumentException if the data is malformed
+     */
+    void restore(Map<String, Object> data) {
+        Map<String, Record> loaded = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            Map<String, Object> saved = Json.object(entry.getValue(), "objective " + entry.getKey());
+            Record r = new Record();
+            r.attempts = Json.count(saved, "attempts");
+            r.correctFirst = Json.count(saved, "correctFirst");
+            r.hints = Json.count(saved, "hints");
+            if (r.correctFirst > r.attempts) {
+                throw new IllegalArgumentException("correctFirst exceeds attempts for " + entry.getKey());
+            }
+            for (Object item : Json.list(saved, "recent")) {
+                Map<String, Object> answer = Json.object(item, "answer");
+                r.recent.addLast(new Answer(Json.flag(answer, "firstCorrect"), Json.count(answer, "hints")));
+            }
+            while (r.recent.size() > SECURE_WINDOW) {
+                r.recent.removeFirst();
+            }
+            loaded.put(entry.getKey(), r);
+        }
+        records.clear();
+        records.putAll(loaded);
     }
 
     /** @return the mastery status of the objective; untried if it has no answers */

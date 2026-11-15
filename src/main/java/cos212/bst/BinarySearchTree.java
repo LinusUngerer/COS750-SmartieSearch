@@ -1,8 +1,6 @@
 package cos212.bst;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A binary search tree that enforces the ordering invariant: every value in the
@@ -92,6 +90,29 @@ public class BinarySearchTree<T extends Comparable<T>> {
         inOrder(node.left, values);
         values.add(node.value);
         inOrder(node.right, values);
+    }
+
+    /**
+     * @return the stored values level by level, from the root down, left to right
+     */
+    public List<T> breadthFirst() {
+        List<T> values = new ArrayList<>(size);
+        if (root == null) {
+            return values;
+        }
+        Queue<BSTNode<T>> queue = new ArrayDeque<>();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            BSTNode<T> node = queue.remove();
+            values.add(node.value);
+            if (node.left != null) {
+                queue.add(node.left);
+            }
+            if (node.right != null) {
+                queue.add(node.right);
+            }
+        }
+        return values;
     }
 
     /**
@@ -192,4 +213,141 @@ public class BinarySearchTree<T extends Comparable<T>> {
     BSTNode<T> root() {
         return root;
     }
+
+    /**
+     * Deletes a value by copying. A node with two children takes the value of its
+     * in-order predecessor (the largest value in its left subtree), and the
+     * predecessor's node is then removed instead.
+     *
+     * @param value the value to delete; must not be null
+     * @return {@code true} if the value was found and removed
+     * @throws NullPointerException if {@code value} is null
+     */
+    public boolean deleteByCopying(T value) {
+        Objects.requireNonNull(value, "value");
+        BSTNode<T> parent = null;
+        BSTNode<T> node = root;
+        while (node != null) {
+            int cmp = value.compareTo(node.value);
+            if (cmp == 0) {
+                break;
+            }
+            parent = node;
+            node = cmp < 0 ? node.left : node.right;
+        }
+        if (node == null) {
+            return false;
+        }
+        if (node.left != null && node.right != null) {
+            BSTNode<T> predecessorParent = node;
+            BSTNode<T> predecessor = node.left;
+            while (predecessor.right != null) {
+                predecessorParent = predecessor;
+                predecessor = predecessor.right;
+            }
+            node.value = predecessor.value;
+            replaceChild(predecessorParent, predecessor, predecessor.left);
+        } else {
+            replaceChild(parent, node, node.left != null ? node.left : node.right);
+        }
+        size--;
+        return true;
+    }
+
+    /**
+     * Deletes a value by merging. The node's right subtree is attached as the right
+     * child of the rightmost node of its left subtree, and the left subtree takes
+     * the deleted node's place.
+     *
+     * @param value the value to delete; must not be null
+     * @return {@code true} if the value was found and removed
+     * @throws NullPointerException if {@code value} is null
+     */
+    public boolean deleteByMerging(T value) {
+        Objects.requireNonNull(value, "value");
+        BSTNode<T> parent = null;
+        BSTNode<T> node = root;
+        while (node != null) {
+            int cmp = value.compareTo(node.value);
+            if (cmp == 0) {
+                break;
+            }
+            parent = node;
+            node = cmp < 0 ? node.left : node.right;
+        }
+        if (node == null) {
+            return false;
+        }
+        BSTNode<T> replacement;
+        if (node.left == null) {
+            replacement = node.right;
+        } else {
+            replacement = node.left;
+            BSTNode<T> rightmost = node.left;
+            while (rightmost.right != null) {
+                rightmost = rightmost.right;
+            }
+            rightmost.right = node.right;
+        }
+        replaceChild(parent, node, replacement);
+        size--;
+        return true;
+    }
+
+    /** Puts {@code replacement} where {@code child} hung under {@code parent} (or at the root). */
+    private void replaceChild(BSTNode<T> parent, BSTNode<T> child, BSTNode<T> replacement) {
+        if (parent == null) {
+            root = replacement;
+        } else if (parent.left == child) {
+            parent.left = replacement;
+        } else {
+            parent.right = replacement;
+        }
+    }
+
+    /**
+     * @return an independent copy of this tree. Changing either tree never affects the other.
+     */
+    public BinarySearchTree<T> copy() {
+        BinarySearchTree<T> clone = new BinarySearchTree<>();
+        clone.size = size;
+        if (root == null) {
+            return clone;
+        }
+        Deque<BSTNode<T>> originals = new ArrayDeque<>();
+        Deque<BSTNode<T>> duplicates = new ArrayDeque<>();
+        clone.root = new BSTNode<>(root.value);
+        originals.push(root);
+        duplicates.push(clone.root);
+        while (!originals.isEmpty()) {
+            BSTNode<T> source = originals.pop();
+            BSTNode<T> target = duplicates.pop();
+            if (source.left != null) {
+                target.left = new BSTNode<>(source.left.value);
+                originals.push(source.left);
+                duplicates.push(target.left);
+            }
+            if (source.right != null) {
+                target.right = new BSTNode<>(source.right.value);
+                originals.push(source.right);
+                duplicates.push(target.right);
+            }
+        }
+        return clone;
+    }
+
+    /**
+     * Replaces this tree's contents with a copy of another tree's, in place. The other tree
+     * is not shared, so later changes to this tree never reach it.
+     *
+     * @param other the tree to copy from; must not be null
+     * @throws NullPointerException if {@code other} is null
+     */
+    public void restoreFrom(BinarySearchTree<T> other) {
+        Objects.requireNonNull(other, "other");
+        BinarySearchTree<T> snapshot = other.copy();
+        root = snapshot.root;
+        size = snapshot.size;
+    }
+
 }

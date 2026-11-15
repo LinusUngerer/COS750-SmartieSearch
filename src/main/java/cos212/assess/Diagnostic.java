@@ -1,7 +1,10 @@
 package cos212.assess;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -9,6 +12,9 @@ import java.util.Set;
  * The diagnostic gate. It has {@value #ITEM_COUNT} items, and a student passes with at
  * least {@value #PASS_MARK} correct. Each wrong answer routes the student to the lesson
  * for its misconception, and the gate records those lessons so the result can name them.
+ *
+ * <p>Once a student has passed, the gate stays open ({@link #unlocked()}) even if they
+ * retake the diagnostic, and that fact is saved with the student's progress.
  */
 public final class Diagnostic {
 
@@ -18,6 +24,7 @@ public final class Diagnostic {
     private int answered;
     private int correct;
     private final Set<String> missedLessons = new LinkedHashSet<>();
+    private boolean passedBefore;
 
     /**
      * Records the answer to one item.
@@ -36,6 +43,9 @@ public final class Diagnostic {
             correct++;
         } else {
             missedLessons.add(lessonIfWrong);
+        }
+        if (passed()) {
+            passedBefore = true;
         }
     }
 
@@ -61,6 +71,55 @@ public final class Diagnostic {
     /** @return whether the gate is complete and the student reached the pass mark */
     public boolean passed() {
         return isComplete() && correct >= PASS_MARK;
+    }
+
+    /**
+     * @return whether the tree activities are open: the student has passed the gate now or
+     *         on an earlier attempt, including in an earlier session
+     */
+    public boolean unlocked() {
+        return passedBefore || passed();
+    }
+
+    /**
+     * @return the part of the diagnostic that is saved: whether the gate has ever been passed,
+     *         and the current attempt, so a student can resume where they stopped
+     */
+    Map<String, Object> snapshot() {
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("passedBefore", unlocked());
+        out.put("answered", answered);
+        out.put("correct", correct);
+        out.put("missedLessons", new ArrayList<Object>(missedLessons));
+        return out;
+    }
+
+    /**
+     * Restores the saved state, including an attempt in progress. Nothing changes if the
+     * data is invalid. An empty map clears the attempt and forgets that the gate was passed.
+     *
+     * @param data a map in the form {@link #snapshot()} produces
+     * @throws IllegalArgumentException if the data is malformed
+     */
+    void restore(Map<String, Object> data) {
+        boolean savedPassed = Json.flag(data, "passedBefore");
+        int savedAnswered = Json.count(data, "answered");
+        int savedCorrect = Json.count(data, "correct");
+        if (savedAnswered > ITEM_COUNT || savedCorrect > savedAnswered) {
+            throw new IllegalArgumentException("diagnostic attempt counts are out of range");
+        }
+        Set<String> savedMissed = new LinkedHashSet<>();
+        for (Object lesson : Json.list(data, "missedLessons")) {
+            if (!(lesson instanceof String name)) {
+                throw new IllegalArgumentException("missedLessons must hold lesson names");
+            }
+            savedMissed.add(name);
+        }
+        reset();
+        answered = savedAnswered;
+        correct = savedCorrect;
+        missedLessons.addAll(savedMissed);
+        passedBefore = savedPassed;
     }
 
     /** @return the lessons for the wrong answers, in the order they were missed */

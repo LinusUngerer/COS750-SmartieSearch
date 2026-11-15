@@ -7,8 +7,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 /** Builders for the controls, so every screen uses the classes defined in app.css. */
@@ -20,6 +18,21 @@ final class Ui {
     static <T extends Node> T css(T node, String... classes) {
         node.getStyleClass().addAll(classes);
         return node;
+    }
+
+    /** Style class that outlines a card the guided tour is pointing at. */
+    static final String SPOTLIGHT = "spotlight";
+    /** Style class that makes a button glow while the guided tour asks the student to press it. */
+    static final String FLASH = "flash";
+    /** Style class that does the same for a text field. */
+    static final String FLASH_FIELD = "flash-field";
+
+    /** Adds or removes a style class, so a highlight is a class and never an inline style. */
+    static void toggle(Node node, String styleClass, boolean on) {
+        node.getStyleClass().remove(styleClass);
+        if (on) {
+            node.getStyleClass().add(styleClass);
+        }
     }
 
     static Label pageTitle(String text) {
@@ -36,12 +49,6 @@ final class Ui {
         return label;
     }
 
-    static Label tag(String text) {
-        Label label = css(new Label(text), "tag");
-        label.setMinWidth(Region.USE_PREF_SIZE);
-        return label;
-    }
-
     static Label mono(String text) {
         return css(new Label(text), "mono");
     }
@@ -52,24 +59,8 @@ final class Ui {
         return box;
     }
 
-    /** A title with an optional requirement tag beside it. */
-    static HBox titleRow(String text, String tagText) {
-        HBox box = row(8, title(text));
-        if (tagText != null) {
-            box.getChildren().add(tag(tagText));
-        }
-        return box;
-    }
-
-    /** A wrapping note followed by requirement tags. */
-    static HBox noteWithTags(String text, String... tags) {
-        Label label = note(text);
-        HBox box = row(6, label);
-        HBox.setHgrow(label, Priority.ALWAYS);
-        for (String tagText : tags) {
-            box.getChildren().add(tag(tagText));
-        }
-        return box;
+    static HBox titleRow(String text) {
+        return row(8, title(text));
     }
 
     static VBox card(Node... children) {
@@ -88,8 +79,14 @@ final class Ui {
         return css(new Button(text), "btn-off");
     }
 
-    static Button tab(String text) {
-        return css(new Button(text), "tab");
+    static Button nav(String text, String section) {
+        Label dot = css(new Label("●"), "nav-dot", "nav-dot-" + section);
+        Button button = css(new Button(text, dot), "nav-item");
+        button.setMaxWidth(Double.MAX_VALUE);
+        button.setPrefHeight(54);
+        button.setAlignment(Pos.CENTER_LEFT);
+        button.setGraphicTextGap(14);
+        return button;
     }
 
     /** A progress bar for a fraction from 0 to 1. */
@@ -97,6 +94,20 @@ final class Ui {
         ProgressBar bar = css(new ProgressBar(fraction), "wf-bar");
         bar.setMaxWidth(Double.MAX_VALUE);
         return bar;
+    }
+
+    /**
+     * A text description of the tree on the canvas, shown under it when "Describe trees in
+     * text" is on in Settings. Screen readers get the same text from the canvas itself.
+     */
+    static Label treeDescription(TreeCanvas canvas) {
+        Label text = css(new Label(), "tree-description");
+        text.setWrapText(true);
+        text.setMaxWidth(Double.MAX_VALUE);
+        text.textProperty().bind(canvas.descriptionProperty());
+        text.visibleProperty().bind(Settings.current().describeTreesProperty());
+        text.managedProperty().bind(text.visibleProperty());
+        return text;
     }
 
     /** The status chip for an objective, with the wording used in the wireframes. */
