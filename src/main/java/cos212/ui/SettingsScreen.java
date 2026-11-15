@@ -140,7 +140,9 @@ final class SettingsScreen extends VBox {
         Label check = Ui.note("Colour is never the only signal: answers also carry a tick or cross and a word, and"
                 + " the current tree node has a thick outline. Every filter keeps text contrast at WCAG AA"
                 + " (4.5:1) or better.");
-        return Ui.card(Ui.title("Colour filters"), reset, divider, choices, swatches, described, check);
+        return Ui.card(Ui.title("Colour filters"),
+                Ui.note("The colour-blindness filters simulate how the app looks with that type of colour vision."),
+                reset, divider, choices, swatches, described, check);
     }
 
     /** A sample of how one state looks in a palette, drawn with that palette's colours. */

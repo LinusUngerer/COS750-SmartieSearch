@@ -26,7 +26,7 @@ final class ProgressScreen extends VBox {
         this.tracker = tracker;
         this.backToLessons = backToLessons;
         getStyleClass().add("progress-page");
-        setSpacing(12);
+        setSpacing(16);
         setPadding(new Insets(22, 28, 22, 28));
         refresh();
     }
@@ -42,17 +42,13 @@ final class ProgressScreen extends VBox {
         HBox backRow = Ui.row(8, back);
         backRow.setAlignment(Pos.CENTER_RIGHT);
         backRow.setPadding(new Insets(6, 0, 0, 0));
-        Region rule = new Region();
-        rule.getStyleClass().add("progress-rule");
-        rule.setMinHeight(1);
-        rule.setPrefHeight(1);
-        rule.setMaxHeight(1);
-        getChildren().setAll(header(), rule, masteryGuide(), objectivesHeader(), rows, backRow);
+        getChildren().setAll(header(), masteryGuide(), objectivesHeader(), rows, backRow);
     }
 
     private HBox header() {
         Label subtitle = Ui.css(new Label("See what you have practised so far, and where to focus next."),
                 "subtitle");
+        subtitle.setWrapText(true);
         long secure = Objectives.ALL.stream()
                 .filter(objective -> tracker.status(objective.id()) == ProgressTracker.Status.SECURE)
                 .count();
@@ -68,13 +64,9 @@ final class ProgressScreen extends VBox {
         summary.getStyleClass().add("progress-summary");
         summary.setMinWidth(Region.USE_PREF_SIZE);
 
-        Label dot = Ui.css(new Label("\u25CF"), "progress-dot");
-        HBox titleRow = Ui.row(10, dot, Ui.css(Ui.pageTitle("Progress"), "progress-title"));
-        VBox copy = new VBox(10, titleRow, subtitle);
+        VBox copy = new VBox(4, Ui.pageTitle("Progress"), subtitle);
         HBox.setHgrow(copy, Priority.ALWAYS);
         HBox header = Ui.row(14, copy, summary);
-        header.getStyleClass().add("progress-header");
-        header.setAlignment(Pos.CENTER_LEFT);
         return header;
     }
 

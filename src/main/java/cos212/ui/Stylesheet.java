@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 /**
  * Builds the app's stylesheet from app.css and the current settings. Every font size (and the
  * fixed heights of controls that hold text) is multiplied by the text size scale, and every
- * colour is passed through the chosen palette, so one change applies to every screen at once.
+ * colour (hex and rgba) is passed through the chosen palette, so one change applies to every screen at once.
  * The result is handed to JavaFX as a data URI.
  */
 final class Stylesheet {
@@ -20,6 +20,9 @@ final class Stylesheet {
     private static final Pattern SIZE =
             Pattern.compile("(-fx-(?:font-size|pref-height|min-height):\\s*)(\\d+(?:\\.\\d+)?)(px)?");
     private static final Pattern COLOUR = Pattern.compile("#[0-9A-Fa-f]{6}\\b");
+    /** The colour part of rgba(r, g, b, a): shadows, overlays and glows, which also need the palette. */
+    private static final Pattern RGBA =
+            Pattern.compile("rgba\\(\\s*(\\d{1,3})\\s*,\\s*(\\d{1,3})\\s*,\\s*(\\d{1,3})\\s*,");
 
     /** A thick amber outline on whatever has keyboard focus, for keyboard-only and low-vision use. */
     static final String STRONG_FOCUS = """
@@ -72,7 +75,26 @@ final class Stylesheet {
             colours.appendReplacement(mapped, Matcher.quoteReplacement(palette.map(colours.group())));
         }
         colours.appendTail(mapped);
-        return mapped.toString();
+        return mapRgba(mapped.toString(), palette);
+    }
+
+    /** Passes the red, green and blue of every rgba(...) colour through the palette; alpha is kept. */
+    private static String mapRgba(String css, Palette palette) {
+        if (palette == Palette.STANDARD) {
+            return css;
+        }
+        Matcher rgba = RGBA.matcher(css);
+        StringBuilder out = new StringBuilder();
+        while (rgba.find()) {
+            String hex = String.format("#%02X%02X%02X", Math.min(255, Integer.parseInt(rgba.group(1))),
+                    Math.min(255, Integer.parseInt(rgba.group(2))), Math.min(255, Integer.parseInt(rgba.group(3))));
+            String mappedHex = palette.map(hex);
+            rgba.appendReplacement(out, Matcher.quoteReplacement("rgba(" + Integer.parseInt(mappedHex.substring(1, 3), 16)
+                    + ", " + Integer.parseInt(mappedHex.substring(3, 5), 16)
+                    + ", " + Integer.parseInt(mappedHex.substring(5, 7), 16) + ","));
+        }
+        rgba.appendTail(out);
+        return out.toString();
     }
 
     private static synchronized String base() {
