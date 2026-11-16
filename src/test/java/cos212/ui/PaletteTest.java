@@ -10,6 +10,10 @@ import org.junit.jupiter.api.Test;
  * (4.5:1), and the colours for correct and wrong answers must stay distinct (CIELAB
  * difference of at least 15) for the colour-vision types each palette is designed for,
  * simulated with the Machado, Oliveira and Fernandes (2009) matrices at full severity.
+ *
+ * <p>The colour-blindness palettes are already simulations, so their colours are compared as
+ * {@code Palette.map} returns them; running them through a matrix a second time would
+ * simulate the deficiency twice. Only the Standard palette is passed through the matrices.
  */
 class PaletteTest {
 
@@ -49,19 +53,23 @@ class PaletteTest {
 
     @Test
     void redGreenPaletteKeepsCorrectAndWrongDistinctForProtanopiaAndDeuteranopia() {
-        assertDistinct(Palette.PROTANOPIA, PROTAN, "protanopia");
-        assertDistinct(Palette.DEUTERANOPIA, DEUTAN, "deuteranopia");
+        assertDistinct(Palette.PROTANOPIA, null, "protanopia", 1);
+        assertDistinct(Palette.DEUTERANOPIA, null, "deuteranopia", 1);
     }
 
     @Test
     void blueYellowPaletteKeepsCorrectAndWrongDistinctForTritanopia() {
-        assertDistinct(Palette.BLUE_YELLOW, TRITAN, "tritanopia");
+        assertDistinct(Palette.BLUE_YELLOW, null, "tritanopia", 2);
     }
 
     /**
      * The Standard palette's pale feedback-panel backgrounds are only 13.9 apart even for
      * normal vision, so only its borders and pills are checked; the panels also carry an icon
-     * and a heading, and sit under an answer card with a strong coloured border.
+     * and a heading, and sit under an answer card with a strong coloured border. The same
+     * holds for the simulations: the strong answer borders are checked for every type, the
+     * pills too for tritanopia, but the pale pills and panels of a red-green simulation are
+     * close by nature (a person with that deficiency really cannot tell the tints apart), so
+     * the verdict word and the tick or cross carry the meaning there (NFR5).
      */
     @Test
     void standardPaletteBordersAndPillsAreDistinctForNormalVisionAndTritanopia() {
@@ -81,9 +89,20 @@ class PaletteTest {
     }
 
     @Test
-    void coloursAPaletteDoesNotNameAreLeftAlone() {
-        assertEquals("#123456", Palette.DEUTERANOPIA.map("#123456"));
+    void standardLeavesColoursAlone() {
+        assertEquals("#123456", Palette.STANDARD.map("#123456"));
         assertEquals("#17805A", Palette.STANDARD.map("#17805a"));
+    }
+
+    @Test
+    void simulationsPinTheCoreColoursAndSimulateEveryOtherColour() {
+        // Pinned to the reference palette (Deutan.png), whatever the matrix would give.
+        assertEquals("#00296E", Palette.DEUTERANOPIA.map("#021B6E"));
+        // Not pinned, so it follows the deuteranopia matrix (this is the old "#123456" case).
+        assertEquals("#1C3356", Palette.DEUTERANOPIA.map("#123456"));
+        // White and black stay as they are (every matrix row sums to one).
+        assertEquals("#FFFFFF", Palette.PROTANOPIA.map("#FFFFFF"));
+        assertEquals("#000000", Palette.BLUE_YELLOW.map("#000000"));
     }
 
     private static void assertDistinct(Palette palette, double[][] deficiency, String who) {

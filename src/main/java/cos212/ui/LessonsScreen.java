@@ -20,13 +20,6 @@ import javafx.scene.layout.VBox;
  */
 final class LessonsScreen extends VBox {
 
-    private static final String SPOTLIGHT_STYLE = "-fx-border-color: #003380; -fx-border-width: 2.5; -fx-border-radius: 14; -fx-background-radius: 14;"
-            + "-fx-effect: dropshadow(three-pass-box, rgba(0, 51, 128, 0.28), 16, 0.2, 0, 2);";
-
-    private static final String FLASH_BTN_STYLE = "-fx-background-color: #FEF3C7; -fx-border-color: #D97706; -fx-border-width: 2.5;"
-            + "-fx-text-fill: #78350F; -fx-font-weight: bold;"
-            + "-fx-effect: dropshadow(three-pass-box, rgba(245, 158, 11, 0.65), 10, 0.25, 0, 0);";
-
     private final ProgressTracker tracker;
     private final Diagnostic diagnostic;
     private final Runnable startDiagnostic;
@@ -100,7 +93,7 @@ final class LessonsScreen extends VBox {
         });
 
         VBox card = Ui.card(Ui.row(10, chip, title), body, Ui.row(8, startL0, dismiss));
-        card.setStyle(SPOTLIGHT_STYLE);
+        Ui.toggle(card, Ui.SPOTLIGHT, true);
         return card;
     }
 
@@ -148,7 +141,7 @@ final class LessonsScreen extends VBox {
                 card.setDisable(true);
                 card.setOpacity(0.35);
             } else if (showWelcome && isFirstLesson) {
-                card.setStyle(SPOTLIGHT_STYLE);
+                Ui.toggle(card, Ui.SPOTLIGHT, true);
             }
             HBox.setHgrow(card, Priority.ALWAYS);
             row.getChildren().add(card);
@@ -170,7 +163,7 @@ final class LessonsScreen extends VBox {
         }
         Button open = openButton(lesson);
         if (showWelcome && highlightOpen) {
-            open.setStyle(FLASH_BTN_STYLE);
+            Ui.toggle(open, Ui.FLASH, true);
         }
         open.setMaxWidth(Double.MAX_VALUE);
         VBox card = Ui.card(id, Ui.title(lesson.title()), Ui.note(lesson.description()), objectives, open);

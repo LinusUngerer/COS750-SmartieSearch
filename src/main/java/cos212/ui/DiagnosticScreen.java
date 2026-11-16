@@ -35,9 +35,6 @@ final class DiagnosticScreen extends VBox {
             "There is no time limit. If you miss 2 or more questions, the app will point you straight to the lesson that explains that exact rule."
     };
 
-    private static final String SPOTLIGHT_STYLE = "-fx-border-color: #003380; -fx-border-width: 2.5; -fx-border-radius: 14; -fx-background-radius: 14;"
-            + "-fx-effect: dropshadow(three-pass-box, rgba(0, 51, 128, 0.28), 16, 0.2, 0, 2);";
-
     private final List<DiagnosticBank.Item> items = DiagnosticBank.ITEMS;
     private final ProgressTracker tracker;
     private final Diagnostic diagnostic;
@@ -141,7 +138,7 @@ final class DiagnosticScreen extends VBox {
                 Ui.row(10, guideStepChip, guideTitle),
                 guideBody,
                 Ui.row(8, guidePrevBtn, guideNextBtn, startBtn));
-        guideBanner.setStyle(SPOTLIGHT_STYLE);
+        Ui.toggle(guideBanner, Ui.SPOTLIGHT, true);
         updateGuideText();
     }
 
